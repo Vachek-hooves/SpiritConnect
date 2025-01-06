@@ -2,7 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   TabDiary,
-  TabMainScreeen,
+  TabMainScreen,
   TabPractices,
   TabProfile,
 } from '../screen/tab';
@@ -15,7 +15,7 @@ const TabMenu = () => {
         headerShown: false,
         animation: 'fade',
       }}>
-      <Tab.Screen name="TabMainScreen" component={TabMainScreeen} />
+      <Tab.Screen name="TabMainScreen" component={TabMainScreen} />
       <Tab.Screen name="TabPractices" component={TabPractices} />
       <Tab.Screen name="TabDiary" component={TabDiary} />
       <Tab.Screen name="TabProfile" component={TabProfile} />
