@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, Image, TouchableOpacity, Vibration} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {usePracticeContext} from '../../store/context';
 
@@ -15,6 +15,7 @@ const StackPracticeDetail = ({route, navigation}) => {
       }, 1000);
     } else if (timeLeft === 0) {
       setIsActive(false);
+      Vibration.vibrate();
     }
     return () => clearInterval(timer);
   }, [isActive, timeLeft]);
