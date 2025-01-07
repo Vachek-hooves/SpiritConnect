@@ -15,7 +15,7 @@ const StackCreateMood = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
-
+  
   const handleSave = () => {
     const newMoodNote = {
       heading,
@@ -55,6 +55,7 @@ const StackCreateMood = ({navigation}) => {
 
       <Text style={styles.moodLabel}>Mood</Text>
       <Slider
+ 
         style={styles.slider}
         minimumValue={0}
         maximumValue={10}
@@ -62,11 +63,14 @@ const StackCreateMood = ({navigation}) => {
         maximumTrackTintColor="#393158"
         value={mood}
         onValueChange={setMood}
-        
+        thumbTintColor="#4D81F9"
+        trackThickness={5}
+    thumbSize={12}
       />
-      <Text style={styles.moodText}>
-        {mood === 0 ? 'Sadness' : mood === 1 ? 'Happiness' : 'Neutral'}
-      </Text>
+      {/* <Text style={styles.moodText}>
+        {mood === 0 ? 'Sadness' :  'Happiness' }
+      </Text> */}
+
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
@@ -78,6 +82,7 @@ const StackCreateMood = ({navigation}) => {
 export default StackCreateMood;
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
@@ -107,7 +112,9 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: '100%',
-    height: 40,
+    height: 60,
+    marginTop: 20,
+    marginBottom: 20,
   },
   moodText: {
     color: '#fff',
