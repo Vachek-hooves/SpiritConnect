@@ -4,6 +4,7 @@ import {
   StackBreath,
   StackMeditation,
   StackNotification,
+  StackPracticeDetail,
   StackPracticeScreen,
   StackYoga,
   WelcomeScreen,
@@ -35,6 +36,10 @@ function App() {
           <Stack.Screen
             name="StackPracticeScreen"
             component={StackPracticeScreen}
+          />
+          <Stack.Screen
+            name="StackPracticeDetail"
+            component={StackPracticeDetail}
           />
         </Stack.Navigator>
       </NavigationContainer>

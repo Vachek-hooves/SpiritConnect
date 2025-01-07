@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 25,
     gap: 10,
   },
   sectionTitle: {
