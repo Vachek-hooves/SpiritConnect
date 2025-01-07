@@ -10,7 +10,8 @@ export const PracticeProvider = ({children}) => {
         yoga: [],
         breathing: []
     })
-    console.log(practices)
+    const [moodNotes, setMoodNotes] = useState([])
+    console.log(moodNotes)
 
     const initializeData = async () => {
         try {
@@ -41,8 +42,32 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
+    const addMoodNote = async (newMoodNote) => {
+        try {
+            const updatedMoodNotes = [...moodNotes, newMoodNote]
+            await AsyncStorage.setItem('moodNotes', JSON.stringify(updatedMoodNotes))
+            setMoodNotes(updatedMoodNotes)
+        } catch (error) {
+            console.error('Error adding mood note:', error)
+        }
+    }
+
+    // Initialize mood notes from AsyncStorage
+    const initializeMoodNotes = async () => {
+        try {
+            const savedMoodNotes = await AsyncStorage.getItem('moodNotes')
+            if (savedMoodNotes) {
+                setMoodNotes(JSON.parse(savedMoodNotes))
+            }
+        } catch (error) {
+            console.error('Error initializing mood notes:', error)
+        }
+    }
+
+    // Call initialize functions in useEffect
     useEffect(() => {
         initializeData()
+        initializeMoodNotes()
     }, [])
 
     const togglePracticeCompletion = async (type, id) => {
@@ -85,7 +110,8 @@ export const PracticeProvider = ({children}) => {
             value={{
                 practices,
                 togglePracticeCompletion,
-                completePractice
+                completePractice,
+                addMoodNote
             }}
         >
             {children}

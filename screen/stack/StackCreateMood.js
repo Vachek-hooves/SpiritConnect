@@ -16,16 +16,28 @@ const StackCreateMood = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
+  console.log(mood)
 
   const handleSave = () => {
+    const moodText = getMoodText(mood); // Get mood text based on slider value
     const newMoodNote = {
+      id: Date.now(),
       heading,
       description,
       date,
-      mood,
+      mood: moodText,
     };
-    addMoodNote(newMoodNote); // Call the function to save the mood note
-    navigation.goBack(); // Navigate back after saving
+    console.log(newMoodNote)
+    addMoodNote(newMoodNote);
+    navigation.goBack();
+  };
+
+  const getMoodText = (value) => {
+    if (value <= 0.2) return 'Very Sad';
+    if (value <= 0.4) return 'Sad';
+    if (value <= 0.6) return 'Neutral';
+    if (value <= 0.8) return 'Happy';
+    return 'Very Happy';
   };
 
   return (
@@ -68,18 +80,17 @@ const StackCreateMood = ({navigation}) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={10}
+        maximumValue={1}
         minimumTrackTintColor="#8B5CF6"
         maximumTrackTintColor="#393158"
         value={mood}
         onValueChange={setMood}
         thumbTintColor="#4D81F9"
-        trackThickness={5}
-        thumbSize={12}
+        // trackThickness={5}
+        // thumbSize={52}
       />
-      {/* <Text style={styles.moodText}>
-        {mood === 0 ? 'Sadness' :  'Happiness' }
-      </Text> */}
+      
+      <Text style={styles.moodText}>{getMoodText(mood)}</Text>
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
@@ -148,6 +159,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    marginTop: '10%',
   },
   saveButtonText: {
     color: '#000',
