@@ -33,14 +33,16 @@ const PracticeCard = ({item, type, onToggleComplete}) => (
   </TouchableOpacity>
 );
 
-const SectionHeader = ({title}) => (
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    <Text style={styles.sectionArrow}>{'>'}</Text>
-  </View>
-);
+const SectionHeader = ({title, onPress}) => {
+  return (
+    <TouchableOpacity style={styles.sectionHeader} onPress={onPress}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionArrow}>{'>'}</Text>
+    </TouchableOpacity>
+  );
+};
 
-const TabMainScreen = () => {
+const TabMainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
   // console.log(practices);
   return (
@@ -62,7 +64,10 @@ const TabMainScreen = () => {
         <Text style={styles.createButtonText}>Create new practice</Text>
       </TouchableOpacity>
 
-      <SectionHeader title="Meditations" />
+      <SectionHeader
+        title="Meditations"
+        onPress={() => navigation.navigate('StackMeditation')}
+      />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
