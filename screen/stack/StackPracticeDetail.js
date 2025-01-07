@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: 'auto',
+    marginVertical:20
   },
   createButtonText: {
     color: '#EC4899',
