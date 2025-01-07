@@ -10,6 +10,7 @@ export const PracticeProvider = ({children}) => {
         yoga: [],
         breathing: []
     })
+    console.log(practices)
 
     const initializeData = async () => {
         try {
@@ -61,11 +62,30 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
+     // New function to mark a practice as completed
+     const completePractice = async (type, id) => {
+        try {
+            const updatedPractices = {
+                ...practices,
+                [type]: practices[type].map(practice => 
+                    practice.id === id 
+                        ? { ...practice, isCompleted: true }
+                        : practice
+                )
+            };
+            await AsyncStorage.setItem(type, JSON.stringify(updatedPractices[type]));
+            setPractices(updatedPractices);
+        } catch (error) {
+            console.error('Error completing practice:', error);
+        }
+    };
+
     return (
         <PracticeContext.Provider 
             value={{
                 practices,
-                togglePracticeCompletion
+                togglePracticeCompletion,
+                completePractice
             }}
         >
             {children}

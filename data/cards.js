@@ -10,7 +10,7 @@ export const meditation = [
     {
         id: 2,
         name: "Candle Gazing Meditation",
-        duration: 15,
+        duration: 1,
         image: require("../assets/images/cards/meditation2.png"),
         text:'Candle gazing, or Trataka, is an ancient technique that improves focus and calms the mind. Sit in front of a lit candle about a meter away. Focus your gaze on the flame without blinking for as long as you can. This practice strengthens vision, develops patience, and fosters inner harmony.',
         isCompleted: false
@@ -29,7 +29,7 @@ export const meditation = [
 export const yoga = [
     {
         id: 1,
-        name: " Sun Salutation (Surya Namaskar)",
+        name: "Sun Salutation (Surya Namaskar)",
         duration: 20,
         image: require("../assets/images/cards/yoga1.png"),
         text:'This practice involves standing up, stretching your arms and legs, and bowing to the sun. It helps wake up your body, energize your mind, and align your body with the natural world.',
@@ -38,7 +38,7 @@ export const yoga = [
     {
         id: 2,
         name: "Tree Pose",
-        duration: 10,
+        duration: 1,
         image: require("../assets/images/cards/yoga2.png"),
         text:'Vrikshasana enhances balance and concentration. Stand straight, shift your weight onto one leg, and lift the other, placing the foot against the inner thigh of the standing leg. Join your palms together at your chest or raise them overhead. This pose strengthens leg muscles and improves posture.',
         isCompleted: false

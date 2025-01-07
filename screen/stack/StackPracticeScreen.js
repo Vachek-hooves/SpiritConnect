@@ -12,7 +12,9 @@ import {usePracticeContext} from '../../store/context';
 const PracticeItem = ({item, type, onToggleComplete, navigation}) => (
   <TouchableOpacity
     style={styles.practiceItem}
-    onPress={() => navigation.navigate('StackPracticeDetail', {item, type})}>
+    onPress={() =>
+      navigation.navigate('StackPracticeDetail', {item, practiceType: type})
+    }>
     <Image source={item.image} style={styles.practiceImage} />
     <View style={styles.practiceContent}>
       <Text style={styles.practiceTitle}>{item.name}</Text>

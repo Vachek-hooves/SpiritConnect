@@ -10,31 +10,38 @@ import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
 
-const PracticeCard = ({item, type, onToggleComplete, navigation}) => (
-  <TouchableOpacity
-    style={styles.card}
-    onPress={() => navigation.navigate('StackPracticeDetail', {item, type})}>
-    <Image source={item.image} style={styles.cardImage} />
-    <View style={styles.cardContent}>
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardDescription} numberOfLines={1}>
-        {item.text}
-      </Text>
-    </View>
+const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
+  console.log(item.name,item.isCompleted);
+  
+  return (
     <TouchableOpacity
-      style={styles.checkButton}
-      onPress={() => onToggleComplete(type, item.id)}>
-      <View
-        style={[
-          styles.checkCircle,
-          item.isCompleted && styles.checkCircleCompleted,
-        ]}>
-        {item.isCompleted && <Text style={styles.checkMark}>✓</Text>}
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate('StackPracticeDetail', {item, practiceType: type})
+      }>
+      <Image source={item.image} style={styles.cardImage} />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <Text style={styles.cardDescription} numberOfLines={1}>
+          {item.text}
+        </Text>
       </View>
+      <TouchableOpacity
+        disabled
+        style={styles.checkButton}
+        onPress={() => onToggleComplete(type, item.id)}
+        >
+        <View
+          style={[
+            styles.checkCircle,
+            item.isCompleted && styles.checkCircleCompleted,
+          ]}>
+          {item.isCompleted && <Text style={styles.checkMark}>✓</Text>}
+        </View>
+      </TouchableOpacity>
     </TouchableOpacity>
-  </TouchableOpacity>
-);
-
+  );
+};
 const SectionHeader = ({title, onPress}) => (
   <TouchableOpacity style={styles.sectionHeader} onPress={onPress}>
     <Text style={styles.sectionTitle}>{title}</Text>
@@ -46,6 +53,7 @@ const TabMainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
 
   const handleSectionPress = (type, title) => {
+    console.log(type, 'type');
     navigation.navigate('StackPracticeScreen', {
       practiceType: type,
       practices: practices[type],

@@ -4,8 +4,10 @@ import {usePracticeContext} from '../../store/context';
 
 const StackPracticeDetail = ({route, navigation}) => {
   const {practiceType, item} = route.params;
+  const {completePractice} = usePracticeContext();
   const [timeLeft, setTimeLeft] = useState(item.duration * 60);
   const [isActive, setIsActive] = useState(false);
+  console.log(practiceType)
 
   useEffect(() => {
     let timer;
@@ -16,6 +18,7 @@ const StackPracticeDetail = ({route, navigation}) => {
     } else if (timeLeft === 0) {
       setIsActive(false);
       Vibration.vibrate();
+      completePractice(practiceType, item.id);
     }
     return () => clearInterval(timer);
   }, [isActive, timeLeft]);
