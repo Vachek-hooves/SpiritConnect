@@ -64,6 +64,16 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
+    const deleteMoodNote = async (date) => {
+        try {
+            const updatedMoodNotes = moodNotes.filter(note => note.date !== date);
+            await AsyncStorage.setItem('moodNotes', JSON.stringify(updatedMoodNotes));
+            setMoodNotes(updatedMoodNotes);
+        } catch (error) {
+            console.error('Error deleting mood note:', error);
+        }
+    };
+
     // Call initialize functions in useEffect
     useEffect(() => {
         initializeData()
@@ -112,7 +122,8 @@ export const PracticeProvider = ({children}) => {
                 togglePracticeCompletion,
                 completePractice,
                 addMoodNote,
-                moodNotes
+                moodNotes,
+                deleteMoodNote
             }}
         >
             {children}

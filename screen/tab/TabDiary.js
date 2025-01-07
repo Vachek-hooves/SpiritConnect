@@ -11,12 +11,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Image} from 'react-native';
 
 const TabDiary = ({navigation}) => {
-  const {moodNotes} = usePracticeContext();
+  const {moodNotes, deleteMoodNote} = usePracticeContext();
   console.log(moodNotes.mood);
 
   // Function to format the date to "D Month"
   const formatDate = dateString => {
-    const [day, month, year] = dateString.split('.'); // Split the date string
+    const [day, month] = dateString.split('.'); // Split the date string
     const monthNames = [
       'January',
       'February',
@@ -64,6 +64,13 @@ const TabDiary = ({navigation}) => {
                 <Text style={styles.moodText}>Sadness</Text>
                 <Text style={styles.moodText}>Happiness</Text>
               </View>
+              <TouchableOpacity onPress={() => deleteMoodNote(note.date)} style={styles.deleteButton}>
+                {/* <Image
+                  source={require('../../assets/images/icons/deleteIcon.png')}
+                  style={styles.deleteIcon}
+                /> */}
+                <Text style={{fontSize: 20}}>🗑️</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
@@ -112,6 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15,
     marginBottom: 15,
+    position: 'relative',
   },
   cardDate: {
     color: '#fff',
@@ -141,6 +149,15 @@ const styles = StyleSheet.create({
   moodText: {
     color: '#fff',
     fontSize: 12,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  deleteIcon: {
+    width: 20,
+    height: 20,
   },
   addButton: {
     backgroundColor: '#00FF7F',
