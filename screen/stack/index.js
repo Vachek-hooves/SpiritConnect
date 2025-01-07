@@ -6,6 +6,7 @@ import StackPracticeScreen from './StackPracticeScreen';
 import StackNotification from './StackNotification';
 import StackPracticeDetail from './StackPracticeDetail';
 import StackCreatePractice from './StackCreatePractice';
+import StackCreateMood from './StackCreateMood';
 
 export {
   WelcomeScreen,
@@ -16,4 +17,5 @@ export {
   StackPracticeScreen,
   StackPracticeDetail,
   StackCreatePractice,
+  StackCreateMood,
 };
