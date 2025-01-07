@@ -9,8 +9,10 @@ import {
 import React from 'react';
 import {usePracticeContext} from '../../store/context';
 
-const PracticeItem = ({item, type, onToggleComplete}) => (
-  <View style={styles.practiceItem}>
+const PracticeItem = ({item, type, onToggleComplete, navigation}) => (
+  <TouchableOpacity
+    style={styles.practiceItem}
+    onPress={() => navigation.navigate('StackPracticeDetail', {item, type})}>
     <Image source={item.image} style={styles.practiceImage} />
     <View style={styles.practiceContent}>
       <Text style={styles.practiceTitle}>{item.name}</Text>
@@ -29,7 +31,7 @@ const PracticeItem = ({item, type, onToggleComplete}) => (
         {item.isCompleted && <Text style={styles.checkMark}>✓</Text>}
       </View>
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 const StackPracticeScreen = ({route, navigation}) => {
@@ -56,6 +58,7 @@ const StackPracticeScreen = ({route, navigation}) => {
             item={item}
             type={practiceType}
             onToggleComplete={togglePracticeCompletion}
+            navigation={navigation}
           />
         ))}
       </ScrollView>
