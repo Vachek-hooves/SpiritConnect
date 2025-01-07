@@ -12,7 +12,7 @@ import {Image} from 'react-native';
 
 const TabDiary = ({navigation}) => {
   const {moodNotes, deleteMoodNote} = usePracticeContext();
-  console.log(moodNotes.mood);
+  console.log(moodNotes);
 
   // Function to format the date to "D Month"
   const formatDate = dateString => {
@@ -58,7 +58,7 @@ const TabDiary = ({navigation}) => {
                 colors={['#8B5CF6', '#00FF7F']}
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}
-                style={[styles.gradient, {width: `${note.mood * 100}%`}]}
+                style={[styles.gradient, {width: `${note.moodLevel * 100}%`}]}
               />
               <View style={styles.moodTextContainer}>
                 <Text style={styles.moodText}>Sadness</Text>
