@@ -4,6 +4,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import React, {useState} from 'react';
 import {usePracticeContext} from '../../store/context';
@@ -15,7 +16,7 @@ const StackCreateMood = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
-  
+
   const handleSave = () => {
     const newMoodNote = {
       heading,
@@ -28,21 +29,30 @@ const StackCreateMood = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView  style={styles.container}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>{'<'} Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Mood of the day</Text>
 
+      <Text style={styles.moodLabel}>Heading</Text>
       <TextInput
         style={styles.input}
         placeholder="Task name"
         value={heading}
         onChangeText={setHeading}
+        placeholderTextColor={'#FFFFFF' + 90}
       />
 
+      <Text style={styles.moodLabel}>Description</Text>
       <TextInput
         style={styles.input}
         placeholder="Task name"
         value={description}
         onChangeText={setDescription}
+        placeholderTextColor={'#FFFFFF' + 90}
       />
 
       <Text style={styles.dateLabel}>Date</Text>
@@ -51,11 +61,11 @@ const StackCreateMood = ({navigation}) => {
         placeholder="DD.MM.YYYY"
         value={date}
         onChangeText={setDate}
+        placeholderTextColor={'#FFFFFF' + 90}
       />
 
       <Text style={styles.moodLabel}>Mood</Text>
       <Slider
- 
         style={styles.slider}
         minimumValue={0}
         maximumValue={10}
@@ -65,28 +75,34 @@ const StackCreateMood = ({navigation}) => {
         onValueChange={setMood}
         thumbTintColor="#4D81F9"
         trackThickness={5}
-    thumbSize={12}
+        thumbSize={12}
       />
       {/* <Text style={styles.moodText}>
         {mood === 0 ? 'Sadness' :  'Happiness' }
       </Text> */}
 
-
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 export default StackCreateMood;
 
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
     padding: 20,
+    paddingTop: 50,
+  },
+  backButton: {
+    marginVertical: 20,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
   title: {
     fontSize: 28,
@@ -95,8 +111,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#1A1A1A',
-    color: '#fff',
+    backgroundColor: '#231D37',
+    color: '#FFFFFF',
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
@@ -104,11 +120,17 @@ const styles = StyleSheet.create({
   dateLabel: {
     color: '#fff',
     marginBottom: 5,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   moodLabel: {
     color: '#fff',
     marginTop: 20,
     marginBottom: 5,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   slider: {
     width: '100%',
