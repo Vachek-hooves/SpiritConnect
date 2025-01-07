@@ -26,6 +26,7 @@ const StackCreateMood = ({navigation}) => {
       description,
       date,
       mood: moodText,
+      moodLevel: mood,
     };
     // console.log(newMoodNote)
     addMoodNote(newMoodNote);
