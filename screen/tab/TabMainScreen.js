@@ -33,18 +33,24 @@ const PracticeCard = ({item, type, onToggleComplete}) => (
   </TouchableOpacity>
 );
 
-const SectionHeader = ({title, onPress}) => {
-  return (
-    <TouchableOpacity style={styles.sectionHeader} onPress={onPress}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <Text style={styles.sectionArrow}>{'>'}</Text>
-    </TouchableOpacity>
-  );
-};
+const SectionHeader = ({title, onPress}) => (
+  <TouchableOpacity style={styles.sectionHeader} onPress={onPress}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    <Text style={styles.sectionArrow}>{'>'}</Text>
+  </TouchableOpacity>
+);
 
 const TabMainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
-  // console.log(practices);
+
+  const handleSectionPress = (type, title) => {
+    navigation.navigate('StackPracticeScreen', {
+      practiceType: type,
+      practices: practices[type],
+      title: title
+    });
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
@@ -66,7 +72,7 @@ const TabMainScreen = ({navigation}) => {
 
       <SectionHeader
         title="Meditations"
-        onPress={() => navigation.navigate('StackMeditation')}
+        onPress={() => handleSectionPress('meditation', 'Meditations')}
       />
       <ScrollView
         horizontal
@@ -82,7 +88,10 @@ const TabMainScreen = ({navigation}) => {
         ))}
       </ScrollView>
 
-      <SectionHeader title="Yoga" />
+      <SectionHeader
+        title="Yoga"
+        onPress={() => handleSectionPress('yoga', 'Yoga')}
+      />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -97,7 +106,10 @@ const TabMainScreen = ({navigation}) => {
         ))}
       </ScrollView>
 
-      <SectionHeader title="Breath practice" />
+      <SectionHeader
+        title="Breath practice"
+        onPress={() => handleSectionPress('breathing', 'Breath Practice')}
+      />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -164,7 +176,6 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
     gap: 10,
@@ -175,10 +186,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   sectionArrow: {
-    fontSize: 22,
-    // color: '#666',
-    fontWeight: 'bold',
+    fontSize: 20,
     color: '#fff',
+    fontWeight: 'bold',
   },
   cardsContainer: {
     marginBottom: 30,
