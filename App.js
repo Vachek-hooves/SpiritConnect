@@ -2,6 +2,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   StackBreath,
+  StackCreatePractice,
   StackMeditation,
   StackNotification,
   StackPracticeDetail,
@@ -40,6 +41,10 @@ function App() {
           <Stack.Screen
             name="StackPracticeDetail"
             component={StackPracticeDetail}
+          />
+          <Stack.Screen
+            name="StackCreatePractice"
+            component={StackCreatePractice}
           />
         </Stack.Navigator>
       </NavigationContainer>

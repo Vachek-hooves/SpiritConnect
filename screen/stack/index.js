@@ -5,6 +5,7 @@ import StackYoga from './StackYoga';
 import StackPracticeScreen from './StackPracticeScreen';
 import StackNotification from './StackNotification';
 import StackPracticeDetail from './StackPracticeDetail';
+import StackCreatePractice from './StackCreatePractice';
 
 export {
   WelcomeScreen,
@@ -14,4 +15,5 @@ export {
   StackNotification,
   StackPracticeScreen,
   StackPracticeDetail,
+  StackCreatePractice,
 };
