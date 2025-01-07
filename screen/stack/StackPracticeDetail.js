@@ -1,14 +1,14 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { usePracticeContext } from '../../store/context';
+import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {usePracticeContext} from '../../store/context';
 
 const StackPracticeDetail = ({route, navigation}) => {
   const {practiceType, item} = route.params;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.backButton} 
+      <TouchableOpacity
+        style={styles.backButton}
         onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
@@ -29,10 +29,10 @@ const StackPracticeDetail = ({route, navigation}) => {
         <Text style={styles.createButtonText}>Create new practice</Text>
       </TouchableOpacity>
     </View>
-  )
-}
+  );
+};
 
-export default StackPracticeDetail
+export default StackPracticeDetail;
 
 const styles = StyleSheet.create({
   container: {
@@ -89,5 +89,5 @@ const styles = StyleSheet.create({
     color: '#EC4899',
     fontSize: 16,
     textAlign: 'center',
-  }
-})
+  },
+});

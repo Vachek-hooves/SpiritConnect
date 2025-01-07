@@ -10,9 +10,10 @@ import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
 
-
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => (
-  <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('StackPracticeDetail', {item, type})}>
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => navigation.navigate('StackPracticeDetail', {item, type})}>
     <Image source={item.image} style={styles.cardImage} />
     <View style={styles.cardContent}>
       <Text style={styles.cardTitle}>{item.name}</Text>
@@ -48,7 +49,7 @@ const TabMainScreen = ({navigation}) => {
     navigation.navigate('StackPracticeScreen', {
       practiceType: type,
       practices: practices[type],
-      title: title
+      title: title,
     });
   };
 
