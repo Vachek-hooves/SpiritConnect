@@ -11,7 +11,7 @@ export const PracticeProvider = ({children}) => {
         breathing: []
     })
     const [moodNotes, setMoodNotes] = useState([])
-    console.log(moodNotes)
+    // console.log(moodNotes)
 
     const initializeData = async () => {
         try {
@@ -111,7 +111,8 @@ export const PracticeProvider = ({children}) => {
                 practices,
                 togglePracticeCompletion,
                 completePractice,
-                addMoodNote
+                addMoodNote,
+                moodNotes
             }}
         >
             {children}

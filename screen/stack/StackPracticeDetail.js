@@ -7,7 +7,7 @@ const StackPracticeDetail = ({route, navigation}) => {
   const {completePractice} = usePracticeContext();
   const [timeLeft, setTimeLeft] = useState(item.duration * 60);
   const [isActive, setIsActive] = useState(false);
-  console.log(practiceType)
+  // console.log(practiceType)
 
   useEffect(() => {
     let timer;

@@ -1,7 +1,9 @@
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
-
+import { usePracticeContext } from '../../store/context';
 const TabDiary = ({navigation}) => {
+  const {moodNotes} = usePracticeContext();
+  console.log(moodNotes)
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mood tracker</Text>

@@ -16,7 +16,7 @@ const StackCreateMood = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
-  console.log(mood)
+  // console.log(mood)
 
   const handleSave = () => {
     const moodText = getMoodText(mood); // Get mood text based on slider value
@@ -27,7 +27,7 @@ const StackCreateMood = ({navigation}) => {
       date,
       mood: moodText,
     };
-    console.log(newMoodNote)
+    // console.log(newMoodNote)
     addMoodNote(newMoodNote);
     navigation.goBack();
   };

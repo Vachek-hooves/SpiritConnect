@@ -11,7 +11,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
 
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
-  console.log(item.name,item.isCompleted);
+  // console.log(item.name,item.isCompleted);
   
   return (
     <TouchableOpacity
