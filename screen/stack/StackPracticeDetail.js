@@ -1,9 +1,32 @@
 import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {usePracticeContext} from '../../store/context';
 
 const StackPracticeDetail = ({route, navigation}) => {
   const {practiceType, item} = route.params;
+  const [timeLeft, setTimeLeft] = useState(item.duration * 60);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (isActive && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prevTime => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsActive(false);
+    }
+    return () => clearInterval(timer);
+  }, [isActive, timeLeft]);
+
+  const handleStart = () => {
+    setIsActive(true);
+  };
+
+  const handleFinish = () => {
+    setIsActive(false);
+    // Handle finishing the practice (e.g., navigate back or show a message)
+  };
 
   return (
     <View style={styles.container}>
@@ -19,11 +42,21 @@ const StackPracticeDetail = ({route, navigation}) => {
         <Image source={item.image} style={styles.image} />
       </View>
 
+      <Text style={styles.timer}>
+        {`${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`}
+      </Text>
+
       <Text style={styles.description}>{item.text}</Text>
 
-      <TouchableOpacity style={styles.startButton}>
-        <Text style={styles.startButtonText}>Start</Text>
-      </TouchableOpacity>
+      {!isActive ? (
+        <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+          <Text style={styles.startButtonText}>Start</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+          <Text style={styles.finishButtonText}>Finish</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={styles.createButton}>
         <Text style={styles.createButtonText}>Create new practice</Text>
@@ -61,8 +94,15 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 260,
+    height: 200,
     resizeMode: 'cover',
+  },
+  timer: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#00FF7F',
+    textAlign: 'center',
+    marginVertical: 20,
   },
   description: {
     fontSize: 16,
@@ -77,8 +117,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
+  finishButton: {
+    backgroundColor: '#EC4899',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   startButtonText: {
     color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  finishButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
