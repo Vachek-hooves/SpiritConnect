@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
 
-const TabDiary = () => {
+const TabDiary = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mood tracker</Text>
@@ -16,7 +16,7 @@ const TabDiary = () => {
       <Text style={styles.message}>
         There aren’t any mood notes yet, please add something
       </Text>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('StackCreateMood')}>
         <Text style={styles.addButtonText}>Add a mood note</Text>
       </TouchableOpacity>
     </View>
