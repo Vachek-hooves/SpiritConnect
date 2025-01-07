@@ -7,16 +7,18 @@ import {
   StackYoga,
   WelcomeScreen,
 } from './screen/stack';
+import { PracticeProvider } from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
 
 const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
+    <PracticeProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
           animation: 'fade',
           animationDuration: 600,
         }}>
@@ -26,8 +28,9 @@ function App() {
         <Stack.Screen name="StackMeditation" component={StackMeditation} />
         <Stack.Screen name="StackBreath" component={StackBreath} />
         <Stack.Screen name="StackNotification" component={StackNotification} />
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PracticeProvider>
   );
 }
 

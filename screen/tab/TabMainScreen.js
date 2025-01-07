@@ -1,9 +1,16 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native'
-import React from 'react'
-import { meditation, yoga, breathing } from '../../data/cards'
-import LinearGradient from 'react-native-linear-gradient'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from 'react-native';
+import React from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import {usePracticeContext} from '../../store/context';
 
-const PracticeCard = ({ item }) => (
+const PracticeCard = ({item, type, onToggleComplete}) => (
   <TouchableOpacity style={styles.card}>
     <Image source={item.image} style={styles.cardImage} />
     <View style={styles.cardContent}>
@@ -12,20 +19,30 @@ const PracticeCard = ({ item }) => (
         {item.text}
       </Text>
     </View>
-    <TouchableOpacity style={styles.checkButton}>
-      <View style={styles.checkCircle} />
+    <TouchableOpacity
+      style={styles.checkButton}
+      onPress={() => onToggleComplete(type, item.id)}>
+      <View
+        style={[
+          styles.checkCircle,
+          item.isCompleted && styles.checkCircleCompleted,
+        ]}>
+        {item.isCompleted && <Text style={styles.checkMark}>✓</Text>}
+      </View>
     </TouchableOpacity>
   </TouchableOpacity>
-)
+);
 
-const SectionHeader = ({ title }) => (
+const SectionHeader = ({title}) => (
   <View style={styles.sectionHeader}>
     <Text style={styles.sectionTitle}>{title}</Text>
     <Text style={styles.sectionArrow}>{'>'}</Text>
   </View>
-)
+);
 
 const TabMainScreen = () => {
+  const {practices, togglePracticeCompletion} = usePracticeContext();
+  // console.log(practices);
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
@@ -35,8 +52,7 @@ const TabMainScreen = () => {
             colors={['#8B5CF6', '#EC4899']}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
-            style={styles.notificationGradient}
-          >
+            style={styles.notificationGradient}>
             <Text style={styles.notificationIcon}>🔔</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -47,48 +63,61 @@ const TabMainScreen = () => {
       </TouchableOpacity>
 
       <SectionHeader title="Meditations" />
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}
-      >
-        {meditation.map((item) => (
-          <PracticeCard key={item.id} item={item} />
+        style={styles.cardsContainer}>
+        {practices.meditation.map(item => (
+          <PracticeCard
+            key={item.id}
+            item={item}
+            type="meditation"
+            onToggleComplete={togglePracticeCompletion}
+          />
         ))}
       </ScrollView>
 
       <SectionHeader title="Yoga" />
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}
-      >
-        {yoga.map((item) => (
-          <PracticeCard key={item.id} item={item} />
+        style={styles.cardsContainer}>
+        {practices.yoga.map(item => (
+          <PracticeCard
+            key={item.id}
+            item={item}
+            type="yoga"
+            onToggleComplete={togglePracticeCompletion}
+          />
         ))}
       </ScrollView>
 
       <SectionHeader title="Breath practice" />
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}
-      >
-        {breathing.map((item) => (
-          <PracticeCard key={item.id} item={item} />
+        style={styles.cardsContainer}>
+        {practices.breathing.map(item => (
+          <PracticeCard
+            key={item.id}
+            item={item}
+            type="breathing"
+            onToggleComplete={togglePracticeCompletion}
+          />
         ))}
       </ScrollView>
     </ScrollView>
-  )
-}
+  );
+};
 
-export default TabMainScreen
+export default TabMainScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
     padding: 20,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
@@ -130,9 +159,10 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
+    gap: 10,
   },
   sectionTitle: {
     fontSize: 20,
@@ -140,8 +170,10 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   sectionArrow: {
-    fontSize: 20,
-    color: '#666',
+    fontSize: 22,
+    // color: '#666',
+    fontWeight: 'bold',
+    color: '#fff',
   },
   cardsContainer: {
     marginBottom: 30,
@@ -188,5 +220,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#fff',
-  }
-})
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkCircleCompleted: {
+    backgroundColor: '#00FF7F',
+    borderColor: '#00FF7F',
+  },
+  checkMark: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
