@@ -164,7 +164,7 @@ const TabProfile = () => {
             style={styles.input}
             value={userData.about}
             onChangeText={text => setUserData(prev => ({...prev, about: text}))}
-            placeholder="Task name"
+            placeholder="What you feel"
             placeholderTextColor="#666"
           />
           {userData.about.length > 0 && (
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
-    paddingTop: 20,
+    paddingTop: 50,
     paddingHorizontal: 10,
   },
   imageContainer: {
