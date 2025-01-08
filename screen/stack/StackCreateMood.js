@@ -139,6 +139,7 @@ const StackCreateMood = ({navigation}) => {
         onSelectDate={handleDateSelect}
         selectedDate={date ? date.split('.').reverse().join('-') : ''}
       />
+      <View style={{height: 100}} />
     </ScrollView>
   );
 };
