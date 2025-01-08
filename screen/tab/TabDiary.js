@@ -55,7 +55,6 @@ const TabDiary = ({navigation}) => {
               style={styles.card}
               onPress={() =>
                 navigation.navigate('MoodState', {
-                 
                   item: note,
                 })
               }>
