@@ -4,11 +4,13 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
   ScrollView,
 } from 'react-native';
 import React, {useState} from 'react';
 import {usePracticeContext} from '../../store/context';
 import Slider from '@react-native-community/slider';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const StackCreateMood = ({navigation}) => {
   const {addMoodNote} = usePracticeContext(); // Get the function to add mood notes
@@ -16,7 +18,24 @@ const StackCreateMood = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
-  // console.log(mood)
+  const [image, setImage] = useState(null);
+
+  // Function to handle image picking
+  const handleImagePick = async () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    try {
+      const result = await launchImageLibrary(options);
+      if (result.assets && result.assets[0]) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+    }
+  };
 
   const handleSave = () => {
     const moodText = getMoodText(mood); // Get mood text based on slider value
@@ -27,6 +46,7 @@ const StackCreateMood = ({navigation}) => {
       date,
       mood: moodText,
       moodLevel: mood,
+      image, // Include image URI in the mood note
     };
     // console.log(newMoodNote)
     addMoodNote(newMoodNote);
@@ -34,11 +54,11 @@ const StackCreateMood = ({navigation}) => {
   };
 
   const getMoodText = (value) => {
-    if (value <= 0.2) return 'Very Sad';
+    if (value <= 0.2) return 'Sadness';
     if (value <= 0.4) return 'Sad';
     if (value <= 0.6) return 'Neutral';
-    if (value <= 0.8) return 'Happy';
-    return 'Very Happy';
+    if (value <= 0.8) return 'Happiness';
+    return 'Happiness';
   };
 
   return (
@@ -62,7 +82,7 @@ const StackCreateMood = ({navigation}) => {
       <Text style={styles.moodLabel}>Description</Text>
       <TextInput
         style={styles.input}
-        placeholder="Task name"
+         placeholder="Task description"
         value={description}
         onChangeText={setDescription}
         placeholderTextColor={'#FFFFFF' + 90}
@@ -90,12 +110,25 @@ const StackCreateMood = ({navigation}) => {
         // trackThickness={5}
         // thumbSize={52}
       />
-      
       <Text style={styles.moodText}>{getMoodText(mood)}</Text>
+
+      <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
+        <Text style={styles.imageButtonText}>Add Image</Text>
+      </TouchableOpacity>
+
+      {image && (
+        <View style={styles.imageContainer}>
+          <Image source={{uri: image}} style={styles.selectedImage} />
+          <TouchableOpacity onPress={() => setImage(null)} style={styles.removeImageButton}>
+            <Text style={styles.removeImageText}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
+      <View style={{height: 100}}></View>
     </ScrollView>
   );
 };
@@ -154,6 +187,41 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginVertical: 10,
+  },
+  imageButton: {
+    backgroundColor: '#1A1A1A',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  imageButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginVertical: 10,
+  },
+  selectedImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeImageText: {
+    color: '#fff',
+    fontSize: 16,
   },
   saveButton: {
     backgroundColor: '#00FF7F',
