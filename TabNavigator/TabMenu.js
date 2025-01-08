@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {TabDiary, TabMainScreen, TabPractices, TabProfile} from '../screen/tab';
+import {Diary, MainScreen, Practices, Profile} from '../screen/tab';
 const Tab = createBottomTabNavigator();
 
 const TabMenu = () => {
@@ -16,7 +16,7 @@ const TabMenu = () => {
       }}>
       <Tab.Screen
         name="Home"
-        component={TabMainScreen}
+        component={MainScreen}
         options={{
           tabBarIcon: ({focused, color}) => (
             <Image
@@ -28,7 +28,7 @@ const TabMenu = () => {
       />
       <Tab.Screen
         name="Practices"
-        component={TabPractices}
+        component={Practices}
         options={{
           tabBarIcon: ({focused, color}) => (
             <Image
@@ -40,7 +40,7 @@ const TabMenu = () => {
       />
       <Tab.Screen
         name="Diary"
-        component={TabDiary}
+        component={Diary}
         options={{
           tabBarIcon: ({focused, color}) => (
             <Image
@@ -52,7 +52,7 @@ const TabMenu = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={TabProfile}
+        component={Profile}
         options={{
           tabBarIcon: ({focused, color}) => (
             <Image

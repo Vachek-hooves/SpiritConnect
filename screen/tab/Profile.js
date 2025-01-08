@@ -12,7 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-const TabProfile = () => {
+const Profile = () => {
   const [userData, setUserData] = useState({
     name: '',
     about: '',
@@ -279,4 +279,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabProfile;
+export default Profile;

@@ -1,6 +1,6 @@
-import TabMainScreen from './TabMainScreen';
-import TabPractices from './TabPractices';
-import TabDiary from './TabDiary';
-import TabProfile from './TabProfile';
+import MainScreen from './MainScreen';
+import Practices from './Practices';
+import Diary from './Diary';
+import Profile from './Profile';
 
-export {TabMainScreen, TabPractices, TabDiary, TabProfile};
+export {MainScreen, Practices, Diary, Profile};

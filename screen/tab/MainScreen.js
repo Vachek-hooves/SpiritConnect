@@ -86,7 +86,7 @@ const SectionHeader = ({title, onPress}) => (
   </TouchableOpacity>
 );
 
-const TabMainScreen = ({navigation}) => {
+const MainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
   console.log(practices.meditation.map(item => item.image),'screen')
 
@@ -179,7 +179,7 @@ const TabMainScreen = ({navigation}) => {
   );
 };
 
-export default TabMainScreen;
+export default MainScreen;
 
 const styles = StyleSheet.create({
   container: {

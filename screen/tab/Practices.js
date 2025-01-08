@@ -14,7 +14,7 @@ import {Picker} from '@react-native-picker/picker';
 import {launchImageLibrary} from 'react-native-image-picker';
 import DurationPicker from '../../components/ui/DurationPicker';
 
-const TabPractices = ({navigation}) => {
+const Practices = ({navigation}) => {
   const {addPractice} = usePracticeContext();
   const [newPractice, setNewPractice] = useState({
     name: '',
@@ -242,4 +242,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabPractices;
+export default Practices;

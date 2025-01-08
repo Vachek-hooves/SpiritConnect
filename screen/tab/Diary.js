@@ -10,7 +10,7 @@ import {usePracticeContext} from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import {Image} from 'react-native';
 
-const TabDiary = ({navigation}) => {
+const Diary = ({navigation}) => {
   const {moodNotes, deleteMoodNote} = usePracticeContext();
   console.log(moodNotes);
 
@@ -216,4 +216,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabDiary;
+export default Diary;
