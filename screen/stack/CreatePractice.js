@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const StackCreatePractice = () => {
+const CreatePractice = () => {
   return (
     <View>
-      <Text>StackCreatePractice</Text>
+      <Text>CreatePractice</Text>
     </View>
   )
 }
 
-export default StackCreatePractice
+export default CreatePractice
 
 const styles = StyleSheet.create({})

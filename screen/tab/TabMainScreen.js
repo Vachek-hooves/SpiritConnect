@@ -76,9 +76,9 @@ const TabMainScreen = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.createButton}>
+      {/* <TouchableOpacity style={styles.createButton}>
         <Text style={styles.createButtonText}>Create new practice</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <SectionHeader
         title="Meditations"

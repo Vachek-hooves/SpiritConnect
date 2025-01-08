@@ -4,7 +4,7 @@ import {
   MoodState,
   StackBreath,
   StackCreateMood,
-  StackCreatePractice,
+  CreatePractice,
   StackMeditation,
   StackNotification,
   StackPracticeDetail,
@@ -45,8 +45,8 @@ function App() {
             component={StackPracticeDetail}
           />
           <Stack.Screen
-            name="StackCreatePractice"
-            component={StackCreatePractice}
+            name="CreatePractice"
+            component={CreatePractice}
           />
           <Stack.Screen name="StackCreateMood" component={StackCreateMood} />
           <Stack.Screen name="MoodState" component={MoodState} />
