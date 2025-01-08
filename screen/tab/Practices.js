@@ -99,6 +99,7 @@ const Practices = ({navigation}) => {
             selectedValue={newPractice.type}
             style={styles.picker}
             dropdownIconColor="#fff"
+            itemStyle={styles.pickerItem}
             onValueChange={itemValue =>
               setNewPractice(prev => ({...prev, type: itemValue}))
             }>
@@ -192,6 +193,11 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: '#fff',
+    height: 130, // Match container height
+  },
+  pickerItem: {
+    height: 120, // For iOS
+    // fontSize: 16, // Adjust font size if needed
   },
   imageButton: {
     backgroundColor: '#231D37',
