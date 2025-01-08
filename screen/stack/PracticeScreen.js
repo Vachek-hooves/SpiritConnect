@@ -24,7 +24,7 @@ const PracticeItem = ({item, type, onToggleComplete, navigation}) => {
   return <TouchableOpacity
     style={styles.practiceItem}
     onPress={() =>
-      navigation.navigate('StackPracticeDetail', {item, practiceType: type})
+      navigation.navigate('PracticeDetail', {item, practiceType: type})
     }>
     <Image source={renderImage(item.image)} style={styles.practiceImage} />
     <View style={styles.practiceContent}>

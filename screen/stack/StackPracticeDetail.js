@@ -10,7 +10,7 @@ import {
 import React, {useState, useEffect} from 'react';
 import {usePracticeContext} from '../../store/context';
 
-const StackPracticeDetail = ({route, navigation}) => {
+const PracticeDetail = ({route, navigation}) => {
   const {practiceType, item} = route.params;
   const {completePractice} = usePracticeContext();
   const [timeLeft, setTimeLeft] = useState(item.duration * 60);
@@ -89,7 +89,7 @@ const StackPracticeDetail = ({route, navigation}) => {
   );
 };
 
-export default StackPracticeDetail;
+export default PracticeDetail;
 
 const styles = StyleSheet.create({
   container: {

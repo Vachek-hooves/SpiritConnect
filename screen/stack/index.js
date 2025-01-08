@@ -4,7 +4,7 @@ import StackMeditation from './StackMeditation';
 // import StackYoga from './StackYoga';
 import PracticeScreen from './PracticeScreen';
 import StackNotification from './StackNotification';
-import StackPracticeDetail from './StackPracticeDetail';
+import PracticeDetail from './StackPracticeDetail';
 import CreatePractice from './CreatePractice';
 import StackCreateMood from './StackCreateMood';
 import MoodState from './MoodState';
@@ -16,7 +16,7 @@ export {
   // StackYoga,
   StackNotification,
   PracticeScreen,
-  StackPracticeDetail,
+  PracticeDetail,
   CreatePractice,
   StackCreateMood,
   MoodState,
