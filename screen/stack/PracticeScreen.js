@@ -47,7 +47,7 @@ const PracticeItem = ({item, type, onToggleComplete, navigation}) => {
   </TouchableOpacity>
 }
 
-const StackPracticeScreen = ({route, navigation}) => {
+const PracticeScreen = ({route, navigation}) => {
   const {practiceType, title} = route.params;
   const {practices, togglePracticeCompletion} = usePracticeContext();
 
@@ -79,7 +79,7 @@ const StackPracticeScreen = ({route, navigation}) => {
   );
 };
 
-export default StackPracticeScreen;
+export default PracticeScreen;
 
 const styles = StyleSheet.create({
   container: {

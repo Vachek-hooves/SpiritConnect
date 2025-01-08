@@ -67,7 +67,7 @@ const TabMainScreen = ({navigation}) => {
 
   const handleSectionPress = (type, title) => {
     console.log(type, 'type');
-    navigation.navigate('StackPracticeScreen', {
+    navigation.navigate('PracticeScreen', {
       practiceType: type,
       practices: practices[type],
       title: title,

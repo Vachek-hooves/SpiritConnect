@@ -2,7 +2,7 @@ import WelcomeScreen from './WelcomeScreen';
 // import StackBreath from './StackBreath';
 import StackMeditation from './StackMeditation';
 // import StackYoga from './StackYoga';
-import StackPracticeScreen from './StackPracticeScreen';
+import PracticeScreen from './PracticeScreen';
 import StackNotification from './StackNotification';
 import StackPracticeDetail from './StackPracticeDetail';
 import CreatePractice from './CreatePractice';
@@ -15,7 +15,7 @@ export {
   StackMeditation,
   // StackYoga,
   StackNotification,
-  StackPracticeScreen,
+  PracticeScreen,
   StackPracticeDetail,
   CreatePractice,
   StackCreateMood,

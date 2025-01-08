@@ -8,7 +8,7 @@ import {
   StackMeditation,
   StackNotification,
   StackPracticeDetail,
-  StackPracticeScreen,
+  PracticeScreen,
   // StackYoga,
   WelcomeScreen,
 } from './screen/stack';
@@ -37,8 +37,8 @@ function App() {
             component={StackNotification}
           />
           <Stack.Screen
-            name="StackPracticeScreen"
-            component={StackPracticeScreen}
+            name="PracticeScreen"
+            component={PracticeScreen}
           />
           <Stack.Screen
             name="StackPracticeDetail"
