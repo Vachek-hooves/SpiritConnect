@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,9 +10,15 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {usePracticeContext} from '../../store/context';
+import {
+  pauseBackgroundMusic,
+  playBackgroundMusic,
+} from '../../components/Music/SoundConfig';
 
 const Profile = () => {
+  const {isMusicEnable, setIsMusicEnable} = usePracticeContext();
   const [userData, setUserData] = useState({
     name: '',
     about: '',
@@ -64,13 +70,21 @@ const Profile = () => {
     }
   };
 
+  const handleMusicToggle = async value => {
+    setIsMusicEnable(value);
+    if (value) {
+      await playBackgroundMusic();
+    } else {
+      pauseBackgroundMusic();
+    }
+  };
   const renderViewMode = () => (
     <View style={styles.container}>
       <View style={styles.profileSection}>
         <TouchableOpacity style={styles.profileImage} onPress={handleImagePick}>
           {userData.profileImage ? (
             <Image
-              source={{ uri: userData.profileImage }}
+              source={{uri: userData.profileImage}}
               style={styles.profileImageContent}
             />
           ) : (
@@ -78,18 +92,22 @@ const Profile = () => {
           )}
         </TouchableOpacity>
         <Text style={styles.userName}>{userData.name || 'Add your name'}</Text>
-        <Text style={styles.userAbout}>{userData.about || 'Add something about yourself'}</Text>
+        <Text style={styles.userAbout}>
+          {userData.about || 'Add something about yourself'}
+        </Text>
       </View>
 
       <View style={styles.settingsSection}>
         <View style={styles.settingItem}>
           <Text style={styles.settingLabel}>Background Sound</Text>
           <Switch
-            value={userData.notifications}
-            onValueChange={value =>
-              setUserData(prev => ({ ...prev, notifications: value }))
-            }
-            trackColor={{ false: '#333', true: '#00FF7F' }}
+            // value={userData.notifications}
+            // onValueChange={value =>
+            //   setUserData(prev => ({...prev, notifications: value}))
+            // }
+            value={isMusicEnable}
+            onValueChange={handleMusicToggle}
+            trackColor={{false: '#333', true: '#00FF7F'}}
             thumbColor={'#fff'}
           />
         </View>
@@ -109,7 +127,7 @@ const Profile = () => {
         <TouchableOpacity style={styles.profileImage} onPress={handleImagePick}>
           {userData.profileImage ? (
             <Image
-              source={{ uri: userData.profileImage }}
+              source={{uri: userData.profileImage}}
               style={styles.profileImageContent}
             />
           ) : (
@@ -124,7 +142,7 @@ const Profile = () => {
           <TextInput
             style={styles.input}
             value={userData.name}
-            onChangeText={text => setUserData(prev => ({ ...prev, name: text }))}
+            onChangeText={text => setUserData(prev => ({...prev, name: text}))}
             placeholder="Enter your name"
             placeholderTextColor="#666"
           />
@@ -135,7 +153,7 @@ const Profile = () => {
           <TextInput
             style={[styles.input, styles.textArea]}
             value={userData.about}
-            onChangeText={text => setUserData(prev => ({ ...prev, about: text }))}
+            onChangeText={text => setUserData(prev => ({...prev, about: text}))}
             placeholder="Tell something about yourself"
             placeholderTextColor="#666"
             multiline
@@ -146,10 +164,9 @@ const Profile = () => {
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.cancelButton}
-          onPress={() => setIsEditing(false)}
-        >
+          onPress={() => setIsEditing(false)}>
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
