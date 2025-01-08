@@ -1,6 +1,6 @@
 workflows:
   connect-workfow:
-    name: Spirit Connect
+    name: Spirit Connect With Mind
     max_build_duration: 120
     integrations:
       app_store_connect: SpiritConnectCodemagicKey
