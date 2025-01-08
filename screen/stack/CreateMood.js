@@ -13,7 +13,7 @@ import Slider from '@react-native-community/slider';
 import {launchImageLibrary} from 'react-native-image-picker';
 import CalendarModal from '../../components/ui/CalendarModal';
 
-const StackCreateMood = ({navigation}) => {
+const CreateMood = ({navigation}) => {
   const {addMoodNote} = usePracticeContext(); // Get the function to add mood notes
   const [heading, setHeading] = useState('');
   const [description, setDescription] = useState('');
@@ -144,7 +144,7 @@ const StackCreateMood = ({navigation}) => {
   );
 };
 
-export default StackCreateMood;
+export default CreateMood;
 
 const styles = StyleSheet.create({
   container: {

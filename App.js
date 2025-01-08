@@ -3,10 +3,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {
   MoodState,
   // StackBreath,
-  StackCreateMood,
+  CreateMood,
   CreatePractice,
-  StackMeditation,
-  StackNotification,
+  // Meditation,
+
   PracticeDetail,
   PracticeScreen,
   // StackYoga,
@@ -30,12 +30,9 @@ function App() {
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="TabMenu" component={TabMenu} />
           {/* <Stack.Screen name="StackYoga" component={StackYoga} /> */}
-          <Stack.Screen name="StackMeditation" component={StackMeditation} />
+          {/* <Stack.Screen name="Meditation" component={Meditation} /> */}
           {/* <Stack.Screen name="StackBreath" component={StackBreath} /> */}
-          <Stack.Screen
-            name="StackNotification"
-            component={StackNotification}
-          />
+       
           <Stack.Screen
             name="PracticeScreen"
             component={PracticeScreen}
@@ -48,7 +45,7 @@ function App() {
             name="CreatePractice"
             component={CreatePractice}
           />
-          <Stack.Screen name="StackCreateMood" component={StackCreateMood} />
+          <Stack.Screen name="CreateMood" component={CreateMood} />
           <Stack.Screen name="MoodState" component={MoodState} />
         </Stack.Navigator>
       </NavigationContainer>
