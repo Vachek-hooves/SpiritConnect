@@ -52,24 +52,35 @@ const TabDiary = ({navigation}) => {
           {moodNotes.map((note, index) => (
             <View key={index} style={styles.card}>
               <Text style={styles.cardDate}>{formatDate(note.date)}</Text>
-              <Text style={styles.cardHeading}>{note.heading}</Text>
-              <Text style={styles.cardDescription}>{note.description}</Text>
-              <LinearGradient
-                colors={['#8B5CF6', '#00FF7F']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={[styles.gradient, {width: `${note.moodLevel * 100}%`}]}
-              />
-              <View style={styles.moodTextContainer}>
-                <Text style={styles.moodText}>Sadness</Text>
-                <Text style={styles.moodText}>Happiness</Text>
+              <View style={styles.cardHeadingContainer}>
+                <Text style={styles.cardHeading}>{note.heading}</Text>
+                <Text style={styles.cardDescription}>{note.description}</Text>
+
+                <View style={styles.gradientContainer}>
+                  <LinearGradient
+                    colors={['#E50FE4', '#3493FC']}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={[
+                      styles.gradient,
+                      {width: `${note.moodLevel * 100}%`},
+                    ]}
+                  />
+                </View>
+                <View style={styles.moodTextContainer}>
+                  <Text style={styles.moodText}>Sadness</Text>
+                  <Text style={styles.moodText}>Happiness</Text>
+                </View>
               </View>
-              <TouchableOpacity onPress={() => deleteMoodNote(note.date)} style={styles.deleteButton}>
+              <TouchableOpacity
+                onPress={() => deleteMoodNote(note.date)}
+                style={styles.deleteButton}>
                 {/* <Image
                   source={require('../../assets/images/icons/deleteIcon.png')}
                   style={styles.deleteIcon}
                 /> */}
-                <Text style={{fontSize: 20}}>🗑️</Text>
+                {/* <Text style={styles.deleteIcon}>🗑️</Text> */}
+                <Image source={require('../../assets/images/icons/mdi_delete.png')}/>
               </TouchableOpacity>
             </View>
           ))}
@@ -85,16 +96,33 @@ const TabDiary = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    borderRadius: 10,
+    // padding: 10,
+    backgroundColor: '#393158',
+    height: 20,
+    marginVertical: 6,
+  },
+  cardHeadingContainer: {
+    // flexDirection: 'row',
+    justifyContent: 'space-between',
+    // alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#231D37',
+  },
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
     padding: 20,
+    paddingTop: 100,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   placeholderContainer: {
     flex: 1,
@@ -113,24 +141,29 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingTop: 30,
   },
   card: {
-    backgroundColor: '#1A1A1A',
+    // backgroundColor: '#231D37',
     borderRadius: 8,
-    padding: 15,
+    padding: 10,
     marginBottom: 15,
     position: 'relative',
+    // backgroundColor:'white'
   },
   cardDate: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 5,
+    // top: -50,
+    // left: -15,
   },
   cardHeading: {
     color: '#fff',
     fontSize: 18,
-    marginBottom: 5,
+    marginBottom: 6,
+    fontWeight: 'bold',
   },
   cardDescription: {
     color: '#fff',
@@ -138,9 +171,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   gradient: {
-    height: 10,
+    height: 20,
     borderRadius: 5,
     marginBottom: 5,
+    // backgroundColor: 'white',
+    // width: 400,
   },
   moodTextContainer: {
     flexDirection: 'row',
@@ -149,6 +184,7 @@ const styles = StyleSheet.create({
   moodText: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: 'bold',
   },
   deleteButton: {
     position: 'absolute',
@@ -156,8 +192,10 @@ const styles = StyleSheet.create({
     right: 10,
   },
   deleteIcon: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 40,
+    // top: -40,
+    // right: -15,
   },
   addButton: {
     backgroundColor: '#00FF7F',
