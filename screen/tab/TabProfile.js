@@ -195,7 +195,7 @@ const TabProfile = () => {
 
       {/* Common Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.linkButton}>
+        {/* <TouchableOpacity style={styles.linkButton}>
           <LinearGradient
             colors={['#651BF4', '#2B0960']}
             start={{x: 0, y: 0}}
@@ -203,9 +203,9 @@ const TabProfile = () => {
             style={styles.gradientButton}>
             <Text style={styles.linkText}>Developer website</Text>
           </LinearGradient>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity style={styles.linkButton}>
+        {/* <TouchableOpacity style={styles.linkButton}>
           <LinearGradient
             colors={['#E50FE4', '#3493FC']}
             start={{x: 0, y: 0}}
@@ -213,9 +213,9 @@ const TabProfile = () => {
             style={styles.gradientButton}>
             <Text style={styles.linkText}>Terms of use</Text>
           </LinearGradient>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity style={styles.linkButton}>
+        {/* <TouchableOpacity style={styles.linkButton}>
           <LinearGradient
             colors={['#FD365C', '#D504DB']}
             start={{x: 0, y: 0}}
@@ -223,10 +223,10 @@ const TabProfile = () => {
             style={styles.gradientButton}>
             <Text style={styles.linkText}>Privacy policy</Text>
           </LinearGradient>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={styles.notificationContainer}>
-          <Text style={styles.notificationText}>Notifications</Text>
+          <Text style={styles.notificationText}>Background Sound</Text>
           <Switch
             value={userData.notifications}
             onValueChange={value =>
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     color: '#fff',
     fontSize: 16,
-    paddingHorizontal:15
+    paddingHorizontal: 15,
   },
   clearButton: {
     position: 'absolute',

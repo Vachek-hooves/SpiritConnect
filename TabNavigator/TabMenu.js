@@ -1,11 +1,6 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  TabDiary,
-  TabMainScreen,
-  TabPractices,
-  TabProfile,
-} from '../screen/tab';
+import {TabDiary, TabMainScreen, TabPractices, TabProfile} from '../screen/tab';
 const Tab = createBottomTabNavigator();
 
 const TabMenu = () => {
@@ -19,50 +14,50 @@ const TabMenu = () => {
         tabBarShowLabel: true,
         tabBarLabelStyle: styles.tabBarLabel,
       }}>
-      <Tab.Screen 
-        name="Home" 
+      <Tab.Screen
+        name="Home"
         component={TabMainScreen}
         options={{
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({focused, color}) => (
             <Image
               source={require('../assets/images/icons/home.png')}
-              style={[styles.icon, { tintColor: color }]}
+              style={[styles.icon, {tintColor: color}]}
             />
           ),
         }}
       />
-      <Tab.Screen 
-        name="Practices" 
+      <Tab.Screen
+        name="Practices"
         component={TabPractices}
         options={{
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({focused, color}) => (
             <Image
               source={require('../assets/images/icons/calendar.png')}
-              style={[styles.icon, { tintColor: color }]}
+              style={[styles.icon, {tintColor: color}]}
             />
           ),
         }}
       />
-      <Tab.Screen 
-        name="Diary" 
+      <Tab.Screen
+        name="Diary"
         component={TabDiary}
         options={{
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({focused, color}) => (
             <Image
               source={require('../assets/images/icons/diary.png')}
-              style={[styles.icon, { tintColor: color }]}
+              style={[styles.icon, {tintColor: color}]}
             />
           ),
         }}
       />
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name="Profile"
         component={TabProfile}
         options={{
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({focused, color}) => (
             <Image
               source={require('../assets/images/icons/profile.png')}
-              style={[styles.icon, { tintColor: color }]}
+              style={[styles.icon, {tintColor: color}]}
             />
           ),
         }}
@@ -89,12 +84,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 15,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 34,
+    height: 34,
     resizeMode: 'contain',
+    marginBottom: 5,
+    marginTop: 10,
   },
   tabBarLabel: {
     fontSize: 12,
-    marginTop: 0,
+    marginTop: 10,
   },
 });
