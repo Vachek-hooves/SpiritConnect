@@ -62,13 +62,13 @@ const MoodState = ({navigation, route}) => {
         {/* Action Buttons */}
       </ScrollView>
       <View style={styles.actionButtons}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.editButton}
           onPress={() => {
             // Handle edit functionality
           }}>
           <Text style={styles.editButtonText}>Edit</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {/* <TouchableOpacity
           style={styles.deleteButton}
           onPress={() => {
