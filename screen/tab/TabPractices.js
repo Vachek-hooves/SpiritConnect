@@ -1,19 +1,27 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native';
-import React, { useState } from 'react';
-import { usePracticeContext } from '../../store/context';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ScrollView
+} from 'react-native';
+import React, {useState} from 'react';
+import {usePracticeContext} from '../../store/context';
 import NoItems from '../../components/ui/NoItems';
-import { Picker } from '@react-native-picker/picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {Picker} from '@react-native-picker/picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 
-const TabPractices = ({ navigation }) => {
-  const { addPractice } = usePracticeContext();
+const TabPractices = ({navigation}) => {
+  const {addPractice} = usePracticeContext();
   const [newPractice, setNewPractice] = useState({
     name: '',
     duration: '',
     text: '',
     type: 'meditation',
     image: null,
-    isCompleted: false
+    isCompleted: false,
   });
 
   const handleImagePick = async () => {
@@ -27,7 +35,7 @@ const TabPractices = ({ navigation }) => {
       if (result.assets && result.assets[0]) {
         setNewPractice(prev => ({
           ...prev,
-          image: result.assets[0].uri
+          image: result.assets[0].uri,
         }));
       }
     } catch (error) {
@@ -40,7 +48,7 @@ const TabPractices = ({ navigation }) => {
       addPractice({
         ...newPractice,
         id: Date.now().toString(),
-        duration: parseInt(newPractice.duration)
+        duration: parseInt(newPractice.duration),
       });
       // Reset form after saving
       setNewPractice({
@@ -49,7 +57,7 @@ const TabPractices = ({ navigation }) => {
         text: '',
         type: 'meditation',
         image: null,
-        isCompleted: false
+        isCompleted: false,
       });
       // Optionally navigate back or show success message
       navigation.goBack();
@@ -59,13 +67,16 @@ const TabPractices = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create New Practice</Text>
-      
+
+<ScrollView showsVerticalScrollIndicator={false} style={{flex:1}}>
+
+
       <TextInput
         style={styles.input}
         placeholder="Practice name"
         placeholderTextColor="#666"
         value={newPractice.name}
-        onChangeText={(text) => setNewPractice(prev => ({ ...prev, name: text }))}
+        onChangeText={text => setNewPractice(prev => ({...prev, name: text}))}
       />
 
       <TextInput
@@ -74,7 +85,9 @@ const TabPractices = ({ navigation }) => {
         placeholderTextColor="#666"
         keyboardType="numeric"
         value={newPractice.duration}
-        onChangeText={(text) => setNewPractice(prev => ({ ...prev, duration: text }))}
+        onChangeText={text =>
+          setNewPractice(prev => ({...prev, duration: text}))
+        }
       />
 
       <TextInput
@@ -83,7 +96,7 @@ const TabPractices = ({ navigation }) => {
         placeholderTextColor="#666"
         multiline
         value={newPractice.text}
-        onChangeText={(text) => setNewPractice(prev => ({ ...prev, text: text }))}
+        onChangeText={text => setNewPractice(prev => ({...prev, text: text}))}
       />
 
       <View style={styles.pickerContainer}>
@@ -91,11 +104,10 @@ const TabPractices = ({ navigation }) => {
           selectedValue={newPractice.type}
           style={styles.picker}
           dropdownIconColor="#fff"
-          onValueChange={(itemValue) =>
-            setNewPractice(prev => ({ ...prev, type: itemValue }))
-          }
-        >
-          <Picker.Item label="Meditation" value="meditation" />
+          onValueChange={itemValue =>
+            setNewPractice(prev => ({...prev, type: itemValue}))
+          }>
+          <Picker.Item label="Meditation" value="meditation"  />
           <Picker.Item label="Yoga" value="yoga" />
           <Picker.Item label="Breathing" value="breathing" />
         </Picker>
@@ -109,24 +121,23 @@ const TabPractices = ({ navigation }) => {
 
       {newPractice.image && (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: newPractice.image }} style={styles.previewImage} />
-          <TouchableOpacity 
+          <Image
+            source={{uri: newPractice.image}}
+            style={styles.previewImage}
+          />
+          <TouchableOpacity
             style={styles.removeImageButton}
-            onPress={() => setNewPractice(prev => ({ ...prev, image: null }))}
-          >
+            onPress={() => setNewPractice(prev => ({...prev, image: null}))}>
             <Text style={styles.removeImageText}>✕</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.saveButton} 
-          onPress={handleSave}
-        >
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Practice</Text>
         </TouchableOpacity>
-        
+
         {/* <TouchableOpacity 
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
@@ -134,7 +145,8 @@ const TabPractices = ({ navigation }) => {
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity> */}
       </View>
-      <View style={{height:100}}/>
+      </ScrollView>
+      <View style={{height: 100}} />
     </View>
   );
 };
@@ -144,6 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#100E1B',
     padding: 20,
+    paddingTop: 60,
   },
   title: {
     fontSize: 28,
