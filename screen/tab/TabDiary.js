@@ -80,7 +80,9 @@ const TabDiary = ({navigation}) => {
                   style={styles.deleteIcon}
                 /> */}
                 {/* <Text style={styles.deleteIcon}>🗑️</Text> */}
-                <Image source={require('../../assets/images/icons/mdi_delete.png')}/>
+                <Image
+                  source={require('../../assets/images/icons/mdi_delete.png')}
+                />
               </TouchableOpacity>
             </View>
           ))}
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 12,
     // top: -50,
     // left: -15,
   },
