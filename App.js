@@ -1,6 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {
+  MoodState,
   StackBreath,
   StackCreateMood,
   StackCreatePractice,
@@ -48,6 +49,7 @@ function App() {
             component={StackCreatePractice}
           />
           <Stack.Screen name="StackCreateMood" component={StackCreateMood} />
+          <Stack.Screen name="MoodState" component={MoodState} />
         </Stack.Navigator>
       </NavigationContainer>
     </PracticeProvider>

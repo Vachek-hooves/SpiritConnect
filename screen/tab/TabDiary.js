@@ -50,7 +50,15 @@ const TabDiary = ({navigation}) => {
       ) : (
         <ScrollView style={styles.scrollView}>
           {moodNotes.map((note, index) => (
-            <TouchableOpacity key={index} style={styles.card}>
+            <TouchableOpacity
+              key={index}
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate('MoodState', {
+                 
+                  item: note,
+                })
+              }>
               <Text style={styles.cardDate}>{formatDate(note.date)}</Text>
               <View style={styles.cardHeadingContainer}>
                 <Text style={styles.cardHeading}>{note.heading}</Text>
@@ -112,7 +120,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#100E1B',
-    padding: 20,
+    padding: 10,
     paddingTop: 100,
   },
   title: {
