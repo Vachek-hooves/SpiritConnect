@@ -11,6 +11,7 @@ import React, {useState} from 'react';
 import {usePracticeContext} from '../../store/context';
 import Slider from '@react-native-community/slider';
 import {launchImageLibrary} from 'react-native-image-picker';
+import CalendarModal from '../../components/CalendarModal';
 
 const StackCreateMood = ({navigation}) => {
   const {addMoodNote} = usePracticeContext(); // Get the function to add mood notes
@@ -19,6 +20,7 @@ const StackCreateMood = ({navigation}) => {
   const [date, setDate] = useState('');
   const [mood, setMood] = useState(0); // Mood slider value
   const [image, setImage] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Function to handle image picking
   const handleImagePick = async () => {
@@ -38,31 +40,33 @@ const StackCreateMood = ({navigation}) => {
   };
 
   const handleSave = () => {
-    const moodText = getMoodText(mood); // Get mood text based on slider value
+    const moodText = getMoodText(mood);
     const newMoodNote = {
-      id: Date.now(),
       heading,
       description,
       date,
-      mood: moodText,
-      moodLevel: mood,
-      image, // Include image URI in the mood note
+      mood,
+      moodText,
+      image,
     };
-    // console.log(newMoodNote)
     addMoodNote(newMoodNote);
     navigation.goBack();
   };
-
-  const getMoodText = (value) => {
+  const getMoodText = value => {
     if (value <= 0.2) return 'Sadness';
     if (value <= 0.4) return 'Sad';
     if (value <= 0.6) return 'Neutral';
     if (value <= 0.8) return 'Happiness';
     return 'Happiness';
   };
+  const handleDateSelect = selectedDate => {
+    // Convert YYYY-MM-DD to DD.MM.YYYY
+    const [year, month, day] = selectedDate.split('-');
+    setDate(`${day}.${month}.${year}`);
+  };
 
   return (
-    <ScrollView  style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
@@ -82,20 +86,19 @@ const StackCreateMood = ({navigation}) => {
       <Text style={styles.moodLabel}>Description</Text>
       <TextInput
         style={styles.input}
-         placeholder="Task description"
+        placeholder="Task description"
         value={description}
         onChangeText={setDescription}
         placeholderTextColor={'#FFFFFF' + 90}
       />
 
       <Text style={styles.dateLabel}>Date</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="DD.MM.YYYY"
-        value={date}
-        onChangeText={setDate}
-        placeholderTextColor={'#FFFFFF' + 90}
-      />
+      <TouchableOpacity
+        style={styles.dateInput}
+        onPress={() => setShowCalendar(true)}>
+        <Text style={styles.calendarIcon}>📅</Text>
+        <Text style={styles.dateText}>{date || 'Select date'}</Text>
+      </TouchableOpacity>
 
       <Text style={styles.moodLabel}>Mood</Text>
       <Slider
@@ -119,7 +122,9 @@ const StackCreateMood = ({navigation}) => {
       {image && (
         <View style={styles.imageContainer}>
           <Image source={{uri: image}} style={styles.selectedImage} />
-          <TouchableOpacity onPress={() => setImage(null)} style={styles.removeImageButton}>
+          <TouchableOpacity
+            onPress={() => setImage(null)}
+            style={styles.removeImageButton}>
             <Text style={styles.removeImageText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -128,7 +133,12 @@ const StackCreateMood = ({navigation}) => {
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-      <View style={{height: 100}}></View>
+      <CalendarModal
+        visible={showCalendar}
+        onClose={() => setShowCalendar(false)}
+        onSelectDate={handleDateSelect}
+        selectedDate={date ? date.split('.').reverse().join('-') : ''}
+      />
     </ScrollView>
   );
 };
@@ -234,5 +244,22 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  dateText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  calendarIcon: {
+    fontSize: 20,
+  },
+  dateInput: {
+    backgroundColor: '#231D37',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 20,
   },
 });
