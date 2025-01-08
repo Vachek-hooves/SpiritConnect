@@ -11,7 +11,7 @@ import React, {useState} from 'react';
 import {usePracticeContext} from '../../store/context';
 import Slider from '@react-native-community/slider';
 import {launchImageLibrary} from 'react-native-image-picker';
-import CalendarModal from '../../components/CalendarModal';
+import CalendarModal from '../../components/ui/CalendarModal';
 
 const StackCreateMood = ({navigation}) => {
   const {addMoodNote} = usePracticeContext(); // Get the function to add mood notes
