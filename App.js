@@ -2,14 +2,14 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   MoodState,
-  StackBreath,
+  // StackBreath,
   StackCreateMood,
   CreatePractice,
   StackMeditation,
   StackNotification,
   StackPracticeDetail,
   StackPracticeScreen,
-  StackYoga,
+  // StackYoga,
   WelcomeScreen,
 } from './screen/stack';
 import {PracticeProvider} from './store/context';
@@ -29,9 +29,9 @@ function App() {
           }}>
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
           <Stack.Screen name="TabMenu" component={TabMenu} />
-          <Stack.Screen name="StackYoga" component={StackYoga} />
+          {/* <Stack.Screen name="StackYoga" component={StackYoga} /> */}
           <Stack.Screen name="StackMeditation" component={StackMeditation} />
-          <Stack.Screen name="StackBreath" component={StackBreath} />
+          {/* <Stack.Screen name="StackBreath" component={StackBreath} /> */}
           <Stack.Screen
             name="StackNotification"
             component={StackNotification}
