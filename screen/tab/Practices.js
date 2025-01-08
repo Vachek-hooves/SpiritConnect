@@ -102,9 +102,22 @@ const Practices = ({navigation}) => {
             onValueChange={itemValue =>
               setNewPractice(prev => ({...prev, type: itemValue}))
             }>
-            <Picker.Item label="Meditation" value="meditation" />
-            <Picker.Item label="Yoga" value="yoga" />
-            <Picker.Item label="Breath" value="breathing" />
+            <Picker.Item
+              label="Meditation"
+              value="meditation"
+              color="#00FF7F" // Custom text color for this item
+            />
+            <Picker.Item
+              label="Yoga"
+              value="yoga"
+              color="#00FF7F" // Custom text color for this item
+            />
+            <Picker.Item
+              label="Breath"
+              value="breathing"
+              color="#00FF7F" // Custom text color for this item
+              
+            />
           </Picker>
         </View>
 
