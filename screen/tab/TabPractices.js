@@ -109,7 +109,7 @@ const TabPractices = ({navigation}) => {
           }>
           <Picker.Item label="Meditation" value="meditation"  />
           <Picker.Item label="Yoga" value="yoga" />
-          <Picker.Item label="Breathing" value="breathing" />
+          <Picker.Item label="Breath" value="breathing" />
         </Picker>
       </View>
 

@@ -11,6 +11,7 @@ export const PracticeProvider = ({children}) => {
         breathing: []
     })
     const [moodNotes, setMoodNotes] = useState([])
+    console.log(practices.meditation.length,'context')
 
     const initializeData = async () => {
         try {
@@ -20,45 +21,69 @@ export const PracticeProvider = ({children}) => {
             const savedBreathing = await AsyncStorage.getItem('breathing')
 
             // If no saved data, use initial data from cards.js
+            // For static images, we store the require path
             if (!savedMeditation) {
-                await AsyncStorage.setItem('meditation', JSON.stringify(meditation))
+                const initialMeditation = meditation.map(item => ({
+                    ...item,
+                    // If image is a number (from require), keep it as is
+                    image: typeof item.image === 'number' ? item.image : null
+                }));
+                await AsyncStorage.setItem('meditation', JSON.stringify(initialMeditation));
+                practices.meditation = initialMeditation;
             }
+
             if (!savedYoga) {
-                await AsyncStorage.setItem('yoga', JSON.stringify(yoga))
+                const initialYoga = yoga.map(item => ({
+                    ...item,
+                    image: typeof item.image === 'number' ? item.image : null
+                }));
+                await AsyncStorage.setItem('yoga', JSON.stringify(initialYoga));
+                practices.yoga = initialYoga;
             }
+
             if (!savedBreathing) {
-                await AsyncStorage.setItem('breathing', JSON.stringify(breathing))
+                const initialBreathing = breathing.map(item => ({
+                    ...item,
+                    image: typeof item.image === 'number' ? item.image : null
+                }));
+                await AsyncStorage.setItem('breathing', JSON.stringify(initialBreathing));
+                practices.breathing = initialBreathing;
             }
 
             // Set the practices state
             setPractices({
-                meditation: savedMeditation ? JSON.parse(savedMeditation) : meditation,
-                yoga: savedYoga ? JSON.parse(savedYoga) : yoga,
-                breathing: savedBreathing ? JSON.parse(savedBreathing) : breathing
-            })
+                meditation: savedMeditation ? JSON.parse(savedMeditation) : practices.meditation,
+                yoga: savedYoga ? JSON.parse(savedYoga) : practices.yoga,
+                breathing: savedBreathing ? JSON.parse(savedBreathing) : practices.breathing
+            });
         } catch (error) {
-            console.error('Error initializing data:', error)
+            console.error('Error initializing data:', error);
         }
     }
 
-    // New function to add a practice to specific type array
     const addPractice = async (newPractice) => {
         try {
-            const practiceType = newPractice.type // Get the practice type (meditation, yoga, or breathing)
+            const practiceType = newPractice.type;
+            
+            // For new practices with picked images, we'll need to handle them differently
+            // since they can't use require() dynamically
+            const practiceToSave = {
+                ...newPractice,
+                // Store the URI for picked images
+                image: newPractice.image
+            };
+
             const updatedPractices = {
                 ...practices,
-                [practiceType]: [...practices[practiceType], newPractice] // Add new practice to specific array
-            }
+                [practiceType]: [...practices[practiceType], practiceToSave],
+            };
             
-            // Update AsyncStorage for the specific practice type
-            await AsyncStorage.setItem(practiceType, JSON.stringify(updatedPractices[practiceType]))
-            
-            // Update state
-            setPractices(updatedPractices)
+            await AsyncStorage.setItem(practiceType, JSON.stringify(updatedPractices[practiceType]));
+            setPractices(updatedPractices);
         } catch (error) {
-            console.error('Error adding practice:', error)
+            console.error('Error adding practice:', error);
         }
-    }
+    };
 
     const addMoodNote = async (newMoodNote) => {
         try {

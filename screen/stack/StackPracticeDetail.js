@@ -39,6 +39,16 @@ const StackPracticeDetail = ({route, navigation}) => {
     setIsActive(false);
     // Handle finishing the practice (e.g., navigate back or show a message)
   };
+  const renderImage = (imageSource) => {
+    if (typeof imageSource === 'number') {
+      // Handle static images (from require)
+      return imageSource;
+    } else if (typeof imageSource === 'string' && imageSource.startsWith('file://')) {
+      // Handle local file URLs
+      return { uri: imageSource };
+    }
+    return null; // Return null or a default image source
+  };
 
   return (
     <View style={styles.container}>
@@ -51,7 +61,7 @@ const StackPracticeDetail = ({route, navigation}) => {
         <Text style={styles.title}>{item.name}</Text>
 
         <View style={styles.imageContainer}>
-          <Image source={item.image} style={styles.image} />
+          <Image source={renderImage(item.image)} style={styles.image} />
         </View>
 
         <Text style={styles.timer}>

@@ -11,15 +11,28 @@ import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
 
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
-  // console.log(item.name,item.isCompleted);
-  
+  const renderImage = (imageSource) => {
+    if (typeof imageSource === 'number') {
+      // Handle static images (from require)
+      return imageSource;
+    } else if (typeof imageSource === 'string' && imageSource.startsWith('file://')) {
+      // Handle local file URLs
+      return { uri: imageSource };
+    }
+    return null; // Return null or a default image source
+  };
+
   return (
     <TouchableOpacity
       style={styles.card}
       onPress={() =>
         navigation.navigate('StackPracticeDetail', {item, practiceType: type})
       }>
-      <Image source={item.image} style={styles.cardImage} />
+      <Image 
+        source={renderImage(item.image)} 
+        style={styles.cardImage}
+        // defaultSource={require('../../assets/images/placeholder.png')} // Add a placeholder image
+      />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={styles.cardDescription} numberOfLines={1}>
@@ -29,8 +42,7 @@ const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
       <TouchableOpacity
         disabled
         style={styles.checkButton}
-        onPress={() => onToggleComplete(type, item.id)}
-        >
+        onPress={() => onToggleComplete(type, item.id)}>
         <View
           style={[
             styles.checkCircle,
@@ -51,6 +63,7 @@ const SectionHeader = ({title, onPress}) => (
 
 const TabMainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
+  console.log(practices.meditation.map(item => item.image),'screen')
 
   const handleSectionPress = (type, title) => {
     console.log(type, 'type');

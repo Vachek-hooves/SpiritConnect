@@ -9,13 +9,24 @@ import {
 import React from 'react';
 import {usePracticeContext} from '../../store/context';
 
-const PracticeItem = ({item, type, onToggleComplete, navigation}) => (
-  <TouchableOpacity
+const PracticeItem = ({item, type, onToggleComplete, navigation}) => {
+  const renderImage = (imageSource) => {
+    if (typeof imageSource === 'number') {
+      // Handle static images (from require)
+      return imageSource;
+    } else if (typeof imageSource === 'string' && imageSource.startsWith('file://')) {
+      // Handle local file URLs
+      return { uri: imageSource };
+    }
+    return null; // Return null or a default image source
+  };
+
+  return <TouchableOpacity
     style={styles.practiceItem}
     onPress={() =>
       navigation.navigate('StackPracticeDetail', {item, practiceType: type})
     }>
-    <Image source={item.image} style={styles.practiceImage} />
+    <Image source={renderImage(item.image)} style={styles.practiceImage} />
     <View style={styles.practiceContent}>
       <Text style={styles.practiceTitle}>{item.name}</Text>
       <Text style={styles.practiceDescription} numberOfLines={2}>
@@ -34,7 +45,7 @@ const PracticeItem = ({item, type, onToggleComplete, navigation}) => (
       </View>
     </TouchableOpacity>
   </TouchableOpacity>
-);
+}
 
 const StackPracticeScreen = ({route, navigation}) => {
   const {practiceType, title} = route.params;
