@@ -9,17 +9,42 @@ import {
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
+import { meditation, yoga, breathing } from '../../data/cards'; // Import static data
 
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
-  const renderImage = (imageSource) => {
-    if (typeof imageSource === 'number') {
-      // Handle static images (from require)
-      return imageSource;
-    } else if (typeof imageSource === 'string' && imageSource.startsWith('file://')) {
-      // Handle local file URLs
-      return { uri: imageSource };
+  // Find the matching static card to get the correct image
+  const getStaticImage = (id, type) => {
+    let staticData;
+    switch(type) {
+      case 'meditation':
+        staticData = meditation;
+        break;
+      case 'yoga':
+        staticData = yoga;
+        break;
+      case 'breathing':
+        staticData = breathing;
+        break;
+      default:
+        return null;
     }
-    return null; // Return null or a default image source
+    const staticCard = staticData.find(card => card.id === id);
+    return staticCard ? staticCard.image : null;
+  };
+
+  const renderImage = (item) => {
+    // First try to get static image
+    const staticImage = getStaticImage(item.id, type);
+    if (staticImage) {
+      return staticImage; // This will be the require() number
+    }
+    
+    // If no static image, handle user-added practice images
+    if (typeof item.image === 'string' && item.image.startsWith('file://')) {
+      return { uri: item.image };
+    }
+    
+    return null;
   };
 
   return (
@@ -29,7 +54,7 @@ const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
         navigation.navigate('PracticeDetail', {item, practiceType: type})
       }>
       <Image 
-        source={renderImage(item.image)} 
+        source={renderImage(item)} 
         style={styles.cardImage}
         // defaultSource={require('../../assets/images/placeholder.png')} // Add a placeholder image
       />
