@@ -95,6 +95,7 @@ const TabDiary = ({navigation}) => {
         onPress={() => navigation.navigate('StackCreateMood')}>
         <Text style={styles.addButtonText}>Add a mood note</Text>
       </TouchableOpacity>
+      <View style={{height: 110}} />
     </View>
   );
 };
