@@ -50,7 +50,7 @@ const TabDiary = ({navigation}) => {
       ) : (
         <ScrollView style={styles.scrollView}>
           {moodNotes.map((note, index) => (
-            <View key={index} style={styles.card}>
+            <TouchableOpacity key={index} style={styles.card}>
               <Text style={styles.cardDate}>{formatDate(note.date)}</Text>
               <View style={styles.cardHeadingContainer}>
                 <Text style={styles.cardHeading}>{note.heading}</Text>
@@ -75,16 +75,11 @@ const TabDiary = ({navigation}) => {
               <TouchableOpacity
                 onPress={() => deleteMoodNote(note.date)}
                 style={styles.deleteButton}>
-                {/* <Image
-                  source={require('../../assets/images/icons/deleteIcon.png')}
-                  style={styles.deleteIcon}
-                /> */}
-                {/* <Text style={styles.deleteIcon}>🗑️</Text> */}
                 <Image
                   source={require('../../assets/images/icons/mdi_delete.png')}
                 />
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}
@@ -124,7 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 50,
+    marginBottom: 10,
   },
   placeholderContainer: {
     flex: 1,
