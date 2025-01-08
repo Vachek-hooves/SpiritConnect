@@ -1,4 +1,12 @@
-import {StyleSheet, Text, View, Image, TouchableOpacity, Vibration} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Vibration,
+  ScrollView,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {usePracticeContext} from '../../store/context';
 
@@ -39,19 +47,21 @@ const StackPracticeDetail = ({route, navigation}) => {
         onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
+      <ScrollView>
+        <Text style={styles.title}>{item.name}</Text>
 
-      <Text style={styles.title}>{item.name}</Text>
+        <View style={styles.imageContainer}>
+          <Image source={item.image} style={styles.image} />
+        </View>
 
-      <View style={styles.imageContainer}>
-        <Image source={item.image} style={styles.image} />
-      </View>
+        <Text style={styles.timer}>
+          {`${Math.floor(timeLeft / 60)
+            .toString()
+            .padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`}
+        </Text>
 
-      <Text style={styles.timer}>
-        {`${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`}
-      </Text>
-
-      <Text style={styles.description}>{item.text}</Text>
-
+        <Text style={styles.description}>{item.text}</Text>
+      </ScrollView>
       {!isActive ? (
         <TouchableOpacity style={styles.startButton} onPress={handleStart}>
           <Text style={styles.startButtonText}>Start</Text>
@@ -62,9 +72,9 @@ const StackPracticeDetail = ({route, navigation}) => {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={styles.createButton}>
+      {/* <TouchableOpacity style={styles.createButton}>
         <Text style={styles.createButtonText}>Create new practice</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -119,14 +129,14 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 50,
   },
   finishButton: {
     backgroundColor: '#EC4899',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 50,
   },
   startButtonText: {
     color: '#000',
@@ -140,7 +150,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: 'auto',
-    marginVertical:20
+    marginVertical: 20,
   },
   createButtonText: {
     color: '#EC4899',

@@ -136,6 +136,7 @@ const TabMainScreen = ({navigation}) => {
           />
         ))}
       </ScrollView>
+      <View style={{height:120}}/>
     </ScrollView>
   );
 };

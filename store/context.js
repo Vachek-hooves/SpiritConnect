@@ -11,7 +11,6 @@ export const PracticeProvider = ({children}) => {
         breathing: []
     })
     const [moodNotes, setMoodNotes] = useState([])
-    // console.log(moodNotes)
 
     const initializeData = async () => {
         try {
@@ -42,6 +41,25 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
+    // New function to add a practice to specific type array
+    const addPractice = async (newPractice) => {
+        try {
+            const practiceType = newPractice.type // Get the practice type (meditation, yoga, or breathing)
+            const updatedPractices = {
+                ...practices,
+                [practiceType]: [...practices[practiceType], newPractice] // Add new practice to specific array
+            }
+            
+            // Update AsyncStorage for the specific practice type
+            await AsyncStorage.setItem(practiceType, JSON.stringify(updatedPractices[practiceType]))
+            
+            // Update state
+            setPractices(updatedPractices)
+        } catch (error) {
+            console.error('Error adding practice:', error)
+        }
+    }
+
     const addMoodNote = async (newMoodNote) => {
         try {
             const updatedMoodNotes = [...moodNotes, newMoodNote]
@@ -52,7 +70,6 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
-    // Initialize mood notes from AsyncStorage
     const initializeMoodNotes = async () => {
         try {
             const savedMoodNotes = await AsyncStorage.getItem('moodNotes')
@@ -74,7 +91,6 @@ export const PracticeProvider = ({children}) => {
         }
     };
 
-    // Call initialize functions in useEffect
     useEffect(() => {
         initializeData()
         initializeMoodNotes()
@@ -97,8 +113,7 @@ export const PracticeProvider = ({children}) => {
         }
     }
 
-     // New function to mark a practice as completed
-     const completePractice = async (type, id) => {
+    const completePractice = async (type, id) => {
         try {
             const updatedPractices = {
                 ...practices,
@@ -123,7 +138,8 @@ export const PracticeProvider = ({children}) => {
                 completePractice,
                 addMoodNote,
                 moodNotes,
-                deleteMoodNote
+                deleteMoodNote,
+                addPractice
             }}
         >
             {children}
