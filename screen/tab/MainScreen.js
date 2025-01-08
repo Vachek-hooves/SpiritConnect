@@ -9,13 +9,13 @@ import {
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
-import { meditation, yoga, breathing } from '../../data/cards'; // Import static data
+import {meditation, yoga, breathing} from '../../data/cards'; // Import static data
 
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
   // Find the matching static card to get the correct image
   const getStaticImage = (id, type) => {
     let staticData;
-    switch(type) {
+    switch (type) {
       case 'meditation':
         staticData = meditation;
         break;
@@ -32,18 +32,18 @@ const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
     return staticCard ? staticCard.image : null;
   };
 
-  const renderImage = (item) => {
+  const renderImage = item => {
     // First try to get static image
     const staticImage = getStaticImage(item.id, type);
     if (staticImage) {
       return staticImage; // This will be the require() number
     }
-    
+
     // If no static image, handle user-added practice images
     if (typeof item.image === 'string' && item.image.startsWith('file://')) {
-      return { uri: item.image };
+      return {uri: item.image};
     }
-    
+
     return null;
   };
 
@@ -53,8 +53,8 @@ const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
       onPress={() =>
         navigation.navigate('PracticeDetail', {item, practiceType: type})
       }>
-      <Image 
-        source={renderImage(item)} 
+      <Image
+        source={renderImage(item)}
         style={styles.cardImage}
         // defaultSource={require('../../assets/images/placeholder.png')} // Add a placeholder image
       />
@@ -88,7 +88,10 @@ const SectionHeader = ({title, onPress}) => (
 
 const MainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
-  console.log(practices.meditation.map(item => item.image),'screen')
+  console.log(
+    practices.meditation.map(item => item.image),
+    'screen',
+  );
 
   const handleSectionPress = (type, title) => {
     console.log(type, 'type');
@@ -103,21 +106,17 @@ const MainScreen = ({navigation}) => {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Text style={styles.title}>Spirit Yoga</Text>
-        <TouchableOpacity style={styles.notificationButton}>
+        <TouchableOpacity style={styles.notificationButton} disabled>
           <LinearGradient
             colors={['#8B5CF6', '#EC4899']}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
             style={styles.notificationGradient}>
-            <Text style={styles.notificationIcon}>🔔</Text>
+            {/* <Text style={styles.notificationIcon}>🔔</Text> */}
+            <Image source={require('../../assets/images/icons/bell.png')} />
           </LinearGradient>
         </TouchableOpacity>
       </View>
-
-      {/* <TouchableOpacity style={styles.createButton}>
-        <Text style={styles.createButtonText}>Create new practice</Text>
-      </TouchableOpacity> */}
-
       <SectionHeader
         title="Meditations"
         onPress={() => handleSectionPress('meditation', 'Meditations')}
@@ -174,7 +173,7 @@ const MainScreen = ({navigation}) => {
           />
         ))}
       </ScrollView>
-      <View style={{height:120}}/>
+      <View style={{height: 120}} />
     </ScrollView>
   );
 };
@@ -193,6 +192,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    paddingTop: 20,
   },
   title: {
     fontSize: 28,
