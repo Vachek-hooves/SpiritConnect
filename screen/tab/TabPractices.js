@@ -5,13 +5,14 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import React, {useState} from 'react';
 import {usePracticeContext} from '../../store/context';
 import NoItems from '../../components/ui/NoItems';
 import {Picker} from '@react-native-picker/picker';
 import {launchImageLibrary} from 'react-native-image-picker';
+import DurationPicker from '../../components/ui/DurationPicker';
 
 const TabPractices = ({navigation}) => {
   const {addPractice} = usePracticeContext();
@@ -68,83 +69,77 @@ const TabPractices = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.title}>Create New Practice</Text>
 
-<ScrollView showsVerticalScrollIndicator={false} style={{flex:1}}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{flex: 1}}>
+        <TextInput
+          style={styles.input}
+          placeholder="Practice name"
+          placeholderTextColor="#666"
+          value={newPractice.name}
+          onChangeText={text => setNewPractice(prev => ({...prev, name: text}))}
+        />
 
+        <DurationPicker
+          value={newPractice.duration}
+          onChange={duration =>
+            setNewPractice(prev => ({...prev, duration: duration}))
+          }
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Practice name"
-        placeholderTextColor="#666"
-        value={newPractice.name}
-        onChangeText={text => setNewPractice(prev => ({...prev, name: text}))}
-      />
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Description"
+          placeholderTextColor="#666"
+          multiline
+          value={newPractice.text}
+          onChangeText={text => setNewPractice(prev => ({...prev, text: text}))}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Duration (minutes)"
-        placeholderTextColor="#666"
-        keyboardType="numeric"
-        value={newPractice.duration}
-        onChangeText={text =>
-          setNewPractice(prev => ({...prev, duration: text}))
-        }
-      />
-
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Description"
-        placeholderTextColor="#666"
-        multiline
-        value={newPractice.text}
-        onChangeText={text => setNewPractice(prev => ({...prev, text: text}))}
-      />
-
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={newPractice.type}
-          style={styles.picker}
-          dropdownIconColor="#fff"
-          onValueChange={itemValue =>
-            setNewPractice(prev => ({...prev, type: itemValue}))
-          }>
-          <Picker.Item label="Meditation" value="meditation"  />
-          <Picker.Item label="Yoga" value="yoga" />
-          <Picker.Item label="Breath" value="breathing" />
-        </Picker>
-      </View>
-
-      <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
-        <Text style={styles.imageButtonText}>
-          {newPractice.image ? 'Change Image' : 'Add Image'}
-        </Text>
-      </TouchableOpacity>
-
-      {newPractice.image && (
-        <View style={styles.imageContainer}>
-          <Image
-            source={{uri: newPractice.image}}
-            style={styles.previewImage}
-          />
-          <TouchableOpacity
-            style={styles.removeImageButton}
-            onPress={() => setNewPractice(prev => ({...prev, image: null}))}>
-            <Text style={styles.removeImageText}>✕</Text>
-          </TouchableOpacity>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={newPractice.type}
+            style={styles.picker}
+            dropdownIconColor="#fff"
+            onValueChange={itemValue =>
+              setNewPractice(prev => ({...prev, type: itemValue}))
+            }>
+            <Picker.Item label="Meditation" value="meditation" />
+            <Picker.Item label="Yoga" value="yoga" />
+            <Picker.Item label="Breath" value="breathing" />
+          </Picker>
         </View>
-      )}
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save Practice</Text>
+        <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
+          <Text style={styles.imageButtonText}>
+            {newPractice.image ? 'Change Image' : 'Add Image'}
+          </Text>
         </TouchableOpacity>
 
-        {/* <TouchableOpacity 
+        {newPractice.image && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{uri: newPractice.image}}
+              style={styles.previewImage}
+            />
+            <TouchableOpacity
+              style={styles.removeImageButton}
+              onPress={() => setNewPractice(prev => ({...prev, image: null}))}>
+              <Text style={styles.removeImageText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save Practice</Text>
+          </TouchableOpacity>
+
+          {/* <TouchableOpacity 
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity> */}
-      </View>
+        </View>
       </ScrollView>
       <View style={{height: 100}} />
     </View>
