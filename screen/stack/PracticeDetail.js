@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {usePracticeContext} from '../../store/context';
+import LayoutTab from '../../components/layout/LayoutTab';
 
 const PracticeDetail = ({route, navigation}) => {
   const {practiceType, item} = route.params;
@@ -39,53 +40,60 @@ const PracticeDetail = ({route, navigation}) => {
     setIsActive(false);
     // Handle finishing the practice (e.g., navigate back or show a message)
   };
-  const renderImage = (imageSource) => {
+  const renderImage = imageSource => {
     if (typeof imageSource === 'number') {
       // Handle static images (from require)
       return imageSource;
-    } else if (typeof imageSource === 'string' && imageSource.startsWith('file://')) {
+    } else if (
+      typeof imageSource === 'string' &&
+      imageSource.startsWith('file://')
+    ) {
       // Handle local file URLs
-      return { uri: imageSource };
+      return {uri: imageSource};
     }
     return null; // Return null or a default image source
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-      <ScrollView>
-        <Text style={styles.title}>{item.name}</Text>
-
-        <View style={styles.imageContainer}>
-          <Image source={renderImage(item.image)} style={styles.image} />
-        </View>
-
-        <Text style={styles.timer}>
-          {`${Math.floor(timeLeft / 60)
-            .toString()
-            .padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`}
-        </Text>
-
-        <Text style={styles.description}>{item.text}</Text>
-      </ScrollView>
-      {!isActive ? (
-        <TouchableOpacity style={styles.startButton} onPress={handleStart}>
-          <Text style={styles.startButtonText}>Start</Text>
+    <LayoutTab>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
-          <Text style={styles.finishButtonText}>Finish</Text>
-        </TouchableOpacity>
-      )}
+        <ScrollView>
+          <Text style={styles.title}>{item.name}</Text>
 
-      {/* <TouchableOpacity style={styles.createButton}>
+          <View style={styles.imageContainer}>
+            <Image source={renderImage(item.image)} style={styles.image} />
+          </View>
+
+          <Text style={styles.timer}>
+            {`${Math.floor(timeLeft / 60)
+              .toString()
+              .padStart(2, '0')}:${(timeLeft % 60)
+              .toString()
+              .padStart(2, '0')}`}
+          </Text>
+
+          <Text style={styles.description}>{item.text}</Text>
+        </ScrollView>
+        {!isActive ? (
+          <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+            <Text style={styles.startButtonText}>Start</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+            <Text style={styles.finishButtonText}>Finish</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* <TouchableOpacity style={styles.createButton}>
         <Text style={styles.createButtonText}>Create new practice</Text>
       </TouchableOpacity> */}
-    </View>
+      </View>
+    </LayoutTab>
   );
 };
 
@@ -94,7 +102,7 @@ export default PracticeDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#100E1B',
+    // backgroundColor: '#100E1B',
     padding: 20,
     paddingTop: 50,
   },

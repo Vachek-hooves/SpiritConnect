@@ -9,6 +9,7 @@ import React from 'react';
 import {usePracticeContext} from '../../store/context';
 import LinearGradient from 'react-native-linear-gradient';
 import {Image} from 'react-native';
+import LayoutTab from '../../components/layout/LayoutTab';
 
 const Diary = ({navigation}) => {
   const {moodNotes, deleteMoodNote} = usePracticeContext();
@@ -35,68 +36,70 @@ const Diary = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mood tracker</Text>
-      {moodNotes.length === 0 ? (
-        <View style={styles.placeholderContainer}>
-          <Image
-            source={require('../../assets/images/icons/sadMood.png')}
-            style={styles.icon}
-          />
-          <Text style={styles.message}>
-            There aren’t any mood notes yet, please add something
-          </Text>
-        </View>
-      ) : (
-        <ScrollView style={styles.scrollView}>
-          {moodNotes.map((note, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.card}
-              onPress={() =>
-                navigation.navigate('MoodState', {
-                  item: note,
-                })
-              }>
-              <Text style={styles.cardDate}>{formatDate(note.date)}</Text>
-              <View style={styles.cardHeadingContainer}>
-                <Text style={styles.cardHeading}>{note.heading}</Text>
-                <Text style={styles.cardDescription}>{note.description}</Text>
-
-                <View style={styles.gradientContainer}>
-                  <LinearGradient
-                    colors={['#E50FE4', '#3493FC']}
-                    start={{x: 0, y: 0}}
-                    end={{x: 1, y: 0}}
-                    style={[
-                      styles.gradient,
-                      {width: `${note.moodLevel * 100}%`},
-                    ]}
-                  />
-                </View>
-                <View style={styles.moodTextContainer}>
-                  <Text style={styles.moodText}>Sadness</Text>
-                  <Text style={styles.moodText}>Happiness</Text>
-                </View>
-              </View>
+    <LayoutTab>
+      <View style={styles.container}>
+        <Text style={styles.title}>Mood tracker</Text>
+        {moodNotes.length === 0 ? (
+          <View style={styles.placeholderContainer}>
+            <Image
+              source={require('../../assets/images/icons/sadMood.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.message}>
+              There aren’t any mood notes yet, please add something
+            </Text>
+          </View>
+        ) : (
+          <ScrollView style={styles.scrollView}>
+            {moodNotes.map((note, index) => (
               <TouchableOpacity
-                onPress={() => deleteMoodNote(note.date)}
-                style={styles.deleteButton}>
-                <Image
-                  source={require('../../assets/images/icons/mdi_delete.png')}
-                />
+                key={index}
+                style={styles.card}
+                onPress={() =>
+                  navigation.navigate('MoodState', {
+                    item: note,
+                  })
+                }>
+                <Text style={styles.cardDate}>{formatDate(note.date)}</Text>
+                <View style={styles.cardHeadingContainer}>
+                  <Text style={styles.cardHeading}>{note.heading}</Text>
+                  <Text style={styles.cardDescription}>{note.description}</Text>
+
+                  <View style={styles.gradientContainer}>
+                    <LinearGradient
+                      colors={['#E50FE4', '#3493FC']}
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 0}}
+                      style={[
+                        styles.gradient,
+                        {width: `${note.moodLevel * 100}%`},
+                      ]}
+                    />
+                  </View>
+                  <View style={styles.moodTextContainer}>
+                    <Text style={styles.moodText}>Sadness</Text>
+                    <Text style={styles.moodText}>Happiness</Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => deleteMoodNote(note.date)}
+                  style={styles.deleteButton}>
+                  <Image
+                    source={require('../../assets/images/icons/mdi_delete.png')}
+                  />
+                </TouchableOpacity>
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('CreateMood')}>
-        <Text style={styles.addButtonText}>Add a mood note</Text>
-      </TouchableOpacity>
-      <View style={{height: 110}} />
-    </View>
+            ))}
+          </ScrollView>
+        )}
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('CreateMood')}>
+          <Text style={styles.addButtonText}>Add a mood note</Text>
+        </TouchableOpacity>
+        <View style={{height: 110}} />
+      </View>
+    </LayoutTab>
   );
 };
 
@@ -119,7 +122,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#100E1B',
+    // backgroundColor: '#100E1B',
     padding: 10,
     paddingTop: 100,
   },
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 100,
-    height: 100,
+    height: 110,
     marginBottom: 20,
   },
   message: {

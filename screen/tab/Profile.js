@@ -16,6 +16,7 @@ import {
   pauseBackgroundMusic,
   playBackgroundMusic,
 } from '../../components/Music/SoundConfig';
+import LayoutTab from '../../components/layout/LayoutTab';
 
 const Profile = () => {
   const {isMusicEnable, setIsMusicEnable} = usePracticeContext();
@@ -79,98 +80,112 @@ const Profile = () => {
     }
   };
   const renderViewMode = () => (
-    <View style={styles.container}>
-      <View style={styles.profileSection}>
-        <TouchableOpacity style={styles.profileImage} onPress={handleImagePick}>
-          {userData.profileImage ? (
-            <Image
-              source={{uri: userData.profileImage}}
-              style={styles.profileImageContent}
-            />
-          ) : (
-            <Text style={styles.profileIcon}>👤</Text>
-          )}
-        </TouchableOpacity>
-        <Text style={styles.userName}>{userData.name || 'Add your name'}</Text>
-        <Text style={styles.userAbout}>
-          {userData.about || 'Add something about yourself'}
-        </Text>
-      </View>
-
-      <View style={styles.settingsSection}>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Background Sound</Text>
-          <Switch
-            // value={userData.notifications}
-            // onValueChange={value =>
-            //   setUserData(prev => ({...prev, notifications: value}))
-            // }
-            value={isMusicEnable}
-            onValueChange={handleMusicToggle}
-            trackColor={{false: '#333', true: '#00FF7F'}}
-            thumbColor={'#fff'}
-          />
+    <LayoutTab>
+      <View style={styles.container}>
+        <View style={styles.profileSection}>
+          <TouchableOpacity
+            style={styles.profileImage}
+            onPress={handleImagePick}>
+            {userData.profileImage ? (
+              <Image
+                source={{uri: userData.profileImage}}
+                style={styles.profileImageContent}
+              />
+            ) : (
+              <Text style={styles.profileIcon}>👤</Text>
+            )}
+          </TouchableOpacity>
+          <Text style={styles.userName}>
+            {userData.name || 'Add your name'}
+          </Text>
+          <Text style={styles.userAbout}>
+            {userData.about || 'Add something about yourself'}
+          </Text>
         </View>
-      </View>
 
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => setIsEditing(true)}>
-        <Text style={styles.editButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.settingsSection}>
+          <View style={styles.settingItem}>
+            <Text style={styles.settingLabel}>Background Sound</Text>
+            <Switch
+              // value={userData.notifications}
+              // onValueChange={value =>
+              //   setUserData(prev => ({...prev, notifications: value}))
+              // }
+              value={isMusicEnable}
+              onValueChange={handleMusicToggle}
+              trackColor={{false: '#333', true: '#00FF7F'}}
+              thumbColor={'#fff'}
+            />
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => setIsEditing(true)}>
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
+      </View>
+    </LayoutTab>
   );
 
   const renderEditMode = () => (
-    <ScrollView style={styles.container}>
-      <View style={styles.imageContainer}>
-        <TouchableOpacity style={styles.profileImage} onPress={handleImagePick}>
-          {userData.profileImage ? (
-            <Image
-              source={{uri: userData.profileImage}}
-              style={styles.profileImageContent}
+    <LayoutTab>
+      <ScrollView style={styles.container}>
+        <View style={styles.imageContainer}>
+          <TouchableOpacity
+            style={styles.profileImage}
+            onPress={handleImagePick}>
+            {userData.profileImage ? (
+              <Image
+                source={{uri: userData.profileImage}}
+                style={styles.profileImageContent}
+              />
+            ) : (
+              <Text style={styles.profileIcon}>👤</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Your name</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={userData.name}
+              onChangeText={text =>
+                setUserData(prev => ({...prev, name: text}))
+              }
+              placeholder="Enter your name"
+              placeholderTextColor="#666"
             />
-          ) : (
-            <Text style={styles.profileIcon}>👤</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+          </View>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Your name</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={userData.name}
-            onChangeText={text => setUserData(prev => ({...prev, name: text}))}
-            placeholder="Enter your name"
-            placeholderTextColor="#666"
-          />
+          <Text style={styles.label}>About you</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={userData.about}
+              onChangeText={text =>
+                setUserData(prev => ({...prev, about: text}))
+              }
+              placeholder="Tell something about yourself"
+              placeholderTextColor="#666"
+              multiline
+            />
+          </View>
+
+          <TouchableOpacity style={styles.saveButton} onPress={saveUserData}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setIsEditing(false)}>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
         </View>
-
-        <Text style={styles.label}>About you</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={userData.about}
-            onChangeText={text => setUserData(prev => ({...prev, about: text}))}
-            placeholder="Tell something about yourself"
-            placeholderTextColor="#666"
-            multiline
-          />
-        </View>
-
-        <TouchableOpacity style={styles.saveButton} onPress={saveUserData}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => setIsEditing(false)}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </LayoutTab>
   );
 
   return isEditing ? renderEditMode() : renderViewMode();
@@ -179,7 +194,7 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#100E1B',
+    // backgroundColor: '#100E1B',
     paddingTop: 50,
     paddingHorizontal: 10,
   },

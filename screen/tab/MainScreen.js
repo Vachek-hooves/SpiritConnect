@@ -10,6 +10,7 @@ import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {usePracticeContext} from '../../store/context';
 import {meditation, yoga, breathing} from '../../data/cards'; // Import static data
+import LayoutTab from '../../components/layout/LayoutTab';
 
 const PracticeCard = ({item, type, onToggleComplete, navigation}) => {
   // Find the matching static card to get the correct image
@@ -103,78 +104,80 @@ const MainScreen = ({navigation}) => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Spirit Yoga</Text>
-        <TouchableOpacity style={styles.notificationButton} disabled>
-          <LinearGradient
-            colors={['#8B5CF6', '#EC4899']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.notificationGradient}>
-            {/* <Text style={styles.notificationIcon}>🔔</Text> */}
-            <Image source={require('../../assets/images/icons/bell.png')} />
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-      <SectionHeader
-        title="Meditations"
-        onPress={() => handleSectionPress('meditation', 'Meditations')}
-      />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}>
-        {practices.meditation.map(item => (
-          <PracticeCard
-            key={item.id}
-            item={item}
-            type="meditation"
-            onToggleComplete={togglePracticeCompletion}
-            navigation={navigation}
-          />
-        ))}
-      </ScrollView>
+    <LayoutTab>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Spirit Yoga</Text>
+          <TouchableOpacity style={styles.notificationButton} disabled>
+            <LinearGradient
+              colors={['#8B5CF6', '#EC4899']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 1}}
+              style={styles.notificationGradient}>
+              {/* <Text style={styles.notificationIcon}>🔔</Text> */}
+              <Image source={require('../../assets/images/icons/bell.png')} />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+        <SectionHeader
+          title="Meditations"
+          onPress={() => handleSectionPress('meditation', 'Meditations')}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.cardsContainer}>
+          {practices.meditation.map(item => (
+            <PracticeCard
+              key={item.id}
+              item={item}
+              type="meditation"
+              onToggleComplete={togglePracticeCompletion}
+              navigation={navigation}
+            />
+          ))}
+        </ScrollView>
 
-      <SectionHeader
-        title="Yoga"
-        onPress={() => handleSectionPress('yoga', 'Yoga')}
-      />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}>
-        {practices.yoga.map(item => (
-          <PracticeCard
-            key={item.id}
-            item={item}
-            type="yoga"
-            onToggleComplete={togglePracticeCompletion}
-            navigation={navigation}
-          />
-        ))}
-      </ScrollView>
+        <SectionHeader
+          title="Yoga"
+          onPress={() => handleSectionPress('yoga', 'Yoga')}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.cardsContainer}>
+          {practices.yoga.map(item => (
+            <PracticeCard
+              key={item.id}
+              item={item}
+              type="yoga"
+              onToggleComplete={togglePracticeCompletion}
+              navigation={navigation}
+            />
+          ))}
+        </ScrollView>
 
-      <SectionHeader
-        title="Breath practice"
-        onPress={() => handleSectionPress('breathing', 'Breath Practice')}
-      />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}>
-        {practices.breathing.map(item => (
-          <PracticeCard
-            key={item.id}
-            item={item}
-            type="breathing"
-            onToggleComplete={togglePracticeCompletion}
-            navigation={navigation}
-          />
-        ))}
+        <SectionHeader
+          title="Breath practice"
+          onPress={() => handleSectionPress('breathing', 'Breath Practice')}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.cardsContainer}>
+          {practices.breathing.map(item => (
+            <PracticeCard
+              key={item.id}
+              item={item}
+              type="breathing"
+              onToggleComplete={togglePracticeCompletion}
+              navigation={navigation}
+            />
+          ))}
+        </ScrollView>
+        <View style={{height: 120}} />
       </ScrollView>
-      <View style={{height: 120}} />
-    </ScrollView>
+    </LayoutTab>
   );
 };
 
@@ -183,7 +186,7 @@ export default MainScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#100E1B',
+    // backgroundColor: '#100E1B',
     padding: 20,
     paddingTop: 50,
   },

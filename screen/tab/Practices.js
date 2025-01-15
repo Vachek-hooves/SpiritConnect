@@ -13,6 +13,8 @@ import NoItems from '../../components/ui/NoItems';
 import {Picker} from '@react-native-picker/picker';
 import {launchImageLibrary} from 'react-native-image-picker';
 import DurationPicker from '../../components/ui/DurationPicker';
+import LayoutStack from '../../components/layout/LayoutStack';
+import LayoutTab from '../../components/layout/LayoutTab';
 
 const Practices = ({navigation}) => {
   const {addPractice} = usePracticeContext();
@@ -66,104 +68,113 @@ const Practices = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create New Practice</Text>
+    <LayoutTab>
+      <View style={styles.container}>
+        <Text style={styles.title}>Create New Practice</Text>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={{flex: 1}}>
-        <TextInput
-          style={styles.input}
-          placeholder="Practice name"
-          placeholderTextColor="#666"
-          value={newPractice.name}
-          onChangeText={text => setNewPractice(prev => ({...prev, name: text}))}
-        />
+        <ScrollView showsVerticalScrollIndicator={false} style={{flex: 1}}>
+          <TextInput
+            style={styles.input}
+            placeholder="Practice name"
+            placeholderTextColor="#666"
+            value={newPractice.name}
+            onChangeText={text =>
+              setNewPractice(prev => ({...prev, name: text}))
+            }
+          />
 
-        <DurationPicker
-          value={newPractice.duration}
-          onChange={duration =>
-            setNewPractice(prev => ({...prev, duration: duration}))
-          }
-        />
+          <DurationPicker
+            value={newPractice.duration}
+            onChange={duration =>
+              setNewPractice(prev => ({...prev, duration: duration}))
+            }
+          />
 
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Description"
-          placeholderTextColor="#666"
-          multiline
-          value={newPractice.text}
-          onChangeText={text => setNewPractice(prev => ({...prev, text: text}))}
-        />
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Description"
+            placeholderTextColor="#666"
+            multiline
+            value={newPractice.text}
+            onChangeText={text =>
+              setNewPractice(prev => ({...prev, text: text}))
+            }
+          />
 
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={newPractice.type}
-            style={styles.picker}
-            dropdownIconColor="#fff"
-            itemStyle={styles.pickerItem}
-            onValueChange={itemValue =>
-              setNewPractice(prev => ({...prev, type: itemValue}))
-            }>
-            <Picker.Item
-              label="Meditation"
-              value="meditation"
-              color="#00FF7F" // Custom text color for this item
-            />
-            <Picker.Item
-              label="Yoga"
-              value="yoga"
-              color="#00FF7F" // Custom text color for this item
-            />
-            <Picker.Item
-              label="Breath"
-              value="breathing"
-              color="#00FF7F" // Custom text color for this item
-              
-            />
-          </Picker>
-        </View>
-
-        <TouchableOpacity style={styles.imageButton} onPress={handleImagePick}>
-          <Text style={styles.imageButtonText}>
-            {newPractice.image ? 'Change Image' : 'Add Image'}
-          </Text>
-        </TouchableOpacity>
-
-        {newPractice.image && (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{uri: newPractice.image}}
-              style={styles.previewImage}
-            />
-            <TouchableOpacity
-              style={styles.removeImageButton}
-              onPress={() => setNewPractice(prev => ({...prev, image: null}))}>
-              <Text style={styles.removeImageText}>✕</Text>
-            </TouchableOpacity>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={newPractice.type}
+              style={styles.picker}
+              dropdownIconColor="#fff"
+              itemStyle={styles.pickerItem}
+              onValueChange={itemValue =>
+                setNewPractice(prev => ({...prev, type: itemValue}))
+              }>
+              <Picker.Item
+                label="Meditation"
+                value="meditation"
+                color="#00FF7F" // Custom text color for this item
+              />
+              <Picker.Item
+                label="Yoga"
+                value="yoga"
+                color="#00FF7F" // Custom text color for this item
+              />
+              <Picker.Item
+                label="Breath"
+                value="breathing"
+                color="#00FF7F" // Custom text color for this item
+              />
+            </Picker>
           </View>
-        )}
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Save Practice</Text>
+          <TouchableOpacity
+            style={styles.imageButton}
+            onPress={handleImagePick}>
+            <Text style={styles.imageButtonText}>
+              {newPractice.image ? 'Change Image' : 'Add Image'}
+            </Text>
           </TouchableOpacity>
 
-          {/* <TouchableOpacity 
+          {newPractice.image && (
+            <View style={styles.imageContainer}>
+              <Image
+                source={{uri: newPractice.image}}
+                style={styles.previewImage}
+              />
+              <TouchableOpacity
+                style={styles.removeImageButton}
+                onPress={() =>
+                  setNewPractice(prev => ({...prev, image: null}))
+                }>
+                <Text style={styles.removeImageText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Save Practice</Text>
+            </TouchableOpacity>
+
+            {/* <TouchableOpacity 
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity> */}
-        </View>
-      </ScrollView>
-      <View style={{height: 100}} />
-    </View>
+          </View>
+        </ScrollView>
+        <View style={{height: 100}} />
+      </View>
+    </LayoutTab>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#100E1B',
+    // backgroundColor: '#100E1B',
     padding: 20,
     paddingTop: 60,
   },
