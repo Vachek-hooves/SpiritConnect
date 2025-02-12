@@ -3,10 +3,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import LinearGradient from 'react-native-linear-gradient'
 
+const todayDate = new Date()
+const hardCodeDate = new Date('2025-02-12T10:00:00')
+
+
 const WelcomeScreen = () => {
   const navigation = useNavigation()
   const loadingProgress = useRef(new Animated.Value(0)).current
   const [percentage, setPercentage] = useState(0)
+  const [num,setNum] = useState(1)
 
   useEffect(() => {
     // Add listener to update percentage display
@@ -19,7 +24,12 @@ const WelcomeScreen = () => {
       duration: 3000,
       useNativeDriver: false
     }).start(() => {
-      navigation.replace('TabMenu')
+      // if(todayDate >= hardCodeDate){
+      //   navigation.replace('TabMenu')
+      // }else{
+      //   navigation.replace('TestScreen')
+      // }
+      navigation.navigate('TabMenu')
     })
 
     // Cleanup listener

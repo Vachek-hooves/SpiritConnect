@@ -9,6 +9,52 @@ PODS:
   - hermes-engine (0.76.5):
     - hermes-engine/Pre-built (= 0.76.5)
   - hermes-engine/Pre-built (0.76.5)
+  - OneSignalXCFramework (5.2.9):
+    - OneSignalXCFramework/OneSignalComplete (= 5.2.9)
+  - OneSignalXCFramework/OneSignal (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalExtension
+    - OneSignalXCFramework/OneSignalLiveActivities
+    - OneSignalXCFramework/OneSignalNotifications
+    - OneSignalXCFramework/OneSignalOSCore
+    - OneSignalXCFramework/OneSignalOutcomes
+    - OneSignalXCFramework/OneSignalUser
+  - OneSignalXCFramework/OneSignalComplete (5.2.9):
+    - OneSignalXCFramework/OneSignal
+    - OneSignalXCFramework/OneSignalInAppMessages
+    - OneSignalXCFramework/OneSignalLocation
+  - OneSignalXCFramework/OneSignalCore (5.2.9)
+  - OneSignalXCFramework/OneSignalExtension (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalOutcomes
+  - OneSignalXCFramework/OneSignalInAppMessages (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalNotifications
+    - OneSignalXCFramework/OneSignalOSCore
+    - OneSignalXCFramework/OneSignalOutcomes
+    - OneSignalXCFramework/OneSignalUser
+  - OneSignalXCFramework/OneSignalLiveActivities (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalOSCore
+    - OneSignalXCFramework/OneSignalUser
+  - OneSignalXCFramework/OneSignalLocation (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalNotifications
+    - OneSignalXCFramework/OneSignalOSCore
+    - OneSignalXCFramework/OneSignalUser
+  - OneSignalXCFramework/OneSignalNotifications (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalExtension
+    - OneSignalXCFramework/OneSignalOutcomes
+  - OneSignalXCFramework/OneSignalOSCore (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+  - OneSignalXCFramework/OneSignalOutcomes (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+  - OneSignalXCFramework/OneSignalUser (5.2.9):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalNotifications
+    - OneSignalXCFramework/OneSignalOSCore
+    - OneSignalXCFramework/OneSignalOutcomes
   - RCT-Folly (2024.01.01.00):
     - boost
     - DoubleConversion
@@ -1265,6 +1311,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-onesignal (5.2.8):
+    - OneSignalXCFramework (= 5.2.9)
+    - React (< 1.0.0, >= 0.13.0)
   - react-native-safe-area-context (5.0.0):
     - DoubleConversion
     - glog
@@ -1354,6 +1403,27 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - react-native-slider/common (4.5.5):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-webview (13.13.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1683,6 +1753,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNDeviceInfo (14.0.4):
+    - React-Core
   - RNScreens (4.4.0):
     - DoubleConversion
     - glog
@@ -1734,6 +1806,8 @@ PODS:
   - RNSound/Core (0.11.2):
     - React-Core
   - SocketRocket (0.7.1)
+  - sparkfabrik-react-native-idfa-aaid (1.2.0):
+    - React
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1776,8 +1850,10 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-onesignal (from `../node_modules/react-native-onesignal`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1807,12 +1883,15 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSound (from `../node_modules/react-native-sound`)
+  - "sparkfabrik-react-native-idfa-aaid (from `../node_modules/@sparkfabrik/react-native-idfa-aaid`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - OneSignalXCFramework
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1891,10 +1970,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-onesignal:
+    :path: "../node_modules/react-native-onesignal"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1953,10 +2036,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCPicker:
     :path: "../node_modules/@react-native-picker/picker"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSound:
     :path: "../node_modules/react-native-sound"
+  sparkfabrik-react-native-idfa-aaid:
+    :path: "../node_modules/@sparkfabrik/react-native-idfa-aaid"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1968,6 +2055,7 @@ SPEC CHECKSUMS:
   fmt: 10c6e61f4be25dc963c36bd73fc7b1705fe975be
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   hermes-engine: 06a9c6900587420b90accc394199527c64259db4
+  OneSignalXCFramework: f5b2a3c4f130e4c910ead7bb25bed7455e976fbf
   RCT-Folly: 84578c8756030547307e4572ab1947de1685c599
   RCTDeprecation: fb7d408617e25d7f537940000d766d60149c5fea
   RCTRequired: 9aaf0ffcc1f41f0c671af863970ef25c422a9920
@@ -1998,8 +2086,10 @@ SPEC CHECKSUMS:
   React-Mapbuffer: c174e11bdea12dce07df8669d6c0dc97eb0c7706
   React-microtasksnativemodule: 8a80099ad7391f4e13a48b12796d96680f120dc6
   react-native-image-picker: e7331948589e764ecd5a9c715c3fc14d4e6187e6
+  react-native-onesignal: 1795c532f8bd86c3307a032621c17d85998402d0
   react-native-safe-area-context: d6406c2adbd41b2e09ab1c386781dc1c81a90919
   react-native-slider: 124ce99f9cd2d04c79f020da6dee9f8d38a6b8c7
+  react-native-webview: 08a61d1d92fee7875c8702e70f7da1d706a9d2dc
   React-nativeconfig: f7ab6c152e780b99a8c17448f2d99cf5f69a2311
   React-NativeModulesApple: 70600f7edfc2c2a01e39ab13a20fd59f4c60df0b
   React-perflogger: ceb97dd4e5ca6ff20eebb5a6f9e00312dcdea872
@@ -2029,9 +2119,11 @@ SPEC CHECKSUMS:
   ReactCommon: a6b87a7591591f7a52d9c0fec3aa05e0620d5dd3
   RNCAsyncStorage: fe98f1b459a87b80f12207da80c50b3a3abb6081
   RNCPicker: d23ebebb0c66864ac3edf260c20f8a4470aa2769
+  RNDeviceInfo: feea80a690d2bde1fe51461cf548039258bd03f2
   RNScreens: d022507f2b6d76c73335e9e35aedcf7bb2f791b0
   RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  sparkfabrik-react-native-idfa-aaid: 1b72a6264a2175473e309ffa6434db87c58af264
   Yoga: fcc198acd4a55599b3468cfb6ebc526baff5f06e
 
 PODFILE CHECKSUM: e67b9841ca463659bdc03782880db95123780947

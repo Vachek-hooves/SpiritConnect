@@ -15,7 +15,7 @@ export const PracticeProvider = ({children}) => {
     breathing: [],
   });
   const [moodNotes, setMoodNotes] = useState([]);
-  console.log(practices.meditation.length, 'context');
+
 
   const initializeData = async () => {
     try {

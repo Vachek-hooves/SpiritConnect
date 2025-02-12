@@ -14,6 +14,18 @@ const TabMenu = () => {
         tabBarShowLabel: true,
         tabBarLabelStyle: styles.tabBarLabel,
       }}>
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            tabBarIcon: ({focused, color}) => (
+              <Image
+                source={require('../assets/images/icons/profile.png')}
+                style={[styles.icon, {tintColor: color}]}
+              />
+            ),
+          }}
+        />
       <Tab.Screen
         name="Home"
         component={MainScreen}
@@ -45,18 +57,6 @@ const TabMenu = () => {
           tabBarIcon: ({focused, color}) => (
             <Image
               source={require('../assets/images/icons/diary.png')}
-              style={[styles.icon, {tintColor: color}]}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          tabBarIcon: ({focused, color}) => (
-            <Image
-              source={require('../assets/images/icons/profile.png')}
               style={[styles.icon, {tintColor: color}]}
             />
           ),

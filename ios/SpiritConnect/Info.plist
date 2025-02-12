@@ -32,6 +32,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We need access to track your usage of the app</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to photo library to set profile image</string>
 	<key>NSCameraUsageDescription</key>

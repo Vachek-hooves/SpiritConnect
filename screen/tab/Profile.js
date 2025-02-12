@@ -16,6 +16,19 @@ import {
   pauseBackgroundMusic,
   playBackgroundMusic,
 } from '../../components/Music/SoundConfig';
+import WebView from 'react-native-webview';
+import ReactNativeIdfaAaid, {
+  AdvertisingInfoResponse,
+} from '@sparkfabrik/react-native-idfa-aaid';
+import DeviceInfo from 'react-native-device-info';
+import {
+  getUniqueId,
+  getManufacturer,
+  getSystemVersion,
+  getSystemName,
+  getCustomId,
+ 
+} from 'react-native-device-info';
 
 const Profile = () => {
   const {isMusicEnable, setIsMusicEnable} = usePracticeContext();
@@ -25,10 +38,36 @@ const Profile = () => {
     notifications: false,
     profileImage: null,
   });
+  
   const [isEditing, setIsEditing] = useState(false);
+  const [showWeb, setShowWeb] = useState(false);
+  const [idfa, setIdfa] = useState();
+  const [deviceId, setDeviceId] = useState();
+  const [manufacturer, setManufacturer] = useState();
+  const [systemVersion, setSystemVersion] = useState();
+  const [systemName, setSystemName] = useState();
+
+
+  // console.log('idfa', idfa);
+  // console.log('deviceId', deviceId);
+  // console.log('manufacturer', manufacturer);
+  // console.log('systemVersion', systemVersion);
+  // console.log('systemName', systemName);
+
+ 
 
   useEffect(() => {
     loadUserData();
+    ReactNativeIdfaAaid.getAdvertisingInfo()
+      .then(res => (!res.isAdTrackingLimited ? setIdfa(res.id) : setIdfa(null)))
+      .catch(err => {
+        console.log(err);
+        // return setIdfa(null);
+      });
+    setDeviceId(getUniqueId());
+    setManufacturer(getManufacturer());
+    setSystemVersion(getSystemVersion());
+    setSystemName(getSystemName());
   }, []);
 
   const loadUserData = async () => {
@@ -78,6 +117,11 @@ const Profile = () => {
       pauseBackgroundMusic();
     }
   };
+
+  const handleWebView = () => {
+    setShowWeb(prev => !prev);
+  };
+
   const renderViewMode = () => (
     <View style={styles.container}>
       <View style={styles.profileSection}>
@@ -118,6 +162,15 @@ const Profile = () => {
         onPress={() => setIsEditing(true)}>
         <Text style={styles.editButtonText}>Edit Profile</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.webViewBtn}
+        onPress={() => handleWebView(true)}>
+        <Text style={styles.WebViewText}>Web View</Text>
+      </TouchableOpacity>
+      {showWeb && (
+        <WebView source={{uri: 'https://reactnative.dev/'}} style={{flex: 1}} />
+      )}
     </View>
   );
 
@@ -291,6 +344,18 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: '#FF0000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  webViewBtn: {
+    backgroundColor: '#00FF7F',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  WebViewText: {
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },

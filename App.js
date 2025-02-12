@@ -18,9 +18,34 @@ import {
   setupPlayer,
 } from './components/Music/SoundConfig';
 import {usePracticeContext} from './store/context';
+import TestScreen from './screen/stack/TestScreen';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 
 const Stack = createNativeStackNavigator();
+
+
 function App() {
+
+  // Remove this method to stop OneSignal Debugging
+  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+
+  // OneSignal Initialization
+  OneSignal.initialize("843280c8-82d4-461c-97a6-28e5f209ddb3");
+
+  OneSignal
+
+  // requestPermission will show the native iOS or Android notification permission prompt.
+  // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+
+  OneSignal.Notifications.requestPermission(true);
+
+  // Method for listening for notification clicks
+  OneSignal.Notifications.addEventListener('click', (event) => {
+    console.log('OneSignal: notification clicked:', event);
+  });
+
+
+
   const {isMusicEnable} = usePracticeContext();
   const [isPlayMusic, setIsPlayMusic] = useState(false);
   useEffect(() => {
@@ -63,6 +88,7 @@ function App() {
           <Stack.Screen name="CreatePractice" component={CreatePractice} />
           <Stack.Screen name="CreateMood" component={CreateMood} />
           <Stack.Screen name="MoodState" component={MoodState} />
+          <Stack.Screen name="TestScreen" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PracticeProvider>
