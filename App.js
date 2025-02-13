@@ -30,33 +30,34 @@ import {setupConversionListener} from './config/onInstallConversation';
 import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
+
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
 // API token V2 (optional): [Enter the token]
 // OneSignal 843280c8-82d4-461c-97a6-28e5f209ddb3
+// appId: 'com.spiritconnect',
+
+const todayDate = new Date();
+const hardCodeDate = new Date('2025-02-18T10:00:00');
 
 const deviceId = getUniqueId();
-const manufacturer = getManufacturer();
 
-console.log('deviceId,line33', deviceId);
-console.log('manufacturer', manufacturer);
+const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+const URL_IDENTIFAIRE = `9QNrrgg5`;
+const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
+
 
 const option = {
   devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
   appId: 'com.spiritconnect',
   onInstallConversionDataListener: true,
+  timeToWaitForATTUserAuthorization: 10,
   onDeepLinkListener: true,
-  manualStart: true,
 };
 
 const Stack = createNativeStackNavigator();
 
 function App() {
-  const {isMusicEnable} = usePracticeContext();
-  const [isPlayMusic, setIsPlayMusic] = useState(false);
-  const [deviceUniqId, setDeviceUniqId] = useState(null);
-  const [aaid, setAaid] = useState(null);
-  console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   // OneSignal Initialization
@@ -68,62 +69,161 @@ function App() {
   OneSignal.Notifications.addEventListener('click', event => {
     console.log('OneSignal: notification clicked:', event);
   });
-  const [route, setRoute] = useState(false);
 
-  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
-  const URL_IDENTIFAIRE = `9QNrrgg5`;
+  const [isDateOk, setIsDateOk] = useState();
+  const {isMusicEnable} = usePracticeContext();
+  const [isPlayMusic, setIsPlayMusic] = useState(false);
+  const [deviceUniqId, setDeviceUniqId] = useState(null);
+  const [aaid, setAaid] = useState(null);
+  // console.log('aaid App.js', aaid);
 
   useEffect(() => {
-    // const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    // //console.log(checkUrl);
+    const initAppsFlyer = async () => {
+      try {
+        console.log('Starting AppsFlyer setup...');
+        
+        // 1. Create a Promise that will timeout after 10 seconds
+        const getConversionData = () => {
+          return new Promise((resolve) => {
+            console.log('Setting up conversion listener');
+            
+            // Set a timeout to resolve after 10 seconds
+            const timeoutId = setTimeout(() => {
+              console.log('⚠️ Conversion data timeout - no response received');
+              resolve({ response: null, canceller: null });
+            }, 10000);
 
-    // const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
-    // const currentData = new Date(); //текущая дата
+            const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
+              (res) => {
+                console.log('🎯 Conversion callback received!');
+                clearTimeout(timeoutId); // Clear the timeout as we got a response
+                
+                if (res && res.data) {
+                  console.log('📦 Conversion data:', {
+                    is_first_launch: res.data.is_first_launch,
+                    af_status: res.data.af_status,
+                    type: res.type,
+                    status: res.status
+                  });
+                  console.log('af_status - ', res.data.af_status);
+                } else {
+                  console.log('⚠️ No data in conversion response');
+                }
+                
+                resolve({ 
+                  response: res, 
+                  canceller: onInstallConversionDataCanceller 
+                });
+              }
+            );
+            
+            // Log the listener setup completion
+            console.log('✅ Conversion listener setup complete');
+          });
+        };
 
-    // if (!route) {
-    //   if (currentData <= targetData) {
-    //     setRoute(false);
-    //   } else {
-    //     fetch(checkUrl)
-    //       .then(r => {
-    //         if (r.status === 200) {
-    //           console.log('status по клоаке==>', r.status);
-    //           setRoute(true);
-    //         } else {
-    //           setRoute(false);
-    //         }
-    //       })
-    //       .catch(e => {
-    //         //console.log('errar', e);
-    //         setRoute(false);
-    //       });
-    //   }
-    // }
+        // 2. Start the conversion data listener
+        const conversionPromise = getConversionData();
+        
+        // 3. Initialize SDK with debug options
+        const options = {
+          devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
+          appId: 'com.spiritconnect',
+          onInstallConversionDataListener: true,
+          isDebug: true,
+          debug: true // Additional debug flag
+        };
+
+        // 4. Initialize SDK
+        console.log('🚀 Initializing AppsFlyer SDK');
+        appsFlyer.initSdk(
+          options,
+          (result) => {
+            console.log('✨ SDK Init success:', result);
+            console.log('🔄 Starting SDK explicitly');
+            appsFlyer.startSdk();
+          },
+          (error) => {
+            console.error('❌ SDK Init failed:', error);
+          }
+        );
+
+        // 5. Wait for conversion data with timeout
+        console.log('⏳ Waiting for conversion data...');
+        const { response, canceller } = await conversionPromise;
+        
+        if (response) {
+          console.log('🎉 Conversion data received!');
+          try {
+            const isFirstLaunch = JSON.parse(response?.data?.is_first_launch);
+            console.log('📱 First launch?', isFirstLaunch);
+            
+            if (isFirstLaunch === true) {
+              if (response.data.af_status === 'Non-organic') {
+                console.log('🔥 Non-organic install:', {
+                  media_source: response.data.media_source,
+                  campaign: response.data.campaign
+                });
+              } else if (response.data.af_status === 'Organic') {
+                console.log('🌱 Organic install');
+                console.log('🔥 Organic install:', {
+                  media_source: response.data.media_source,
+                  campaign: response.data.campaign
+                });
+              }
+            } else {
+              console.log('🔄 Not first launch');
+            }
+          } catch (error) {
+            console.error('❌ Error processing data:', error);
+          }
+        }
+
+        // 6. Get UID for verification
+        appsFlyer.getAppsFlyerUID((error, uid) => {
+          if (uid) {
+            console.log('🔑 AppsFlyer UID:', uid);
+          } else {
+            console.error('❌ Error getting UID:', error);
+          }
+        });
+
+        return () => {
+          if (canceller) {
+            console.log('🧹 Cleaning up conversion listener');
+            canceller();
+          }
+        };
+      } catch (error) {
+        console.error('❌ Error in AppsFlyer setup:', error);
+      }
+    };
 
     initAppsFlyer();
   }, []);
 
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
-    // const onInstallConversionDataCanceller =
-    appsFlyer.onInstallConversionData(res => {
-      if (JSON.parse(res.data.is_first_launch) == true) {
-        if (res.data.af_status === 'Non-organic') {
-          var media_source = res.data.media_source;
-          var campaign = res.data.campaign;
-          console.log(
-            'This is first launch and a Non-Organic install. Media source: ' +
-              media_source +
-              ' Campaign: ' +
-              campaign,
-          );
-        } else if (res.data.af_status === 'Organic') {
-          console.log('This is first launch and a Organic Install');
-        }
-      } else {
-        console.log('This is not first launch');
-      }
-    });
+    // const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
+    //   res => {
+    //     if (JSON.parse(res.data.is_first_launch) == true) {
+    //       if (res.data.af_status === 'Non-organic') {
+    //         var media_source = res.data.media_source;
+    //         var campaign = res.data.campaign;
+    //         console.log(
+    //           'This is first launch and a Non-Organic install. Media source: ' +
+    //             media_source +
+    //             ' Campaign: ' +
+    //             campaign,
+    //         );
+    //       } else if (res.data.af_status === 'Organic') {
+    //         console.log('This is first launch and a Organic Install');
+    //       }
+    //     } else {
+    //       console.log('This is not first launch');
+    //     }
+    //   },
+    // );
     // onInstallConversionDataCanceller();
 
     // Set up conversion listener BEFORE initializing SDK
@@ -145,7 +245,7 @@ function App() {
     appsFlyer.startSdk();
 
     const getDiviceUniqId = await getUniqueId();
-    
+
     // console.log('uniq id from getUniqueId', getDiviceUniqId);
     setDeviceUniqId(getDiviceUniqId);
     // console.log('AppsFlyer SDK integration:', appsFlyer);
