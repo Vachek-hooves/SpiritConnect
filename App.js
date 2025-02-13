@@ -18,11 +18,157 @@ import {
   setupPlayer,
 } from './components/Music/SoundConfig';
 import {usePracticeContext} from './store/context';
+import appsFlyer from 'react-native-appsflyer';
+import {getUniqueId, getManufacturer} from 'react-native-device-info';
+import {initAppsFlyerSdk, setCustomerUserId} from './config/appsFlyerSet';
+import ReactNativeIdfaAaid, {
+  AdvertisingInfoResponse,
+} from '@sparkfabrik/react-native-idfa-aaid';
+import {LogLevel, OneSignal} from 'react-native-onesignal';
+import TestScreen from './screen/stack/TestScreen';
+import {setupConversionListener} from './config/onInstallConversation';
+import {handleCustomerUserId} from './config/handleCustomerUserId';
+import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
+import {handleGetAaid} from './config/handleGetAaid';
+// App ID/Package name: id6740289002
+// Dev key: ZP6F7NaeyNmgAdC29AdB4T
+// API token V2 (optional): [Enter the token]
+// OneSignal 843280c8-82d4-461c-97a6-28e5f209ddb3
+
+const deviceId = getUniqueId();
+const manufacturer = getManufacturer();
+
+console.log('deviceId,line33', deviceId);
+console.log('manufacturer', manufacturer);
+
+const option = {
+  devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
+  appId: 'com.spiritconnect',
+  onInstallConversionDataListener: true,
+  onDeepLinkListener: true,
+  manualStart: true,
+};
 
 const Stack = createNativeStackNavigator();
+
 function App() {
   const {isMusicEnable} = usePracticeContext();
   const [isPlayMusic, setIsPlayMusic] = useState(false);
+  const [deviceUniqId, setDeviceUniqId] = useState(null);
+  const [aaid, setAaid] = useState(null);
+  console.log('aaid App.js', aaid);
+  // Remove this method to stop OneSignal Debugging
+  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+  // OneSignal Initialization
+  OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
+  // requestPermission will show the native iOS or Android notification permission prompt.
+  // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  OneSignal.Notifications.requestPermission(true);
+  // Method for listening for notification clicks
+  OneSignal.Notifications.addEventListener('click', event => {
+    console.log('OneSignal: notification clicked:', event);
+  });
+  const [route, setRoute] = useState(false);
+
+  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+  const URL_IDENTIFAIRE = `9QNrrgg5`;
+
+  useEffect(() => {
+    // const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    // //console.log(checkUrl);
+
+    // const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
+    // const currentData = new Date(); //текущая дата
+
+    // if (!route) {
+    //   if (currentData <= targetData) {
+    //     setRoute(false);
+    //   } else {
+    //     fetch(checkUrl)
+    //       .then(r => {
+    //         if (r.status === 200) {
+    //           console.log('status по клоаке==>', r.status);
+    //           setRoute(true);
+    //         } else {
+    //           setRoute(false);
+    //         }
+    //       })
+    //       .catch(e => {
+    //         //console.log('errar', e);
+    //         setRoute(false);
+    //       });
+    //   }
+    // }
+
+    initAppsFlyer();
+  }, []);
+
+  const initAppsFlyer = async () => {
+    // launch before appsflyer init. First install registration
+    // const onInstallConversionDataCanceller =
+    appsFlyer.onInstallConversionData(res => {
+      if (JSON.parse(res.data.is_first_launch) == true) {
+        if (res.data.af_status === 'Non-organic') {
+          var media_source = res.data.media_source;
+          var campaign = res.data.campaign;
+          console.log(
+            'This is first launch and a Non-Organic install. Media source: ' +
+              media_source +
+              ' Campaign: ' +
+              campaign,
+          );
+        } else if (res.data.af_status === 'Organic') {
+          console.log('This is first launch and a Organic Install');
+        }
+      } else {
+        console.log('This is not first launch');
+      }
+    });
+    // onInstallConversionDataCanceller();
+
+    // Set up conversion listener BEFORE initializing SDK
+    // const conversionCanceller = setupConversionListener();
+
+    const aaid = await handleGetAaid();
+    setAaid(aaid);
+
+    // handleInitSdk();
+    appsFlyer.initSdk(
+      option,
+      res => {
+        console.log('AppsFlyer SDK integration:', res);
+      },
+      error => {
+        console.error('AppsFlyer SDK failed to start:', error);
+      },
+    );
+    appsFlyer.startSdk();
+
+    const getDiviceUniqId = await getUniqueId();
+    
+    // console.log('uniq id from getUniqueId', getDiviceUniqId);
+    setDeviceUniqId(getDiviceUniqId);
+    // console.log('AppsFlyer SDK integration:', appsFlyer);
+    handleCustomerUserId(getDiviceUniqId);
+    // appsFlyer.setCustomerUserId(
+    //   deviceUniqId,
+    //   res => {
+    //     console.log('AppsFlyer SDK setCustomerUserId:', res);
+    //   },
+    //   error => {
+    //     console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
+    //   },
+    // );
+    handleAppsFlyerUID();
+    // appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
+    //   if (err) {
+    //     console.error(err);
+    //   } else {
+    //     console.log('on getAppsFlyerUID: ', appsFlyerUID);
+    //   }
+    // });
+  };
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
@@ -63,6 +209,7 @@ function App() {
           <Stack.Screen name="CreatePractice" component={CreatePractice} />
           <Stack.Screen name="CreateMood" component={CreateMood} />
           <Stack.Screen name="MoodState" component={MoodState} />
+          <Stack.Screen name="TestScreen" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PracticeProvider>
