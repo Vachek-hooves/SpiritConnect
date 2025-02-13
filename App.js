@@ -46,7 +46,6 @@ const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `9QNrrgg5`;
 const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
 
-
 const option = {
   devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
   appId: 'com.spiritconnect',
@@ -54,6 +53,9 @@ const option = {
   timeToWaitForATTUserAuthorization: 10,
   onDeepLinkListener: true,
 };
+const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
+  1000000 + Math.random() * 9000000,
+)}`;
 
 const Stack = createNativeStackNavigator();
 
@@ -75,198 +77,107 @@ function App() {
   const [isPlayMusic, setIsPlayMusic] = useState(false);
   const [deviceUniqId, setDeviceUniqId] = useState(null);
   const [aaid, setAaid] = useState(null);
+  const [oneSignalId, setOneSignalId] = useState(null);
+  const [oneSignalAddTag, setOneSignalAddTag] = useState(null);
+  console.log('oneSignalId App.js line 79', oneSignalId);
+  console.log('oneSignalAddTag App.js line 79', oneSignalAddTag);
   // console.log('aaid App.js', aaid);
 
   useEffect(() => {
+    handleDateCheck();
     const initAppsFlyer = async () => {
       try {
-        console.log('Starting AppsFlyer setup...');
-        
-        // 1. Create a Promise that will timeout after 10 seconds
-        const getConversionData = () => {
-          return new Promise((resolve) => {
-            console.log('Setting up conversion listener');
-            
-            // Set a timeout to resolve after 10 seconds
-            const timeoutId = setTimeout(() => {
-              console.log('⚠️ Conversion data timeout - no response received');
-              resolve({ response: null, canceller: null });
-            }, 10000);
+        // 1. Set up conversion listener FIRST (before any initialization)
+        // const conversionPromise = new Promise(resolve => {
+        //   const onInstallConversionDataCanceller =
+        //     appsFlyer.onInstallConversionData(res => {
+        //       console.log('Conversion data:', JSON.stringify(res, null, 2));
+        //       try {
+        //         if (JSON.parse(res.data.is_first_launch) === true) {
+        //           if (res.data.af_status === 'Non-organic') {
+        //             console.log('Non-organic install:', {
+        //               media_source: res.data.media_source,
+        //               campaign: res.data.campaign,
+        //             });
+        //           } else if (res.data.af_status === 'Organic') {
+        //             console.log('Organic install');
+        //           }
+        //         } else {
+        //           console.log('Not first launch');
+        //         }
+        //       } catch (error) {
+        //         console.error('Error processing conversion data:', error);
+        //       }
+        //     });
+        // });
 
-            const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
-              (res) => {
-                console.log('🎯 Conversion callback received!');
-                clearTimeout(timeoutId); // Clear the timeout as we got a response
-                
-                if (res && res.data) {
-                  console.log('📦 Conversion data:', {
-                    is_first_launch: res.data.is_first_launch,
-                    af_status: res.data.af_status,
-                    type: res.type,
-                    status: res.status
-                  });
-                  console.log('af_status - ', res.data.af_status);
-                } else {
-                  console.log('⚠️ No data in conversion response');
-                }
-                
-                resolve({ 
-                  response: res, 
-                  canceller: onInstallConversionDataCanceller 
-                });
-              }
-            );
-            
-            // Log the listener setup completion
-            console.log('✅ Conversion listener setup complete');
-          });
-        };
-
-        // 2. Start the conversion data listener
-        const conversionPromise = getConversionData();
-        
-        // 3. Initialize SDK with debug options
-        const options = {
-          devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
-          appId: 'com.spiritconnect',
-          onInstallConversionDataListener: true,
-          isDebug: true,
-          debug: true // Additional debug flag
-        };
-
-        // 4. Initialize SDK
-        console.log('🚀 Initializing AppsFlyer SDK');
-        appsFlyer.initSdk(
-          options,
-          (result) => {
-            console.log('✨ SDK Init success:', result);
-            console.log('🔄 Starting SDK explicitly');
-            appsFlyer.startSdk();
-          },
-          (error) => {
-            console.error('❌ SDK Init failed:', error);
-          }
-        );
-
-        // 5. Wait for conversion data with timeout
-        console.log('⏳ Waiting for conversion data...');
-        const { response, canceller } = await conversionPromise;
-        
-        if (response) {
-          console.log('🎉 Conversion data received!');
-          try {
-            const isFirstLaunch = JSON.parse(response?.data?.is_first_launch);
-            console.log('📱 First launch?', isFirstLaunch);
-            
-            if (isFirstLaunch === true) {
-              if (response.data.af_status === 'Non-organic') {
-                console.log('🔥 Non-organic install:', {
-                  media_source: response.data.media_source,
-                  campaign: response.data.campaign
-                });
-              } else if (response.data.af_status === 'Organic') {
-                console.log('🌱 Organic install');
-                console.log('🔥 Organic install:', {
-                  media_source: response.data.media_source,
-                  campaign: response.data.campaign
-                });
-              }
-            } else {
-              console.log('🔄 Not first launch');
-            }
-          } catch (error) {
-            console.error('❌ Error processing data:', error);
-          }
+        const oneSignalId = await OneSignal.User.getOnesignalId();
+        if (oneSignalId) {
+          setOneSignalId(oneSignalId);
         }
 
-        // 6. Get UID for verification
-        appsFlyer.getAppsFlyerUID((error, uid) => {
-          if (uid) {
-            console.log('🔑 AppsFlyer UID:', uid);
-          } else {
-            console.error('❌ Error getting UID:', error);
-          }
-        });
+        // OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
+        // if (oneSignalAddTag) {
+        //   setOneSignalAddTag(oneSignalAddTag);
+        // }
 
-        return () => {
-          if (canceller) {
-            console.log('🧹 Cleaning up conversion listener');
-            canceller();
-          }
-        };
+        const onInstallConversionDataCanceller =
+          appsFlyer.onInstallConversionData(res => {
+            if (JSON.parse(res.data.is_first_launch) == true) {
+              if (res.data.af_status === 'Non-organic') {
+                var media_source = res.data.media_source;
+                var campaign = res.data.campaign;
+                console.log(
+                  'This is first launch and a Non-Organic install. Media source: ' +
+                    media_source +
+                    ' Campaign: ' +
+                    campaign,
+                );
+              } else if (res.data.af_status === 'Organic') {
+                console.log('This is first launch and a Organic Install');
+                console.log(res);
+                console.group(res.data);
+              }
+            } else {
+              console.log('This is not first launch');
+            }
+          });
+
+        // 2. Get AAID
+        const aaid = await handleGetAaid();
+        setAaid(aaid);
+
+        // 3. Initialize AppsFlyer
+        appsFlyer.initSdk(
+          option,
+          res => {
+            console.log('AppsFlyer SDK integration:', res);
+          },
+          error => {
+            console.error('AppsFlyer SDK failed to start:', error);
+          },
+        );
+
+        // 4. Start SDK
+        appsFlyer.startSdk();
+
+        // 5. Get device unique ID
+        const getDiviceUniqId = await getUniqueId();
+        setDeviceUniqId(getDiviceUniqId);
       } catch (error) {
-        console.error('❌ Error in AppsFlyer setup:', error);
+        console.error('Error in AppsFlyer initialization:', error);
       }
     };
 
     initAppsFlyer();
   }, []);
 
-  const initAppsFlyer = async () => {
-    // launch before appsflyer init. First install registration
-    // const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
-    //   res => {
-    //     if (JSON.parse(res.data.is_first_launch) == true) {
-    //       if (res.data.af_status === 'Non-organic') {
-    //         var media_source = res.data.media_source;
-    //         var campaign = res.data.campaign;
-    //         console.log(
-    //           'This is first launch and a Non-Organic install. Media source: ' +
-    //             media_source +
-    //             ' Campaign: ' +
-    //             campaign,
-    //         );
-    //       } else if (res.data.af_status === 'Organic') {
-    //         console.log('This is first launch and a Organic Install');
-    //       }
-    //     } else {
-    //       console.log('This is not first launch');
-    //     }
-    //   },
-    // );
-    // onInstallConversionDataCanceller();
-
-    // Set up conversion listener BEFORE initializing SDK
-    // const conversionCanceller = setupConversionListener();
-
-    const aaid = await handleGetAaid();
-    setAaid(aaid);
-
-    // handleInitSdk();
-    appsFlyer.initSdk(
-      option,
-      res => {
-        console.log('AppsFlyer SDK integration:', res);
-      },
-      error => {
-        console.error('AppsFlyer SDK failed to start:', error);
-      },
-    );
-    appsFlyer.startSdk();
-
-    const getDiviceUniqId = await getUniqueId();
-
-    // console.log('uniq id from getUniqueId', getDiviceUniqId);
-    setDeviceUniqId(getDiviceUniqId);
-    // console.log('AppsFlyer SDK integration:', appsFlyer);
-    handleCustomerUserId(getDiviceUniqId);
-    // appsFlyer.setCustomerUserId(
-    //   deviceUniqId,
-    //   res => {
-    //     console.log('AppsFlyer SDK setCustomerUserId:', res);
-    //   },
-    //   error => {
-    //     console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
-    //   },
-    // );
-    handleAppsFlyerUID();
-    // appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
-    //   if (err) {
-    //     console.error(err);
-    //   } else {
-    //     console.log('on getAppsFlyerUID: ', appsFlyerUID);
-    //   }
-    // });
+  const handleDateCheck = () => {
+    if (todayDate >= hardCodeDate) {
+      setIsDateOk(true);
+    } else {
+      setIsDateOk(false);
+    }
   };
 
   useEffect(() => {
@@ -296,21 +207,38 @@ function App() {
   return (
     <PracticeProvider>
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: 'fade',
-            animationDuration: 600,
-          }}>
-          <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-          <Stack.Screen name="TabMenu" component={TabMenu} />
-          <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
+        {isDateOk ? (
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              animationDuration: 600,
+            }}>
+            <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+            <Stack.Screen name="TabMenu" component={TabMenu} />
+            <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
+            <Stack.Screen name="PracticeDetail" component={PracticeDetail} />
+            <Stack.Screen name="CreatePractice" component={CreatePractice} />
+            <Stack.Screen name="CreateMood" component={CreateMood} />
+            <Stack.Screen name="MoodState" component={MoodState} />
+          </Stack.Navigator>
+        ) : (
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              animationDuration: 600,
+            }}>
+            <Stack.Screen name="TestScreen" component={TestScreen} />
+          </Stack.Navigator>
+        )}
+        {/* <Stack.Screen name="TabMenu" component={TabMenu} /> */}
+        {/* <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
           <Stack.Screen name="PracticeDetail" component={PracticeDetail} />
           <Stack.Screen name="CreatePractice" component={CreatePractice} />
           <Stack.Screen name="CreateMood" component={CreateMood} />
-          <Stack.Screen name="MoodState" component={MoodState} />
-          <Stack.Screen name="TestScreen" component={TestScreen} />
-        </Stack.Navigator>
+          <Stack.Screen name="MoodState" component={MoodState} /> */}
+        {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
       </NavigationContainer>
     </PracticeProvider>
   );
