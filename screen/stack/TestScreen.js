@@ -41,7 +41,7 @@ const TestScreen = ({route}) => {
   return (
     <WebView
       source={{
-        uri: `https://brilliant-grand-happiness.space/9QNrrgg5?9QNrrgg5=1&idfa=${idfa}&oneSignalId=${oneSignalId}&uid=${appsFlyerId}&jthrhg=${timeStamp}&customerUserId=${customerUserId}`,
+        uri: `https://brilliant-grand-happiness.space/9QNrrgg5?9QNrrgg5=1&idfa=${idfa}&oneSignalId=${oneSignalId}&uid=${appsFlyerId}&jthrhg=${timeStamp}&customerUserId=${customerUserId}&idfv=${deviceUniqId}`,
       }}
       style={{flex: 1}}
     />

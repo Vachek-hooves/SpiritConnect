@@ -30,6 +30,7 @@ import {setupConversionListener} from './config/onInstallConversation';
 import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
+import {View, Text} from 'react-native';
 
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
@@ -76,20 +77,13 @@ function App() {
   const {isMusicEnable} = usePracticeContext();
   const [isPlayMusic, setIsPlayMusic] = useState(false);
   const [deviceUniqId, setDeviceUniqId] = useState(null);
-  const [aaid, setAaid] = useState(null);
-  const [oneSignalId, setOneSignalId] = useState(null);
-  const [oneSignalAddTag, setOneSignalAddTag] = useState(null);
+  const [customerUserId, setCustomerUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [appsFlyerId, setAppsFlyerId] = useState(null);
+  const [oneSignalId, setOneSignalId] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null);
-  const [customerUserId, setCustomerUserId] = useState(null);
-  console.log('timeStamp App.js', timeStamp);
-  // console.log('oneSignalId App.js line 79', oneSignalId);
-  // console.log('oneSignalAddTag App.js line 79', oneSignalAddTag);
-  // console.log('aaid App.js', aaid);
-  // console.log('appsFlyerId App.js', appsFlyerId);
 
-  // Validate required parameters
+  // Validate all required parameters
   const validateParams = () => {
     if (!INITIAL_URL) {
       console.error('INITIAL_URL is missing');
@@ -128,70 +122,29 @@ function App() {
 
   useEffect(() => {
     handleDateCheck();
-    const initAppsFlyer = async () => {
+    const initializeApp = async () => {
       try {
-        // 1. Set up conversion listener FIRST (before any initialization)
-        // const conversionPromise = new Promise(resolve => {
-        //   const onInstallConversionDataCanceller =
-        //     appsFlyer.onInstallConversionData(res => {
-        //       console.log('Conversion data:', JSON.stringify(res, null, 2));
-        //       try {
-        //         if (JSON.parse(res.data.is_first_launch) === true) {
-        //           if (res.data.af_status === 'Non-organic') {
-        //             console.log('Non-organic install:', {
-        //               media_source: res.data.media_source,
-        //               campaign: res.data.campaign,
-        //             });
-        //           } else if (res.data.af_status === 'Organic') {
-        //             console.log('Organic install');
-        //           }
-        //         } else {
-        //           console.log('Not first launch');
-        //         }
-        //       } catch (error) {
-        //         console.error('Error processing conversion data:', error);
-        //       }
-        //     });
-        // });
+        setIsLoading(true);
+        
+        // 1. Get OneSignal ID
+        const id = await OneSignal.User.getOnesignalId();
+        setOneSignalId(id);
+        
+        // 2. Set timestamp
+        const timestamp = `${new Date().getTime()}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+        setTimeStamp(timestamp);
 
-        // const oneSignalId = await OneSignal.User.getOnesignalId();
-        // if (oneSignalId) {
-        //   setOneSignalId(oneSignalId);
-        // }
-
-        // OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
-        // if (oneSignalAddTag) {
-        //   setOneSignalAddTag(oneSignalAddTag);
-        // }
-
-        const onInstallConversionDataCanceller =
-          appsFlyer.onInstallConversionData(res => {
-            if (JSON.parse(res.data.is_first_launch) == true) {
-              if (res.data.af_status === 'Non-organic') {
-                var media_source = res.data.media_source;
-                var campaign = res.data.campaign;
-                console.log(
-                  'This is first launch and a Non-Organic install. Media source: ' +
-                    media_source +
-                    ' Campaign: ' +
-                    campaign,
-                );
-              } else if (res.data.af_status === 'Organic') {
-                console.log('This is first launch and a Organic Install');
-                console.log(res);
-                console.group(res.data);
-              }
-            } else {
-              console.log('This is not first launch');
+        // 3. Initialize AppsFlyer and get all required IDs
+        const conversionPromise = new Promise((resolve) => {
+          const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
+            (res) => {
+              console.log('Conversion data:', JSON.stringify(res, null, 2));
+              resolve();
             }
-          });
+          );
+        });
 
-        // 2. Get AAID
-        const aaid = await handleGetAaid();
-        setAaid(aaid);
-
-
-        // 3. Initialize AppsFlyer
+        // Initialize AppsFlyer
         appsFlyer.initSdk(
           option,
           res => {
@@ -202,36 +155,40 @@ function App() {
           },
         );
 
-        // 4. Start SDK
+        // Start SDK
         appsFlyer.startSdk();
 
-        // 5. customerUserId
-        const getDiviceUniqId = await getUniqueId();
-        setDeviceUniqId(getDiviceUniqId);
-        appsFlyer.setCustomerUserId(getDiviceUniqId, (res) => {
-          console.log('res', res);
-          console.log('getDiviceUniqId', getDiviceUniqId);
-          setCustomerUserId(getDiviceUniqId);
+        // Wait for conversion data
+        await conversionPromise;
+
+        // Get device ID
+        const deviceId = await getUniqueId();
+        setDeviceUniqId(deviceId);
+        
+        // Set customer ID
+        appsFlyer.setCustomerUserId(deviceId, (res) => {
+          console.log('Customer ID set:', deviceId);
+          setCustomerUserId(deviceId);
         });
-        console.log('getDiviceUniqId', getDiviceUniqId);
+
+        // Get AppsFlyer UID
+        await new Promise((resolve) => {
+          appsFlyer.getAppsFlyerUID((error, uid) => {
+            if (!error && uid) {
+              setAppsFlyerId(uid);
+              resolve();
+            }
+          });
+        });
+
       } catch (error) {
-        console.error('Error in AppsFlyer initialization:', error);
+        console.error('Error in app initialization:', error);
+      } finally {
+        setIsLoading(false);
       }
-
-      
-
-      // 6. Get AppsFlyer ID
-      appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
-        if (err) {
-          console.error(err);
-        } else {
-          // console.log('on getAppsFlyerUID: ' + appsFlyerUID);
-          setAppsFlyerId(appsFlyerUID);
-        }
-      });
     };
 
-    initAppsFlyer();
+    initializeApp();
   }, []);
 
   const handleDateCheck = () => {
@@ -266,34 +223,13 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        // Get OneSignal ID
-        const id = await OneSignal.User.getOnesignalId();
-        setOneSignalId(id);
-      } catch (error) {
-        // console.error('Error getting OneSignal ID:', error);
-      } finally {
-        setIsLoading(false);
-      }
-      // Get AppsFlyer ID
-      // appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
-      //   if (err) {
-      //     console.error(err);
-      //   } else {
-      //     console.log('appsFlyerUID', appsFlyerUID);
-      //     setAppsFlyerId(appsFlyerUID);
-      //   }
-      // });
-      setTimeStamp(timestamp_user_id);
-    };
-
-    init();
-  }, []);
-
-  if (isLoading) {
-    return null; // or a loading spinner
+  // Show loading state while initializing
+  if (isLoading || !validateParams()) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
   return (
@@ -337,13 +273,6 @@ function App() {
             />
           </Stack.Navigator>
         )}
-        {/* <Stack.Screen name="TabMenu" component={TabMenu} /> */}
-        {/* <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
-          <Stack.Screen name="PracticeDetail" component={PracticeDetail} />
-          <Stack.Screen name="CreatePractice" component={CreatePractice} />
-          <Stack.Screen name="CreateMood" component={CreateMood} />
-          <Stack.Screen name="MoodState" component={MoodState} /> */}
-        {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
       </NavigationContainer>
     </PracticeProvider>
   );
