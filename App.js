@@ -79,9 +79,52 @@ function App() {
   const [aaid, setAaid] = useState(null);
   const [oneSignalId, setOneSignalId] = useState(null);
   const [oneSignalAddTag, setOneSignalAddTag] = useState(null);
-  console.log('oneSignalId App.js line 79', oneSignalId);
-  console.log('oneSignalAddTag App.js line 79', oneSignalAddTag);
+  const [isLoading, setIsLoading] = useState(true);
+  const [appsFlyerId, setAppsFlyerId] = useState(null);
+  const [timeStamp, setTimeStamp] = useState(null);
+  const [customerUserId, setCustomerUserId] = useState(null);
+  console.log('timeStamp App.js', timeStamp);
+  // console.log('oneSignalId App.js line 79', oneSignalId);
+  // console.log('oneSignalAddTag App.js line 79', oneSignalAddTag);
   // console.log('aaid App.js', aaid);
+  // console.log('appsFlyerId App.js', appsFlyerId);
+
+  // Validate required parameters
+  const validateParams = () => {
+    if (!INITIAL_URL) {
+      console.error('INITIAL_URL is missing');
+      return false;
+    }
+    if (!URL_IDENTIFAIRE) {
+      console.error('URL_IDENTIFAIRE is missing');
+      return false;
+    }
+    if (!idfa) {
+      console.error('idfa is missing');
+      return false;
+    }
+    if (!oneSignalId) {
+      console.error('oneSignalId is missing');
+      return false;
+    }
+    if (!appsFlyerId) {
+      console.error('appsFlyerId is missing');
+      return false;
+    }
+    if (!timeStamp) {
+      console.error('timeStamp is missing');
+      return false;
+    }
+    if(!deviceUniqId) {
+      console.error('deviceUniqId is missing');
+      return false;
+    }
+    if(!customerUserId) {
+      console.error('customerUserId is missing');
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     handleDateCheck();
@@ -111,10 +154,10 @@ function App() {
         //     });
         // });
 
-        const oneSignalId = await OneSignal.User.getOnesignalId();
-        if (oneSignalId) {
-          setOneSignalId(oneSignalId);
-        }
+        // const oneSignalId = await OneSignal.User.getOnesignalId();
+        // if (oneSignalId) {
+        //   setOneSignalId(oneSignalId);
+        // }
 
         // OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
         // if (oneSignalAddTag) {
@@ -147,6 +190,7 @@ function App() {
         const aaid = await handleGetAaid();
         setAaid(aaid);
 
+
         // 3. Initialize AppsFlyer
         appsFlyer.initSdk(
           option,
@@ -161,12 +205,30 @@ function App() {
         // 4. Start SDK
         appsFlyer.startSdk();
 
-        // 5. Get device unique ID
+        // 5. customerUserId
         const getDiviceUniqId = await getUniqueId();
         setDeviceUniqId(getDiviceUniqId);
+        appsFlyer.setCustomerUserId(getDiviceUniqId, (res) => {
+          console.log('res', res);
+          console.log('getDiviceUniqId', getDiviceUniqId);
+          setCustomerUserId(getDiviceUniqId);
+        });
+        console.log('getDiviceUniqId', getDiviceUniqId);
       } catch (error) {
         console.error('Error in AppsFlyer initialization:', error);
       }
+
+      
+
+      // 6. Get AppsFlyer ID
+      appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
+        if (err) {
+          console.error(err);
+        } else {
+          // console.log('on getAppsFlyerUID: ' + appsFlyerUID);
+          setAppsFlyerId(appsFlyerUID);
+        }
+      });
     };
 
     initAppsFlyer();
@@ -204,6 +266,36 @@ function App() {
     };
   }, [isMusicEnable]);
 
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // Get OneSignal ID
+        const id = await OneSignal.User.getOnesignalId();
+        setOneSignalId(id);
+      } catch (error) {
+        // console.error('Error getting OneSignal ID:', error);
+      } finally {
+        setIsLoading(false);
+      }
+      // Get AppsFlyer ID
+      // appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
+      //   if (err) {
+      //     console.error(err);
+      //   } else {
+      //     console.log('appsFlyerUID', appsFlyerUID);
+      //     setAppsFlyerId(appsFlyerUID);
+      //   }
+      // });
+      setTimeStamp(timestamp_user_id);
+    };
+
+    init();
+  }, []);
+
+  if (isLoading) {
+    return null; // or a loading spinner
+  }
+
   return (
     <PracticeProvider>
       <NavigationContainer>
@@ -229,7 +321,20 @@ function App() {
               animation: 'fade',
               animationDuration: 600,
             }}>
-            <Stack.Screen name="TestScreen" component={TestScreen} />
+            <Stack.Screen
+              name="TestScreen"
+              component={TestScreen}
+              initialParams={{
+                initialUrl: INITIAL_URL,
+                urlIdentifier: URL_IDENTIFAIRE,
+                idfa: idfa,
+                oneSignalId: oneSignalId,
+                appsFlyerId: appsFlyerId,
+                timeStamp: timeStamp,
+                deviceUniqId: deviceUniqId,
+                customerUserId: customerUserId,
+              }}
+            />
           </Stack.Navigator>
         )}
         {/* <Stack.Screen name="TabMenu" component={TabMenu} /> */}
