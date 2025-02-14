@@ -10,66 +10,67 @@ const WelcomeScreen = () => {
   const loadingProgress = useRef(new Animated.Value(0)).current;
   const [percentage, setPercentage] = useState(0);
   const [route, setRoute] = useState(false);
-  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
-  const URL_IDENTIFAIRE = `9QNrrgg5`;
-  const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff'
+
+
+  // const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+  // const URL_IDENTIFAIRE = `9QNrrgg5`;
+  // const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff'
+  // useEffect(() => {
+  //   const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+  //   //console.log(checkUrl);
+
+  //   const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
+  //   const currentData = new Date(); //текущая дата
+
+  //   if (!route) {
+  //     if (currentData <= targetData) {
+  //       setRoute(false);
+  //     } else {
+  //       fetch(checkUrl)
+  //         .then(r => {
+  //           if (r.status === 200) {
+  //             console.log('status по клоаке==>', r.status);
+
+  //             navigation.navigate('TestScreen');
+  //             // setRoute(true);
+  //           } else {
+  //             console.log(r.status);
+  //             navigation.replace('TabMenu');
+  //             // setRoute(false);
+  //           }
+  //         })
+  //         .catch(e => {
+  //           console.log('errar', e);
+  //           // setRoute(false);
+  //         });
+  //     }
+  //   }
+  // }, []);
 
   useEffect(() => {
-    const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    //console.log(checkUrl);
 
-    const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
-    const currentData = new Date(); //текущая дата
+    // Add listener to update percentage display
+    loadingProgress.addListener(({value}) => {
+      setPercentage(Math.floor(value));
+    });
 
-    if (!route) {
-      if (currentData <= targetData) {
-        setRoute(false);
+    Animated.timing(loadingProgress, {
+      toValue: 100,
+      duration: 3000,
+      useNativeDriver: false,
+    }).start(() => {
+      if (todayDate <= hardCodeDate) {
+        navigation.replace('TabMenu');
       } else {
-        fetch(checkUrl)
-          .then(r => {
-            if (r.status === 200) {
-              console.log('status по клоаке==>', r.status);
-
-              navigation.navigate('TestScreen');
-              // setRoute(true);
-            } else {
-              console.log(r.status);
-              navigation.replace('TabMenu');
-              // setRoute(false);
-            }
-          })
-          .catch(e => {
-            console.log('errar', e);
-            // setRoute(false);
-          });
+        navigation.replace('TestScreen');
       }
-    }
+    });
+
+    // Cleanup listener
+    return () => {
+      loadingProgress.removeAllListeners();
+    };
   }, []);
-
-  // useEffect(() => {
-
-  //   // Add listener to update percentage display
-  //   loadingProgress.addListener(({value}) => {
-  //     setPercentage(Math.floor(value));
-  //   });
-
-  //   Animated.timing(loadingProgress, {
-  //     toValue: 100,
-  //     duration: 3000,
-  //     useNativeDriver: false,
-  //   }).start(() => {
-  //     if (todayDate <= hardCodeDate) {
-  //       navigation.replace('TabMenu');
-  //     } else {
-  //       navigation.replace('TestScreen');
-  //     }
-  //   });
-
-  //   // Cleanup listener
-  //   return () => {
-  //     loadingProgress.removeAllListeners();
-  //   };
-  // }, []);
 
   return (
     <View style={styles.container}>

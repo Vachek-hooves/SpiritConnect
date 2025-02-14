@@ -38,8 +38,8 @@ import {handleGetAaid} from './config/handleGetAaid';
 const deviceId = getUniqueId();
 const manufacturer = getManufacturer();
 
-console.log('deviceId,line33', deviceId);
-console.log('manufacturer', manufacturer);
+// console.log('deviceId,line33', deviceId);
+// console.log('manufacturer', manufacturer);
 
 const option = {
   devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
@@ -54,9 +54,9 @@ const Stack = createNativeStackNavigator();
 function App() {
   const {isMusicEnable} = usePracticeContext();
   const [isPlayMusic, setIsPlayMusic] = useState(false);
-  const [deviceUniqId, setDeviceUniqId] = useState(null);
+  const [customerUserId, setCustomerUserId] = useState(null);
   const [aaid, setAaid] = useState(null);
-  console.log('aaid App.js', aaid);
+  // console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   // OneSignal Initialization
@@ -74,34 +74,14 @@ function App() {
   const URL_IDENTIFAIRE = `9QNrrgg5`;
 
   useEffect(() => {
-    // const checkUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    // //console.log(checkUrl);
-
-    // const targetData = new Date('2025-01-14T10:00:00'); //дата з якої поч працювати webView
-    // const currentData = new Date(); //текущая дата
-
-    // if (!route) {
-    //   if (currentData <= targetData) {
-    //     setRoute(false);
-    //   } else {
-    //     fetch(checkUrl)
-    //       .then(r => {
-    //         if (r.status === 200) {
-    //           console.log('status по клоаке==>', r.status);
-    //           setRoute(true);
-    //         } else {
-    //           setRoute(false);
-    //         }
-    //       })
-    //       .catch(e => {
-    //         //console.log('errar', e);
-    //         setRoute(false);
-    //       });
-    //   }
-    // }
+    isFirstVisit();
 
     initAppsFlyer();
   }, []);
+
+  const isFirstVisit = async () => {
+    await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`);
+  };
 
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
@@ -119,9 +99,11 @@ function App() {
           );
         } else if (res.data.af_status === 'Organic') {
           console.log('This is first launch and a Organic Install');
+          console.log('res.data', res.data);
         }
       } else {
         console.log('This is not first launch');
+        console.log('res.data', res.data);
       }
     });
     // onInstallConversionDataCanceller();
@@ -142,31 +124,35 @@ function App() {
         console.error('AppsFlyer SDK failed to start:', error);
       },
     );
+
+    
     appsFlyer.startSdk();
 
     const getDiviceUniqId = await getUniqueId();
-    
+
     // console.log('uniq id from getUniqueId', getDiviceUniqId);
-    setDeviceUniqId(getDiviceUniqId);
+    setCustomerUserId(getDiviceUniqId);
     // console.log('AppsFlyer SDK integration:', appsFlyer);
-    handleCustomerUserId(getDiviceUniqId);
-    // appsFlyer.setCustomerUserId(
-    //   deviceUniqId,
-    //   res => {
-    //     console.log('AppsFlyer SDK setCustomerUserId:', res);
-    //   },
-    //   error => {
-    //     console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
-    //   },
-    // );
-    handleAppsFlyerUID();
-    // appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
-    //   if (err) {
-    //     console.error(err);
-    //   } else {
-    //     console.log('on getAppsFlyerUID: ', appsFlyerUID);
-    //   }
-    // });
+
+    // handleCustomerUserId(getDiviceUniqId);
+    appsFlyer.setCustomerUserId(
+      customerUserId,
+      res => {
+        console.log('AppsFlyer SDK setCustomerUserId:', res);
+      },
+      error => {
+        console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
+      },
+    );
+
+    // handleAppsFlyerUID();
+    appsFlyer.getAppsFlyerUID((err, appsFlyerUID) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
+      }
+    });
   };
 
   useEffect(() => {
