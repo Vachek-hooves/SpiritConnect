@@ -225,11 +225,19 @@ function App() {
   }, [isMusicEnable]);
 
   if(isReadyToVisit){
-    return  <PracticeProvider>
-      <NavigationContainer>
-      <Stack.Screen name="TestScreen" component={TestScreen} />
-      </NavigationContainer>
-    </PracticeProvider>
+    return (
+      <PracticeProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+            animationDuration: 600,
+          }}>
+            <Stack.Screen name="TestScreen" component={TestScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PracticeProvider>
+    );
   }
   return (
     <PracticeProvider>
@@ -247,7 +255,7 @@ function App() {
           <Stack.Screen name="CreatePractice" component={CreatePractice} />
           <Stack.Screen name="CreateMood" component={CreateMood} />
           <Stack.Screen name="MoodState" component={MoodState} />
-          <Stack.Screen name="TestScreen" component={TestScreen} />
+          {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </PracticeProvider>
