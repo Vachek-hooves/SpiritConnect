@@ -52,15 +52,22 @@ const option = {
 
 const Stack = createNativeStackNavigator();
 
+const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+const URL_IDENTIFAIRE = `9QNrrgg5`;
+const targetData = new Date('2025-02-10T10:00:00Z');
+const currentDate = new Date();
+
 function App() {
   const {isMusicEnable} = usePracticeContext();
   const [isPlayMusic, setIsPlayMusic] = useState(false);
   const [customerUserId, setCustomerUserId] = useState(null);
   const [aaid, setAaid] = useState(null);
-  const [oneSignalPermissionStatus, setOneSignalPermissionStatus] = useState(false);
+  const [oneSignalPermissionStatus, setOneSignalPermissionStatus] =
+    useState(false);
   const [oneSignalUserId, setOneSignalUserId] = useState(null);
   const [idfv, setIdfv] = useState(null);
-  const[applsFlyerUID,setApplsFlyerUID] = useState(null);
+  const [applsFlyerUID, setApplsFlyerUID] = useState(null);
+  const [isReadyToVisit, setIsReadyToVisit] = useState(false);
   console.log('idfv App.js', idfv);
   // console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
@@ -76,35 +83,48 @@ function App() {
       console.log('OneSignal: user id:', userId);
       setOneSignalUserId(userId);
     });
-
   });
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
     // console.log('OneSignal: notification clicked:', event);
   });
-  const [route, setRoute] = useState(false);
-
-  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
-  const URL_IDENTIFAIRE = `9QNrrgg5`;
 
   useEffect(() => {
+    isReadyToVisitHandler()
     isFirstVisit();
     initAppsFlyer();
-    onIdfaAaidHandler()
   }, []);
 
-  const isFirstVisit = async () => {
-    console.log('isFirstVisit fn check start');  
-    await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`).then(response => {
-      console.log('isFirstVisit fn check response', response);
-    }).catch(error => {
-      console.log('isFirstVisit fn check error', error);
-    });
-  };
+  const isReadyToVisitHandler = async () => {
+    console.log('isReadyToVisitHandler fn check start');
+    const visitUrl=`${INITIAL_URL}${URL_IDENTIFAIRE}`
 
-  const onIdfaAaidHandler = async () => {
-    console.log('onIdfaAaidHandler fn check start');
-  }
+    if(currentDate>=targetData){
+      console.log('time to visit -',visitUrl)
+      fetch(visitUrl)
+      .then(res => {
+        console.log('is URL ok-',res.status)
+        if(res.status===200){
+          setIsReadyToVisit(true)
+        }else{
+          setIsReadyToVisit(false)
+        }
+      })
+      .catch(error => {
+        console.log('isReadyToVisit fn check error', error);
+      });
+  }}
+
+  const isFirstVisit = async () => {
+    console.log('isFirstVisit fn check start');
+    fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`)
+      .then(response => {
+        console.log('isFirstVisit fn check response', response);
+      })
+      .catch(error => {
+        console.log('isFirstVisit fn check error', error);
+      });
+  };
 
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
@@ -150,7 +170,6 @@ function App() {
       },
     );
 
-    
     appsFlyer.startSdk();
 
     const getDiviceUniqId = await getUniqueId();
@@ -205,6 +224,13 @@ function App() {
     };
   }, [isMusicEnable]);
 
+  if(isReadyToVisit){
+    return  <PracticeProvider>
+      <NavigationContainer>
+      <Stack.Screen name="TestScreen" component={TestScreen} />
+      </NavigationContainer>
+    </PracticeProvider>
+  }
   return (
     <PracticeProvider>
       <NavigationContainer>
