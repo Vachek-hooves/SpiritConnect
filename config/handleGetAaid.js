@@ -4,19 +4,31 @@ import ReactNativeIdfaAaid, {
 
 export const handleGetAaid = async () => {
     
-    // return ReactNativeIdfaAaid.getAdvertisingInfo().then(res => {
-    //     console.log('res', res.id);
-    //     return res.id;
-    // }).catch(err => {
-    //     console.log('err', err);
-    //     return null;
-    // });
+    // for android 
     try {
         const aaid = await ReactNativeIdfaAaid.getAdvertisingInfo();
+   
+        // console.log('aaid handleGetAaid', aaid);
+        // console.log('status handleGetAaid', status);
         // console.log('aaid handleGetAaid', aaid.id);
         return aaid.id;
     } catch (err) {
         console.log('err', err);
         return null;
     }
+
+    // for ios
+    // try {
+    //     const aaid = await ReactNativeIdfaAaid.getAdvertisingInfo();
+    //     if(aaid.isAdTrackingLimited) {
+    //         console.log('aaid handleGetAaid', aaid);
+    //         return aaid.id;
+    //     } else {
+    //         console.log('aaid handleGetAaid', aaid);
+    //         return ('00000000-0000-0000-0000-000000000000');
+    //     }
+    // } catch (err) {
+    //     console.log('err', err);
+    //     return null;
+    // }
 }

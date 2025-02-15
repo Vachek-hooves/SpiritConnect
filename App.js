@@ -46,6 +46,7 @@ const option = {
   appId: 'com.spiritconnect',
   onInstallConversionDataListener: true,
   onDeepLinkListener: true,
+  timeToWaitForATTUserAuthorization: 10,
   manualStart: true,
 };
 
@@ -56,6 +57,11 @@ function App() {
   const [isPlayMusic, setIsPlayMusic] = useState(false);
   const [customerUserId, setCustomerUserId] = useState(null);
   const [aaid, setAaid] = useState(null);
+  const [oneSignalPermissionStatus, setOneSignalPermissionStatus] = useState(false);
+  const [oneSignalUserId, setOneSignalUserId] = useState(null);
+  const [idfv, setIdfv] = useState(null);
+  const[applsFlyerUID,setApplsFlyerUID] = useState(null);
+  console.log('idfv App.js', idfv);
   // console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -63,10 +69,18 @@ function App() {
   OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  OneSignal.Notifications.requestPermission(true);
+  OneSignal.Notifications.requestPermission(true).then(response => {
+    console.log('OneSignal: notification request permission:', response);
+    setOneSignalPermissionStatus(response);
+    OneSignal.User.getOnesignalId().then(userId => {
+      console.log('OneSignal: user id:', userId);
+      setOneSignalUserId(userId);
+    });
+
+  });
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
-    console.log('OneSignal: notification clicked:', event);
+    // console.log('OneSignal: notification clicked:', event);
   });
   const [route, setRoute] = useState(false);
 
@@ -75,13 +89,22 @@ function App() {
 
   useEffect(() => {
     isFirstVisit();
-
     initAppsFlyer();
+    onIdfaAaidHandler()
   }, []);
 
   const isFirstVisit = async () => {
-    await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`);
+    console.log('isFirstVisit fn check start');  
+    await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`).then(response => {
+      console.log('isFirstVisit fn check response', response);
+    }).catch(error => {
+      console.log('isFirstVisit fn check error', error);
+    });
   };
+
+  const onIdfaAaidHandler = async () => {
+    console.log('onIdfaAaidHandler fn check start');
+  }
 
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
@@ -111,7 +134,9 @@ function App() {
     // Set up conversion listener BEFORE initializing SDK
     // const conversionCanceller = setupConversionListener();
 
+    // Non appsflyer fn
     const aaid = await handleGetAaid();
+    console.log('aaid', aaid);
     setAaid(aaid);
 
     // handleInitSdk();
@@ -129,7 +154,7 @@ function App() {
     appsFlyer.startSdk();
 
     const getDiviceUniqId = await getUniqueId();
-
+    setIdfv(getDiviceUniqId);
     // console.log('uniq id from getUniqueId', getDiviceUniqId);
     setCustomerUserId(getDiviceUniqId);
     // console.log('AppsFlyer SDK integration:', appsFlyer);
@@ -151,6 +176,7 @@ function App() {
         console.error(err);
       } else {
         console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
+        setApplsFlyerUID(appsFlyerUID);
       }
     });
   };
