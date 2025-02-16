@@ -1,20 +1,24 @@
 import {WebView} from 'react-native-webview';
 const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff'
 const TestScreen = ({route}) => {
-  const {idfa,oneSignalUserId,idfv,applsFlyerUID,jthrhg} = route.params;
+  const {idfa,oneSignalUserId,idfv,applsFlyerUID,jthrhg,isFirstVisit,timeStamp,naming} = route.params;
 
-  console.log('idfa',idfa);
-  console.log('oneSignalUserId',oneSignalUserId);
-  console.log('idfv',idfv);
-  console.log('applsFlyerUID',applsFlyerUID);
-  console.log('jthrhg',jthrhg);
-  
+//   console.log('idfa',idfa);
+//   console.log('oneSignalUserId',oneSignalUserId);
+//   console.log('idfv',idfv);
+//   console.log('applsFlyerUID',applsFlyerUID);
+//   console.log('jthrhg',jthrhg);
+  console.log('isFirstVisit TestScreen',isFirstVisit);
+  console.log('timeStamp TestScreen',timeStamp);
+  console.log('naming TestScreen',naming);
   const URL=`https://brilliant-grand-happiness.space/`
-  const URL_IDENTIFAIRE=`9QNrrgg5`
+  const URL_IDENTIFIER=`9QNrrgg5`
+//   const FIRST_VISIT_LINK=`${URL}${URL_IDENTIFIER}?${URL_IDENTIFIER}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`
+//   const NON_FIRST_VISIT_LINK=`${URL}${URL_IDENTIFIER}?${URL_IDENTIFIER}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`
   return (
     <WebView
       source={{
-        uri: `${URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`,
+        uri: `${URL}${URL_IDENTIFIER}?${URL_IDENTIFIER}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`,
       }}
       style={{flex: 1}}
     />
@@ -40,7 +44,7 @@ export default TestScreen;
   
 //     // Create URL params only with existing values
 //     const urlParams = new URLSearchParams();
-//     urlParams.append(URL_IDENTIFAIRE, '1');
+//     urlParams.append(URL_IDENTIFIER, '1');
     
 //     if (idfa) urlParams.append('idfa', idfa);
 //     if (oneSignalUserId) urlParams.append('oneSignalId', oneSignalUserId);

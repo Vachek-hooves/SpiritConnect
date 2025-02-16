@@ -11,6 +11,7 @@ import {
 import {PracticeProvider} from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
 import {useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppState} from 'react-native';
 import {
   pauseBackgroundMusic,
@@ -70,10 +71,13 @@ function App() {
   const [idfv, setIdfv] = useState(null);
   const [applsFlyerUID, setApplsFlyerUID] = useState(null);
   const [isReadyToVisit, setIsReadyToVisit] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState(null);
   const [naming,setNaming] = useState(null)
-  console.log('naming App.js', naming);
-  console.log('idfv App.js', idfv);
-  console.log('idfv',idfv);
+  const [timeStamp,setTimeStamp]=useState(null)
+  // console.log('isFirstVisit App.js', isFirstVisit);
+  // console.log('naming App.js', naming);
+  // console.log('idfv App.js', idfv);
+  // console.log('idfv',idfv);
   // console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -82,10 +86,10 @@ function App() {
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
   OneSignal.Notifications.requestPermission(true).then(response => {
-    console.log('OneSignal: notification request permission:', response);
+    // console.log('OneSignal: notification request permission:', response);
     setOneSignalPermissionStatus(response);
     OneSignal.User.getOnesignalId().then(userId => {
-      console.log('OneSignal: user id:', userId);
+      // console.log('OneSignal: user id:', userId);
       setOneSignalUserId(userId);
     });
   });
@@ -95,37 +99,50 @@ function App() {
   });
 
   useEffect(() => {
-    // isFirstVisit();
+    checkFirstVisit();
     isReadyToVisitHandler();
     initAppsFlyer();
   }, []);
-  
-  
-  // const isFirstVisit = async () => {
-  //   console.log('isFirstVisit fn check start');
-  //   fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`)
-  //     .then(response => {
-  //       console.log('isFirstVisit fn check response',);
-  //     })
-  //     .catch(error => {
-  //       console.log('isFirstVisit fn check error', error);
-  //     });
-  // };
 
+  const checkFirstVisit = async () => {
+    try {
+      const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+      console.log('hasVisited',hasVisited);
+      if (!hasVisited) {
+        // First visit
+        console.log('First visit');
+        setIsFirstVisit(true);
+        setTimeStamp(timestamp_user_id)
+        await AsyncStorage.setItem('timeStamp', timestamp_user_id);
+        await AsyncStorage.setItem('hasVisitedBefore', 'true');
+      } else {
+        // Returning user
+        const timeStamp = await AsyncStorage.getItem('timeStamp');
+        console.log('timeStamp Returning user',timeStamp);
+        setIsFirstVisit(false);
+        // setTimeStamp(parsedTimeStamp);
+      }
+    } catch (error) {
+      console.error('Error checking first visit:', error);
+    }
+  };
+  
   const isReadyToVisitHandler = async () => {
-    console.log('isReadyToVisitHandler fn check start');
+    // console.log('isFirstVisit',isFirstVisit);
+    // console.log('isReadyToVisitHandler fn check start');
+    // console.log('timeStamp',timeStamp);
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
-    if (currentDate >= targetData) {
-      console.log('Date is after target date');
+    if (currentDate >= targetData ) {
+      // console.log('Date is after target date');
       fetch(visitUrl)
         .then(res => {
           console.log('is URL ok-', res.status);
           if (res.status === 200) {
-            console.log('URL is ok');
+            // console.log('URL is ok');
             setIsReadyToVisit(true);
           } else {
-            console.log('URL is not ok');
+            // console.log('URL is not ok');
             setIsReadyToVisit(false);
           }
         })
@@ -155,11 +172,12 @@ function App() {
         } else if (res.data.af_status === 'Organic') {
           console.log('This is first launch and a Organic Install');
           console.log('res.data', res.data);
+          console.log('res.data.af_status', res.data.af_status);
           setNaming(res.data.af_status)
         }
       } else {
-        console.log('This is not first launch');
-        console.log('res.data', res.data);
+        // console.log('This is not first launch');
+        // console.log('res.data', res.data);
      
       }
     });
@@ -177,7 +195,7 @@ function App() {
     appsFlyer.initSdk(
       option,
       res => {
-        console.log('AppsFlyer SDK integration:', res);
+        // console.log('AppsFlyer SDK integration:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to start:', error);
@@ -196,7 +214,7 @@ function App() {
     appsFlyer.setCustomerUserId(
       customerUserId,
       res => {
-        console.log('AppsFlyer SDK setCustomerUserId:', res);
+        // console.log('AppsFlyer SDK setCustomerUserId:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
@@ -208,7 +226,7 @@ function App() {
       if (err) {
         console.error(err);
       } else {
-        console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
+        // console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
         setApplsFlyerUID(appsFlyerUID);
       }
     });
@@ -257,6 +275,9 @@ function App() {
                 idfv: idfv,
                 applsFlyerUID: applsFlyerUID,
                 jthrhg:timestamp_user_id,
+                isFirstVisit: isFirstVisit,
+                timeStamp: timeStamp,
+                naming: naming,
               }}
             />
           </Stack.Navigator>
