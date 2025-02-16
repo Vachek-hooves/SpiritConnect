@@ -283,3 +283,33 @@ function App() {
 }
 
 export default App;
+
+
+//  Check params before launch if not exist, add to url
+
+// if (isReadyToVisit) {
+//   return (
+//     <PracticeProvider>
+//       <NavigationContainer>
+//         <Stack.Navigator
+//           screenOptions={{
+//             headerShown: false,
+//             animation: 'fade',
+//             animationDuration: 600,
+//           }}>
+//           <Stack.Screen
+//             name="TestScreen"
+//             component={TestScreen}
+//             initialParams={{
+//               ...(aaid && { idfa: aaid }),
+//               ...(oneSignalUserId && { oneSignalUserId }),
+//               ...(idfv && { idfv }),
+//               ...(applsFlyerUID && { applsFlyerUID }),
+//               ...(timestamp_user_id && { jthrhg: timestamp_user_id }),
+//             }}
+//           />
+//         </Stack.Navigator>
+//       </NavigationContainer>
+//     </PracticeProvider>
+//   );
+// }

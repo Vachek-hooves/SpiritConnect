@@ -20,3 +20,45 @@ const TestScreen = ({route}) => {
 };
 
 export default TestScreen;
+
+
+
+
+
+//  Check params before launch
+// const TestScreen = ({route}) => {
+//     // Destructure with default values to prevent undefined
+//     const {
+//       idfa = '',
+//       oneSignalUserId = '',
+//       idfv = '',
+//       applsFlyerUID = '',
+//       jthrhg = ''
+//     } = route.params || {};
+  
+//     // Create URL params only with existing values
+//     const urlParams = new URLSearchParams();
+//     urlParams.append(URL_IDENTIFAIRE, '1');
+    
+//     if (idfa) urlParams.append('idfa', idfa);
+//     if (oneSignalUserId) urlParams.append('oneSignalId', oneSignalUserId);
+//     if (idfv) {
+//       urlParams.append('idfv', idfv);
+//       urlParams.append('customerUserId', idfv);
+//     }
+//     if (applsFlyerUID) urlParams.append('uid', applsFlyerUID);
+//     if (jthrhg) urlParams.append('jthrhg', jthrhg);
+  
+//     const finalUrl = `${URL}${URL_IDENTIFAIRE}?${urlParams.toString()}`;
+    
+//     console.log('Final URL:', finalUrl);
+  
+//     return (
+//       <WebView
+//         source={{
+//           uri: finalUrl,
+//         }}
+//         style={{flex: 1}}
+//       />
+//     );
+//   };
