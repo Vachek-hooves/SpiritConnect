@@ -95,8 +95,8 @@ function App() {
   });
 
   useEffect(() => {
-    isReadyToVisitHandler();
     isFirstVisit();
+    isReadyToVisitHandler();
     initAppsFlyer();
   }, []);
 
@@ -105,13 +105,15 @@ function App() {
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
     if (currentDate >= targetData) {
-      console.log('time to visit -', visitUrl);
+      console.log('Date is after target date');
       fetch(visitUrl)
         .then(res => {
           console.log('is URL ok-', res.status);
           if (res.status === 200) {
+            console.log('URL is ok');
             setIsReadyToVisit(true);
           } else {
+            console.log('URL is not ok');
             setIsReadyToVisit(false);
           }
         })
