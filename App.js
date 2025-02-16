@@ -95,10 +95,22 @@ function App() {
   });
 
   useEffect(() => {
-    isFirstVisit();
+    // isFirstVisit();
     isReadyToVisitHandler();
     initAppsFlyer();
   }, []);
+  
+  
+  // const isFirstVisit = async () => {
+  //   console.log('isFirstVisit fn check start');
+  //   fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`)
+  //     .then(response => {
+  //       console.log('isFirstVisit fn check response',);
+  //     })
+  //     .catch(error => {
+  //       console.log('isFirstVisit fn check error', error);
+  //     });
+  // };
 
   const isReadyToVisitHandler = async () => {
     console.log('isReadyToVisitHandler fn check start');
@@ -123,16 +135,7 @@ function App() {
     }
   };
 
-  const isFirstVisit = async () => {
-    console.log('isFirstVisit fn check start');
-    fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`)
-      .then(response => {
-        console.log('isFirstVisit fn check response',);
-      })
-      .catch(error => {
-        console.log('isFirstVisit fn check error', error);
-      });
-  };
+  
 
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
