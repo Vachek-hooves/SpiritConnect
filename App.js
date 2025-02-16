@@ -51,7 +51,9 @@ const option = {
 };
 
 const Stack = createNativeStackNavigator();
-
+const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
+  1000000 + Math.random() * 9000000,
+)}`;
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `9QNrrgg5`;
 const targetData = new Date('2025-02-10T10:00:00Z');
@@ -68,7 +70,10 @@ function App() {
   const [idfv, setIdfv] = useState(null);
   const [applsFlyerUID, setApplsFlyerUID] = useState(null);
   const [isReadyToVisit, setIsReadyToVisit] = useState(false);
+  const [naming,setNaming] = useState(null)
+  console.log('naming App.js', naming);
   console.log('idfv App.js', idfv);
+  console.log('idfv',idfv);
   // console.log('aaid App.js', aaid);
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -90,36 +95,37 @@ function App() {
   });
 
   useEffect(() => {
-    isReadyToVisitHandler()
+    isReadyToVisitHandler();
     isFirstVisit();
     initAppsFlyer();
   }, []);
 
   const isReadyToVisitHandler = async () => {
     console.log('isReadyToVisitHandler fn check start');
-    const visitUrl=`${INITIAL_URL}${URL_IDENTIFAIRE}`
+    const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
-    if(currentDate>=targetData){
-      console.log('time to visit -',visitUrl)
+    if (currentDate >= targetData) {
+      console.log('time to visit -', visitUrl);
       fetch(visitUrl)
-      .then(res => {
-        console.log('is URL ok-',res.status)
-        if(res.status===200){
-          setIsReadyToVisit(true)
-        }else{
-          setIsReadyToVisit(false)
-        }
-      })
-      .catch(error => {
-        console.log('isReadyToVisit fn check error', error);
-      });
-  }}
+        .then(res => {
+          console.log('is URL ok-', res.status);
+          if (res.status === 200) {
+            setIsReadyToVisit(true);
+          } else {
+            setIsReadyToVisit(false);
+          }
+        })
+        .catch(error => {
+          console.log('isReadyToVisit fn check error', error);
+        });
+    }
+  };
 
   const isFirstVisit = async () => {
     console.log('isFirstVisit fn check start');
     fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}`)
       .then(response => {
-        console.log('isFirstVisit fn check response', response);
+        console.log('isFirstVisit fn check response',);
       })
       .catch(error => {
         console.log('isFirstVisit fn check error', error);
@@ -140,13 +146,16 @@ function App() {
               ' Campaign: ' +
               campaign,
           );
+          setNaming(res.data.af_status)
         } else if (res.data.af_status === 'Organic') {
           console.log('This is first launch and a Organic Install');
           console.log('res.data', res.data);
+          setNaming(res.data.af_status)
         }
       } else {
         console.log('This is not first launch');
         console.log('res.data', res.data);
+     
       }
     });
     // onInstallConversionDataCanceller();
@@ -224,16 +233,27 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  if(isReadyToVisit){
+  if (isReadyToVisit) {
     return (
       <PracticeProvider>
         <NavigationContainer>
-          <Stack.Navigator screenOptions={{
-            headerShown: false,
-            animation: 'fade',
-            animationDuration: 600,
-          }}>
-            <Stack.Screen name="TestScreen" component={TestScreen} />
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              animationDuration: 600,
+            }}>
+            <Stack.Screen
+              name="TestScreen"
+              component={TestScreen}
+              initialParams={{
+                idfa: aaid,
+                oneSignalUserId: oneSignalUserId,
+                idfv: idfv,
+                applsFlyerUID: applsFlyerUID,
+                jthrhg:timestamp_user_id,
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </PracticeProvider>
