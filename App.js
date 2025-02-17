@@ -97,6 +97,7 @@ function App() {
   OneSignal.Notifications.requestPermission(true).then(response => {
     // console.log('OneSignal: notification request permission:', response);
     setOneSignalPermissionStatus(response);
+    
   });
 
   // OneSignal.Notifications.removeEventListener('click', event => {
