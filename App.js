@@ -88,21 +88,27 @@ function App() {
   OneSignal.Notifications.requestPermission(true).then(response => {
     // console.log('OneSignal: notification request permission:', response);
     setOneSignalPermissionStatus(response);
-    OneSignal.User.getOnesignalId().then(userId => {
-      // console.log('OneSignal: user id:', userId);
-      setOneSignalUserId(userId);
-    });
+    // OneSignal.User.getOnesignalId().then(userId => {
+    //   // console.log('OneSignal: user id:', userId);
+    //   setOneSignalUserId(userId);
+    // });
   });
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
-    // console.log('OneSignal: notification clicked:', event);
+    console.log('OneSignal: notification clicked:', event);
   });
 
   useEffect(() => {
     checkFirstVisit();
     isReadyToVisitHandler();
     initAppsFlyer();
+    getOneSignalUserId();
   }, []);
+
+  const getOneSignalUserId = async () => {
+    const userId = await OneSignal.User.getOnesignalId();
+    setOneSignalUserId(userId);
+  };
 
   const checkFirstVisit = async () => {
     try {
