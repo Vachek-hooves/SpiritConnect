@@ -31,6 +31,7 @@ import {setupConversionListener} from './config/onInstallConversation';
 import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
+import {Linking} from 'react-native';
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
 // API token V2 (optional): [Enter the token]
@@ -84,8 +85,8 @@ function App() {
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
-    console.log('OneSignal: notification clicked:', event);
-    console.log('🔔 Notification:', event.notification);
+    // console.log('OneSignal: notification clicked:', event);
+    // console.log('🔔 Notification:', event.notification);
   });
   // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
   //   console.log('🔔 Notification received in foreground:', event);
@@ -101,7 +102,6 @@ function App() {
   // OneSignal.Notifications.removeEventListener('click', event => {
   //   console.log('🔔 Notification clicked:', event);
   // });
-  
 
   useEffect(() => {
     checkFirstVisit();
@@ -192,7 +192,7 @@ function App() {
         console.log('res.data', res.data);
       }
     });
-    
+
     // Non appsflyer fn
     const aaid = await handleGetAaid();
     console.log('aaid', aaid);
@@ -262,6 +262,56 @@ function App() {
       pauseBackgroundMusic();
     };
   }, [isMusicEnable]);
+
+  const handleNotificationClick = event => {
+    console.log('🔔 Handling notification click:', event);
+
+    const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    let finalUrl;
+
+    if (event.notification.launchURL) {
+      // If launchURL exists, use push_open_browser parameter
+      finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`;
+
+      // You might want to open this URL in browser
+      Linking.openURL(finalUrl);
+    } else {
+      // If no launchURL, use push_open_webview parameter
+      finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
+
+      // You might want to navigate to TestScreen with this URL
+      // This depends on your navigation setup
+      setIsReadyToVisit(true);
+    }
+
+    console.log('🔔 Constructed URL:', finalUrl);
+    return finalUrl;
+  };
+
+  useEffect(() => {
+    const setupNotifications = async () => {
+      try {
+        // Add notification click listener with the handler
+        const clickListener = OneSignal.Notifications.addEventListener(
+          'click',
+          event => {
+            // console.log('🔔 Notification clicked:', event);
+            handleNotificationClick(event);
+          },
+        );
+        // ... rest of your notification setup ...
+
+        return () => {
+          clickListener.remove();
+          // ... other cleanup ...
+        };
+      } catch (error) {
+        console.error('🔔 Error setting up notifications:', error);
+      }
+    };
+
+    setupNotifications();
+  }, []);
 
   return (
     <PracticeProvider>
