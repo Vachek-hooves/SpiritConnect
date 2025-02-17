@@ -72,8 +72,8 @@ function App() {
   const [applsFlyerUID, setApplsFlyerUID] = useState(null);
   const [isReadyToVisit, setIsReadyToVisit] = useState(false);
   const [isFirstVisit, setIsFirstVisit] = useState(null);
-  const [naming,setNaming] = useState(null)
-  const [timeStamp,setTimeStamp]=useState(null)
+  const [naming, setNaming] = useState(null);
+  const [timeStamp, setTimeStamp] = useState(null);
   // console.log('isFirstVisit App.js', isFirstVisit);
   // console.log('naming App.js', naming);
   // console.log('idfv App.js', idfv);
@@ -107,34 +107,34 @@ function App() {
   const checkFirstVisit = async () => {
     try {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-      console.log('hasVisited',hasVisited);
+      console.log('hasVisited', hasVisited);
       if (!hasVisited) {
         // First visit
         console.log('First visit');
         setIsFirstVisit(true);
-        setTimeStamp(timestamp_user_id)
+        setTimeStamp(timestamp_user_id);
         await AsyncStorage.setItem('timeStamp', timestamp_user_id);
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
         const timeStamp = await AsyncStorage.getItem('timeStamp');
-        console.log('timeStamp Returning user',timeStamp);
+        console.log('timeStamp Returning user', timeStamp);
         setIsFirstVisit(false);
-        setTimeStamp(timeStamp)
+        setTimeStamp(timeStamp);
         // setTimeStamp(parsedTimeStamp);
       }
     } catch (error) {
       console.error('Error checking first visit:', error);
     }
   };
-  
+
   const isReadyToVisitHandler = async () => {
     // console.log('isFirstVisit',isFirstVisit);
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
-    if (currentDate >= targetData ) {
+    if (currentDate >= targetData) {
       // console.log('Date is after target date');
       fetch(visitUrl)
         .then(res => {
@@ -153,8 +153,6 @@ function App() {
     }
   };
 
-  
-
   const initAppsFlyer = async () => {
     // launch before appsflyer init. First install registration
     // const onInstallConversionDataCanceller =
@@ -169,17 +167,16 @@ function App() {
               ' Campaign: ' +
               campaign,
           );
-          setNaming(res.data.af_status)
+          setNaming(res.data.af_status);
         } else if (res.data.af_status === 'Organic') {
           console.log('This is first launch and a Organic Install');
           console.log('res.data', res.data);
           console.log('res.data.af_status', res.data.af_status);
-          setNaming(res.data.af_status)
+          setNaming(res.data.af_status);
         }
       } else {
         // console.log('This is not first launch');
         // console.log('res.data', res.data);
-     
       }
     });
     // onInstallConversionDataCanceller();
@@ -257,35 +254,36 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  if (isReadyToVisit) {
-    return (
-      <PracticeProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-              animation: 'fade',
-              animationDuration: 600,
-            }}>
-            <Stack.Screen
-              name="TestScreen"
-              component={TestScreen}
-              initialParams={{
-                idfa: aaid,
-                oneSignalUserId: oneSignalUserId,
-                idfv: idfv,
-                applsFlyerUID: applsFlyerUID,
-                jthrhg:timestamp_user_id,
-                isFirstVisit: isFirstVisit,
-                timeStamp: timeStamp,
-                naming: naming,
-              }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PracticeProvider>
-    );
-  }
+  // if (isReadyToVisit) {
+  //   return (
+  //     <PracticeProvider>
+  //       <NavigationContainer>
+  //         <Stack.Navigator
+  //           screenOptions={{
+  //             headerShown: false,
+  //             animation: 'fade',
+  //             animationDuration: 600,
+  //           }}>
+  //           <Stack.Screen
+  //             name="TestScreen"
+  //             component={TestScreen}
+  //             initialParams={{
+  //               idfa: aaid,
+  //               oneSignalUserId: oneSignalUserId,
+  //               idfv: idfv,
+  //               applsFlyerUID: applsFlyerUID,
+  //               jthrhg:timestamp_user_id,
+  //               isFirstVisit: isFirstVisit,
+  //               timeStamp: timeStamp,
+  //               naming: naming,
+  //             }}
+  //           />
+  //         </Stack.Navigator>
+  //       </NavigationContainer>
+  //     </PracticeProvider>
+  //   );
+  // }
+
   return (
     <PracticeProvider>
       <NavigationContainer>
@@ -295,13 +293,33 @@ function App() {
             animation: 'fade',
             animationDuration: 600,
           }}>
-          <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-          <Stack.Screen name="TabMenu" component={TabMenu} />
-          <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
-          <Stack.Screen name="PracticeDetail" component={PracticeDetail} />
-          <Stack.Screen name="CreatePractice" component={CreatePractice} />
-          <Stack.Screen name="CreateMood" component={CreateMood} />
-          <Stack.Screen name="MoodState" component={MoodState} />
+          {isReadyToVisit ? (
+            <Stack.Screen
+              name="TestScreen"
+              component={TestScreen}
+              initialParams={{
+                idfa: aaid,
+                oneSignalUserId: oneSignalUserId,
+                idfv: idfv,
+                applsFlyerUID: applsFlyerUID,
+                jthrhg: timestamp_user_id,
+                isFirstVisit: isFirstVisit,
+                timeStamp: timeStamp,
+                naming: naming,
+              }}
+            />
+          ) : (
+            <>
+              <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+              <Stack.Screen name="TabMenu" component={TabMenu} />
+              <Stack.Screen name="PracticeScreen" component={PracticeScreen} />
+              <Stack.Screen name="PracticeDetail" component={PracticeDetail} />
+              <Stack.Screen name="CreatePractice" component={CreatePractice} />
+              <Stack.Screen name="CreateMood" component={CreateMood} />
+              <Stack.Screen name="MoodState" component={MoodState} />
+            </>
+          )}
+
           {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
         </Stack.Navigator>
       </NavigationContainer>
@@ -310,7 +328,6 @@ function App() {
 }
 
 export default App;
-
 
 //  Check params before launch if not exist, add to url
 
