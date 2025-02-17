@@ -263,28 +263,48 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  const handleNotificationClick = event => {
+  const handleNotificationClick = async (event) => {
     console.log('🔔 Handling notification click:', event);
-
+    
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
 
-    if (event.notification.launchURL) {
-      // If launchURL exists, use push_open_browser parameter
+    // Check if it's first visit
+    const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+    
+    if (!hasVisited) {
+      // First time visit case
+      finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
+    } else if (event.notification.launchURL) {
+      // Has launchURL case
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`;
-
-      // You might want to open this URL in browser
-      Linking.openURL(finalUrl);
     } else {
-      // If no launchURL, use push_open_webview parameter
+      // Regular webview case
       finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
-
-      // You might want to navigate to TestScreen with this URL
-      // This depends on your navigation setup
-      setIsReadyToVisit(true);
     }
 
     console.log('🔔 Constructed URL:', finalUrl);
+
+    try {
+      // Send request to the constructed URL
+      const response = await fetch(finalUrl);
+      console.log('🔔 URL fetch response status:', response.status);
+
+      // Handle different cases after fetch
+      if (!hasVisited) {
+        // First visit - mark as visited after successful fetch
+        await AsyncStorage.setItem('hasVisitedBefore', 'true');
+      } else if (event.notification.launchURL) {
+        // Browser case - open in external browser
+        await Linking.openURL(finalUrl);
+      } else {
+        // WebView case - update app state for navigation
+        setIsReadyToVisit(true);
+      }
+    } catch (error) {
+      console.error('🔔 Error fetching URL:', error);
+    }
+
     return finalUrl;
   };
 
