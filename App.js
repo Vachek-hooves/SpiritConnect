@@ -74,30 +74,34 @@ function App() {
   const [isFirstVisit, setIsFirstVisit] = useState(null);
   const [naming, setNaming] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null);
-  // console.log('isFirstVisit App.js', isFirstVisit);
-  // console.log('naming App.js', naming);
-  // console.log('idfv App.js', idfv);
-  // console.log('idfv',idfv);
-  // console.log('aaid App.js', aaid);
+  const [organicInstall, setOrganicInstall] = useState(null);
+
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   // OneSignal Initialization
   OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  OneSignal.Notifications.requestPermission(true).then(response => {
-    // console.log('OneSignal: notification request permission:', response);
-    setOneSignalPermissionStatus(response);
-    // OneSignal.User.getOnesignalId().then(userId => {
-    //   // console.log('OneSignal: user id:', userId);
-    //   setOneSignalUserId(userId);
-    // });
-  });
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
     console.log('OneSignal: notification clicked:', event);
+    console.log('🔔 Notification:', event.notification);
   });
-
+  OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
+    console.log('🔔 Notification received in foreground:', event);
+  });
+  OneSignal.Notifications.addEventListener('permissionChanged', event => {
+    console.log('🔔 Permission changed:', event);
+  });
+  OneSignal.Notifications.requestPermission(true).then(response => {
+    // console.log('OneSignal: notification request permission:', response);
+    setOneSignalPermissionStatus(response);
+  });
+  OneSignal.Notifications.removeEventListener('click', event => {
+    console.log('🔔 Notification clicked:', event);
+  });
+  
+  
   useEffect(() => {
     checkFirstVisit();
     isReadyToVisitHandler();
@@ -115,6 +119,7 @@ function App() {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
       console.log('hasVisited', hasVisited);
       if (!hasVisited) {
+        OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
         // First visit
         console.log('First visit');
         setIsFirstVisit(true);
@@ -160,6 +165,7 @@ function App() {
   };
 
   const initAppsFlyer = async () => {
+    // Set up conversion listener BEFORE initializing SDK
     // launch before appsflyer init. First install registration
     // const onInstallConversionDataCanceller =
     appsFlyer.onInstallConversionData(res => {
@@ -173,23 +179,19 @@ function App() {
               ' Campaign: ' +
               campaign,
           );
-          setNaming(res.data.af_status);
+          console.log('Naming', campaign);
+          setNaming(campaign);
         } else if (res.data.af_status === 'Organic') {
+          setOrganicInstall(res.data);
           console.log('This is first launch and a Organic Install');
           console.log('res.data', res.data);
-          console.log('res.data.af_status', res.data.af_status);
-          setNaming(res.data.af_status);
         }
       } else {
-        // console.log('This is not first launch');
-        // console.log('res.data', res.data);
+        console.log('This is not first launch');
+        console.log('res.data', res.data);
       }
     });
-    // onInstallConversionDataCanceller();
-
-    // Set up conversion listener BEFORE initializing SDK
-    // const conversionCanceller = setupConversionListener();
-
+    
     // Non appsflyer fn
     const aaid = await handleGetAaid();
     console.log('aaid', aaid);
@@ -199,7 +201,7 @@ function App() {
     appsFlyer.initSdk(
       option,
       res => {
-        // console.log('AppsFlyer SDK integration:', res);
+        console.log('AppsFlyer SDK integration:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to start:', error);
@@ -218,7 +220,7 @@ function App() {
     appsFlyer.setCustomerUserId(
       customerUserId,
       res => {
-        // console.log('AppsFlyer SDK setCustomerUserId:', res);
+        console.log('AppsFlyer SDK setCustomerUserId:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
@@ -230,7 +232,7 @@ function App() {
       if (err) {
         console.error(err);
       } else {
-        // console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
+        console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
         setApplsFlyerUID(appsFlyerUID);
       }
     });
@@ -260,36 +262,6 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  // if (isReadyToVisit) {
-  //   return (
-  //     <PracticeProvider>
-  //       <NavigationContainer>
-  //         <Stack.Navigator
-  //           screenOptions={{
-  //             headerShown: false,
-  //             animation: 'fade',
-  //             animationDuration: 600,
-  //           }}>
-  //           <Stack.Screen
-  //             name="TestScreen"
-  //             component={TestScreen}
-  //             initialParams={{
-  //               idfa: aaid,
-  //               oneSignalUserId: oneSignalUserId,
-  //               idfv: idfv,
-  //               applsFlyerUID: applsFlyerUID,
-  //               jthrhg:timestamp_user_id,
-  //               isFirstVisit: isFirstVisit,
-  //               timeStamp: timeStamp,
-  //               naming: naming,
-  //             }}
-  //           />
-  //         </Stack.Navigator>
-  //       </NavigationContainer>
-  //     </PracticeProvider>
-  //   );
-  // }
-
   return (
     <PracticeProvider>
       <NavigationContainer>
@@ -312,6 +284,7 @@ function App() {
                 isFirstVisit: isFirstVisit,
                 timeStamp: timeStamp,
                 naming: naming,
+                oneSignalPermissionStatus: oneSignalPermissionStatus,
               }}
             />
           ) : (
