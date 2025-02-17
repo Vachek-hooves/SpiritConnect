@@ -61,48 +61,79 @@ const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
 const Stack = createNativeStackNavigator();
 
 function App() {
-  const [isDateOk, setIsDateOk] = useState();
-  const {isMusicEnable} = usePracticeContext();
-  const [isPlayMusic, setIsPlayMusic] = useState(false);
-  const [deviceUniqId, setDeviceUniqId] = useState(null);
-  const [customerUserId, setCustomerUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [appsFlyerId, setAppsFlyerId] = useState(null);
-  const [oneSignalId, setOneSignalId] = useState(null);
-  const [timeStamp, setTimeStamp] = useState(null);
-  const [oneSignalPermissionStatus, setOneSignalPermissionStatus] = useState(null);
-  console.log('oneSignalId',oneSignalId)
- 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   // OneSignal Initialization
   OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  OneSignal.Notifications.requestPermission(true).then(response => {
-    // console.log('OneSignal: notification request permission:', response);
-    setOneSignalPermissionStatus(response);
-    OneSignal.User.getOnesignalId().then(userId => {
-      // console.log('OneSignal: user id:', userId);
-      setOneSignalId(userId);
-    });
-  });
+  OneSignal.Notifications.requestPermission(true);
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
     console.log('OneSignal: notification clicked:', event);
   });
 
+  const [isDateOk, setIsDateOk] = useState();
+  const {isMusicEnable} = usePracticeContext();
+  const [isPlayMusic, setIsPlayMusic] = useState(false);
+  const [deviceUniqId, setDeviceUniqId] = useState(null);
+  const [customerUserId, setCustomerUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [appsFlyerId, setAppsFlyerId] = useState(null);
+  const [oneSignalId, setOneSignalId] = useState(null);
+  const [timeStamp, setTimeStamp] = useState(null);
 
- 
+  // Validate all required parameters
+  const validateParams = () => {
+    if (!INITIAL_URL) {
+      console.error('INITIAL_URL is missing');
+      return false;
+    }
+    if (!URL_IDENTIFAIRE) {
+      console.error('URL_IDENTIFAIRE is missing');
+      return false;
+    }
+    if (!idfa) {
+      console.error('idfa is missing');
+      return false;
+    }
+    if (!oneSignalId) {
+      console.error('oneSignalId is missing');
+      return false;
+    }
+    if (!appsFlyerId) {
+      console.error('appsFlyerId is missing');
+      return false;
+    }
+    if (!timeStamp) {
+      console.error('timeStamp is missing');
+      return false;
+    }
+    if(!deviceUniqId) {
+      console.error('deviceUniqId is missing');
+      return false;
+    }
+    if(!customerUserId) {
+      console.error('customerUserId is missing');
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     handleDateCheck();
     const initializeApp = async () => {
       try {
-        // setIsLoading(true);
+        setIsLoading(true);
         
         // 1. Get OneSignal ID
+        const id = await OneSignal.User.getOnesignalId();
+        setOneSignalId(id);
         
-        
+        // 2. Set timestamp
+        const timestamp = `${new Date().getTime()}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+        setTimeStamp(timestamp);
+
         // 3. Initialize AppsFlyer and get all required IDs
         const conversionPromise = new Promise((resolve) => {
           const onInstallConversionDataCanceller = appsFlyer.onInstallConversionData(
@@ -153,14 +184,20 @@ function App() {
       } catch (error) {
         console.error('Error in app initialization:', error);
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
     initializeApp();
   }, []);
 
-  
+  const handleDateCheck = () => {
+    if (todayDate >= hardCodeDate) {
+      setIsDateOk(true);
+    } else {
+      setIsDateOk(false);
+    }
+  };
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -186,7 +223,14 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  
+  // Show loading state while initializing
+  if (isLoading || !validateParams()) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading ...</Text>
+      </View>
+    );
+  }
 
   return (
     <PracticeProvider>
