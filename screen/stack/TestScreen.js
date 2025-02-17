@@ -22,21 +22,21 @@ const TestScreen = ({route}) => {
   }, [initialUrl, urlIdentifier, idfa, oneSignalId, appsFlyerId, timeStamp, deviceUniqId, customerUserId]);
 
   // If any required parameter is missing, show error state
-  if (!initialUrl || !urlIdentifier || !idfa || !oneSignalId || !appsFlyerId || !timeStamp || !deviceUniqId || !customerUserId) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Error: Missing required parameters</Text>
-        <Text>initialUrl: {initialUrl}</Text>
-        <Text>urlIdentifier: {urlIdentifier}</Text>
-        <Text>idfa: {idfa}</Text>
-        <Text>oneSignalId: {oneSignalId}</Text>
-        <Text>appsFlyerId: {appsFlyerId}</Text>
-        <Text>timeStamp: {timeStamp}</Text>
-        <Text>deviceUniqId: {deviceUniqId}</Text>
-        <Text>customerUserId: {customerUserId}</Text>
-      </View>
-    );
-  }
+//   if (!initialUrl || !urlIdentifier || !idfa || !oneSignalId || !appsFlyerId || !timeStamp || !deviceUniqId || !customerUserId) {
+//     return (
+//       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+//         <Text>Error: Missing required parameters</Text>
+//         <Text>initialUrl: {initialUrl}</Text>
+//         <Text>urlIdentifier: {urlIdentifier}</Text>
+//         <Text>idfa: {idfa}</Text>
+//         <Text>oneSignalId: {oneSignalId}</Text>
+//         <Text>appsFlyerId: {appsFlyerId}</Text>
+//         <Text>timeStamp: {timeStamp}</Text>
+//         <Text>deviceUniqId: {deviceUniqId}</Text>
+//         <Text>customerUserId: {customerUserId}</Text>
+//       </View>
+//     );
+//   }
 
   return (
     <WebView
