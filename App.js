@@ -87,21 +87,22 @@ function App() {
     console.log('OneSignal: notification clicked:', event);
     console.log('🔔 Notification:', event.notification);
   });
-  OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
-    console.log('🔔 Notification received in foreground:', event);
-  });
-  OneSignal.Notifications.addEventListener('permissionChanged', event => {
-    console.log('🔔 Permission changed:', event);
-  });
+  // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
+  //   console.log('🔔 Notification received in foreground:', event);
+  // });
+  // OneSignal.Notifications.addEventListener('permissionChanged', event => {
+  //   console.log('🔔 Permission changed:', event);
+  // });
   OneSignal.Notifications.requestPermission(true).then(response => {
     // console.log('OneSignal: notification request permission:', response);
     setOneSignalPermissionStatus(response);
   });
-  OneSignal.Notifications.removeEventListener('click', event => {
-    console.log('🔔 Notification clicked:', event);
-  });
+
+  // OneSignal.Notifications.removeEventListener('click', event => {
+  //   console.log('🔔 Notification clicked:', event);
+  // });
   
-  
+
   useEffect(() => {
     checkFirstVisit();
     isReadyToVisitHandler();
