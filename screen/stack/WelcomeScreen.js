@@ -9,7 +9,7 @@ const WelcomeScreen = () => {
   const navigation = useNavigation();
   const loadingProgress = useRef(new Animated.Value(0)).current;
   const [percentage, setPercentage] = useState(0);
-  const [route, setRoute] = useState(false);
+  // const [route, setRoute] = useState(false);
 
 
   // const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
@@ -56,7 +56,7 @@ const WelcomeScreen = () => {
 
     Animated.timing(loadingProgress, {
       toValue: 100,
-      duration: 3000,
+      duration: 2000,
       useNativeDriver: false,
     }).start(() => {
       if (todayDate <= hardCodeDate) {

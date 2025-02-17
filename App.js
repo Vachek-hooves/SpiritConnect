@@ -120,6 +120,7 @@ function App() {
         const timeStamp = await AsyncStorage.getItem('timeStamp');
         console.log('timeStamp Returning user',timeStamp);
         setIsFirstVisit(false);
+        setTimeStamp(timeStamp)
         // setTimeStamp(parsedTimeStamp);
       }
     } catch (error) {
