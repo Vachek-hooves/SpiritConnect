@@ -70,13 +70,23 @@ function App() {
   const [appsFlyerId, setAppsFlyerId] = useState(null);
   const [oneSignalId, setOneSignalId] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null);
+  const [oneSignalPermissionStatus, setOneSignalPermissionStatus] = useState(null);
+  console.log('oneSignalId',oneSignalId)
+ 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
   // OneSignal Initialization
   OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  OneSignal.Notifications.requestPermission(true).then(res=>console.log(OneSignal.User.getOnesignalId()))
+  OneSignal.Notifications.requestPermission(true).then(response => {
+    // console.log('OneSignal: notification request permission:', response);
+    setOneSignalPermissionStatus(response);
+    OneSignal.User.getOnesignalId().then(userId => {
+      // console.log('OneSignal: user id:', userId);
+      setOneSignalId(userId);
+    });
+  });
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
     console.log('OneSignal: notification clicked:', event);
@@ -150,13 +160,7 @@ function App() {
     initializeApp();
   }, []);
 
-  const handleDateCheck = () => {
-    if (todayDate >= hardCodeDate) {
-      setIsDateOk(true);
-    } else {
-      setIsDateOk(false);
-    }
-  };
+  
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -182,14 +186,7 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  // Show loading state while initializing
-  // if (isLoading || !validateParams()) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <Text>Loading App.js...</Text>
-  //     </View>
-  //   );
-  // }
+  
 
   return (
     <PracticeProvider>
