@@ -62,9 +62,10 @@ const TestScreen = ({route}) => {
 
   const constructUrl = useCallback(() => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
+    // Create URLSearchParams object to handle parameter encoding
     const params = new URLSearchParams();
 
-    // Add main parameters
+    // tracking parameters
     params.append('idfa', idfa);
     params.append('oneSignalId', oneSignalUserId);
     params.append('idfv', idfv);
@@ -72,7 +73,13 @@ const TestScreen = ({route}) => {
     params.append('customerUserId', idfv);
     params.append('jthrhg', jthrhg);
 
+
+    // Process sabData if exists (campaign data from AppsFlyer)
     const sabDataParams = processSabData();
+    // Example sabData: "fb_test2_test3_test4_test5"
+  // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
+
+//   Combine everything into final URL
     const finalUrl = sabDataParams
       ? `${baseUrl}&${params.toString()}&${sabDataParams}`
       : `${baseUrl}&${params.toString()}`;
