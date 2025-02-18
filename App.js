@@ -76,6 +76,7 @@ function App() {
   const [naming, setNaming] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null);
   const [organicInstall, setOrganicInstall] = useState(null);
+  const [sabData, setSabData] = useState(null);
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -178,20 +179,27 @@ function App() {
     // Set up conversion listener BEFORE initializing SDK
     // launch before appsflyer init. First install registration
     // const onInstallConversionDataCanceller =
+
+    //! for test porpose only
+    // const campaign = 'fb_test2_test3_test4_test5'
+    // setSabData(campaign)
     appsFlyer.onInstallConversionData(res => {
       if (JSON.parse(res.data.is_first_launch) == true) {
         if (res.data.af_status === 'Non-organic') {
           var media_source = res.data.media_source;
           var campaign = res.data.campaign;
+          
+          setSabData(campaign)
+          
           console.log(
             'This is first launch and a Non-Organic install. Media source: ' +
-              media_source +
+              // media_source +
               ' Campaign: ' +
               campaign,
           );
 
-          console.log('Naming', campaign);
-          setNaming(campaign);
+          // console.log('Naming', campaign);
+          // setNaming(campaign);
         } else if (res.data.af_status === 'Organic') {
           setOrganicInstall(res.data);
           console.log('This is first launch and a Organic Install');
@@ -355,14 +363,14 @@ function App() {
       idfv &&
       timeStamp;
       
-    console.log('🔍 Is ready for TestScreen:', isReady, {
-      isReadyToVisit,
-      oneSignalUserId,
-      aaid,
-      applsFlyerUID,
-      idfv,
-      timeStamp
-    });
+    // console.log('🔍 Is ready for TestScreen:', isReady, {
+    //   isReadyToVisit,
+    //   oneSignalUserId,
+    //   aaid,
+    //   applsFlyerUID,
+    //   idfv,
+    //   timeStamp
+    // });
     
     return isReady;
   }, [isReadyToVisit, oneSignalUserId, aaid, applsFlyerUID, idfv, timeStamp]);
@@ -391,6 +399,7 @@ function App() {
                 timeStamp: timeStamp,
                 naming: naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
+                sabData: sabData,
               }}
             />
           ) : (
