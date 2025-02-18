@@ -10,7 +10,7 @@ import {
 } from './screen/stack';
 import {PracticeProvider} from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppState} from 'react-native';
 import {
@@ -37,8 +37,8 @@ import {Linking} from 'react-native';
 // API token V2 (optional): [Enter the token]
 // OneSignal 843280c8-82d4-461c-97a6-28e5f209ddb3
 
-const deviceId = getUniqueId();
-const manufacturer = getManufacturer();
+// const deviceId = getUniqueId();
+// const manufacturer = getManufacturer();
 
 // console.log('deviceId,line33', deviceId);
 // console.log('manufacturer', manufacturer);
@@ -100,15 +100,13 @@ function App() {
     
   });
 
-  // OneSignal.Notifications.removeEventListener('click', event => {
-  //   console.log('🔔 Notification clicked:', event);
-  // });
 
   useEffect(() => {
     checkFirstVisit();
     isReadyToVisitHandler();
     initAppsFlyer();
     getOneSignalUserId();
+   
   }, []);
 
   const getOneSignalUserId = async () => {
@@ -122,6 +120,7 @@ function App() {
       console.log('hasVisited', hasVisited);
       if (!hasVisited) {
         OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
+        await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`);
         // First visit
         console.log('First visit');
         setIsFirstVisit(true);
@@ -130,6 +129,7 @@ function App() {
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
+
         const timeStamp = await AsyncStorage.getItem('timeStamp');
         console.log('timeStamp Returning user', timeStamp);
         setIsFirstVisit(false);
@@ -145,15 +145,20 @@ function App() {
     // console.log('isFirstVisit',isFirstVisit);
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
+    const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
-    if (currentDate >= targetData) {
+    if (currentDate >= targetData ) {
       // console.log('Date is after target date');
-      fetch(visitUrl)
-        .then(res => {
+      if(hasVisited) {
+        setIsReadyToVisit(true);
+      }
+      if(!hasVisited) {
+        fetch(visitUrl).then(res=>{
           console.log('is URL ok-', res.status);
           if (res.status === 200) {
             // console.log('URL is ok');
+            // console.log('res.data first launch', res);
             setIsReadyToVisit(true);
           } else {
             // console.log('URL is not ok');
@@ -163,6 +168,9 @@ function App() {
         .catch(error => {
           console.log('isReadyToVisit fn check error', error);
         });
+      }
+          
+     
     }
   };
 
@@ -181,6 +189,7 @@ function App() {
               ' Campaign: ' +
               campaign,
           );
+
           console.log('Naming', campaign);
           setNaming(campaign);
         } else if (res.data.af_status === 'Organic') {
@@ -275,14 +284,15 @@ function App() {
     
     if (!hasVisited) {
       // First time visit case
-      finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
+      // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
     } else if (event.notification.launchURL) {
       // Has launchURL case
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`;
-    } else {
-      // Regular webview case
-      finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
-    }
+    } 
+    // else {
+    //   // Regular webview case
+    //   finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
+    // }
 
     console.log('🔔 Constructed URL:', finalUrl);
 
@@ -334,6 +344,29 @@ function App() {
     setupNotifications();
   }, []);
 
+
+
+  // For example, if OneSignal ID isn't immediately necessary:
+  const isReadyForTestScreen = useMemo(() => {
+    const isReady = isReadyToVisit &&
+      // oneSignalUserId && // Comment this out temporarily if causing issues
+      aaid &&
+      applsFlyerUID &&
+      idfv &&
+      timeStamp;
+      
+    console.log('🔍 Is ready for TestScreen:', isReady, {
+      isReadyToVisit,
+      oneSignalUserId,
+      aaid,
+      applsFlyerUID,
+      idfv,
+      timeStamp
+    });
+    
+    return isReady;
+  }, [isReadyToVisit, oneSignalUserId, aaid, applsFlyerUID, idfv, timeStamp]);
+
   return (
     <PracticeProvider>
       <NavigationContainer>
@@ -343,7 +376,8 @@ function App() {
             animation: 'fade',
             animationDuration: 600,
           }}>
-          {isReadyToVisit ? (
+             {/* {isReadyToVisit ? */}
+          {isReadyForTestScreen ? (
             <Stack.Screen
               name="TestScreen"
               component={TestScreen}
