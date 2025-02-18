@@ -19,8 +19,8 @@ const TestScreen = ({route}) => {
   const handleWebViewLoad = useCallback(async () => {
     try {
       // Your function logic here
-      const response = await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`);
-      console.log('WebView open event sent:', response.status);
+       fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`);
+    //   console.log('WebView open event sent:', response.status);
     } catch (error) {
       console.error('Error in handleWebViewLoad:', error);
     }
