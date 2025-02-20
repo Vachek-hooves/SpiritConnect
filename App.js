@@ -48,9 +48,12 @@ const option = {
 };
 
 const Stack = createNativeStackNavigator();
-const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
-  1000000 + Math.random() * 9000000,
-)}`;
+// const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
+//   1000000 + Math.random() * 9000000,
+// )}`;
+const generateTimestampUserId = () => {
+  return `${new Date().getTime()}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+};
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `9QNrrgg5`;
 const targetData = new Date('2025-02-18T10:00:00Z');
@@ -120,22 +123,37 @@ function App() {
     try {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
       console.log('hasVisited', hasVisited);
+
+        // Get stored timestamp_user_id first
+        let storedTimeStamp = await AsyncStorage.getItem('timeStamp');
+        if (!storedTimeStamp) {
+          // Generate new timestamp_user_id only if none exists
+          storedTimeStamp = generateTimestampUserId();
+          await AsyncStorage.setItem('timeStamp', storedTimeStamp);
+          console.log('Generated new timestamp_user_id:', storedTimeStamp);
+        } else {
+          console.log('Retrieved stored timestamp_user_id:', storedTimeStamp);
+        }
+
+         // Set timestamp for use in app
+      setTimeStamp(storedTimeStamp);
+
       if (!hasVisited) {
-        OneSignal.User.addTag('timestamp_user_id', timestamp_user_id);
-        await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`);
-        // First visit
         console.log('First visit');
         setIsFirstVisit(true);
-        setTimeStamp(timestamp_user_id);
-        await AsyncStorage.setItem('timeStamp', timestamp_user_id);
+
+        OneSignal.User.addTag('timestamp_user_id', storedTimeStamp);
+        
+        // First visit
+        await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`);
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
 
-        const timeStamp = await AsyncStorage.getItem('timeStamp');
-        console.log('timeStamp Returning user', timeStamp);
+        // const timeStamp = await AsyncStorage.getItem('timeStamp');
+        // console.log('timeStamp Returning user', timeStamp);
+        console.log('Returning user, using stored timestamp:', storedTimeStamp);
         setIsFirstVisit(false);
-        setTimeStamp(timeStamp);
         // setTimeStamp(parsedTimeStamp);
       }
     } catch (error) {
@@ -382,13 +400,13 @@ function App() {
               component={TestScreen}
               initialParams={{
                 idfa: aaid,
-                oneSignalUserId: oneSignalUserId,
-                idfv: idfv,
-                applsFlyerUID: applsFlyerUID,
-                jthrhg: timestamp_user_id,
-                isFirstVisit: isFirstVisit,
-                timeStamp: timeStamp,
-                naming: naming,
+                oneSignalUserId,
+               idfv,
+                applsFlyerUID,
+                jthrhg: timeStamp,
+                isFirstVisit,
+                timeStamp,
+                naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
                 ...(isFirstVisit && { sabData }),
               }}
