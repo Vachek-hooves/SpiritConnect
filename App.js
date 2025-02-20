@@ -52,7 +52,9 @@ const Stack = createNativeStackNavigator();
 //   1000000 + Math.random() * 9000000,
 // )}`;
 const generateTimestampUserId = () => {
-  return `${new Date().getTime()}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+  return `${new Date().getTime()}-${Math.floor(
+    1000000 + Math.random() * 9000000,
+  )}`;
 };
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `9QNrrgg5`;
@@ -75,8 +77,8 @@ function App() {
   const [timeStamp, setTimeStamp] = useState(null);
   const [organicInstall, setOrganicInstall] = useState(null);
   const [sabData, setSabData] = useState(null);
-  const [isConversionDataReceived, setIsConversionDataReceived] = useState(false);
-  
+  const [isConversionDataReceived, setIsConversionDataReceived] =
+    useState(false);
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -98,9 +100,7 @@ function App() {
   OneSignal.Notifications.requestPermission(true).then(response => {
     // console.log('OneSignal: notification request permission:', response);
     setOneSignalPermissionStatus(response);
-    
   });
-
 
   useEffect(() => {
     checkFirstVisit();
@@ -124,18 +124,18 @@ function App() {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
       console.log('hasVisited', hasVisited);
 
-        // Get stored timestamp_user_id first
-        let storedTimeStamp = await AsyncStorage.getItem('timeStamp');
-        if (!storedTimeStamp) {
-          // Generate new timestamp_user_id only if none exists
-          storedTimeStamp = generateTimestampUserId();
-          await AsyncStorage.setItem('timeStamp', storedTimeStamp);
-          console.log('Generated new timestamp_user_id:', storedTimeStamp);
-        } else {
-          console.log('Retrieved stored timestamp_user_id:', storedTimeStamp);
-        }
+      // Get stored timestamp_user_id first
+      let storedTimeStamp = await AsyncStorage.getItem('timeStamp');
+      if (!storedTimeStamp) {
+        // Generate new timestamp_user_id only if none exists
+        storedTimeStamp = generateTimestampUserId();
+        await AsyncStorage.setItem('timeStamp', storedTimeStamp);
+        console.log('Generated new timestamp_user_id:', storedTimeStamp);
+      } else {
+        console.log('Retrieved stored timestamp_user_id:', storedTimeStamp);
+      }
 
-         // Set timestamp for use in app
+      // Set timestamp for use in app
       setTimeStamp(storedTimeStamp);
 
       if (!hasVisited) {
@@ -143,9 +143,11 @@ function App() {
         setIsFirstVisit(true);
 
         OneSignal.User.addTag('timestamp_user_id', storedTimeStamp);
-        
+
         // First visit
-        await fetch(`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`);
+        await fetch(
+          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        );
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
@@ -168,29 +170,28 @@ function App() {
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
 
-    if (currentDate >= targetData ) {
+    if (currentDate >= targetData) {
       // console.log('Date is after target date');
-      if(hasVisited) {
+      if (hasVisited) {
         setIsReadyToVisit(true);
       }
-      if(!hasVisited) {
-        fetch(visitUrl).then(res=>{
-          console.log('is URL ok-', res.status);
-          if (res.status === 200) {
-            // console.log('URL is ok');
-            // console.log('res.data first launch', res);
-            setIsReadyToVisit(true);
-          } else {
-            // console.log('URL is not ok');
-            setIsReadyToVisit(false);
-          }
-        })
-        .catch(error => {
-          console.log('isReadyToVisit fn check error', error);
-        });
+      if (!hasVisited) {
+        fetch(visitUrl)
+          .then(res => {
+            console.log('is URL ok-', res.status);
+            if (res.status === 200) {
+              // console.log('URL is ok');
+              // console.log('res.data first launch', res);
+              setIsReadyToVisit(true);
+            } else {
+              // console.log('URL is not ok');
+              setIsReadyToVisit(false);
+            }
+          })
+          .catch(error => {
+            console.log('isReadyToVisit fn check error', error);
+          });
       }
-          
-     
     }
   };
 
@@ -201,11 +202,17 @@ function App() {
         if (res.data.af_status === 'Non-organic') {
           var media_source = res.data.media_source;
           var campaign = res.data.campaign;
-          console.log('First launch - Non-Organic install. Campaign:', campaign);
+          console.log(
+            'First launch - Non-Organic install. Campaign:',
+            campaign,
+          );
           setSabData(campaign);
         } else if (res.data.af_status === 'Organic') {
           const sabDataTest = 'organic_first_launch_test';
-          console.log('First launch - Organic install. Setting test data:', sabDataTest);
+          console.log(
+            'First launch - Organic install. Setting test data:',
+            sabDataTest,
+          );
           setSabData(sabDataTest);
         }
       }
@@ -215,7 +222,7 @@ function App() {
     // Rest of AppsFlyer initialization
     const aaid = await handleGetAaid();
     setAaid(aaid);
-    
+
     // handleInitSdk();
     appsFlyer.initSdk(
       option,
@@ -281,22 +288,22 @@ function App() {
     };
   }, [isMusicEnable]);
 
-  const handleNotificationClick = async (event) => {
+  const handleNotificationClick = async event => {
     console.log('🔔 Handling notification click:- data commented', 'event');
-    
+
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
 
     // Check if it's first visit
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-    
+
     if (!hasVisited) {
       // First time visit case
       // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
     } else if (event.notification.launchURL) {
       // Has launchURL case
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`;
-    } 
+    }
     // else {
     //   // Regular webview case
     //   finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
@@ -352,8 +359,6 @@ function App() {
     setupNotifications();
   }, []);
 
-
-
   // For example, if OneSignal ID isn't immediately necessary:
   const isReadyForTestScreen = useMemo(() => {
     // Log current state for debugging
@@ -364,11 +369,12 @@ function App() {
       idfv,
       timeStamp,
       isFirstVisit,
-      isConversionDataReceived
+      isConversionDataReceived,
     });
 
     // Basic requirements for all launches
-    const baseRequirements = isReadyToVisit &&
+    const baseRequirements =
+      isReadyToVisit &&
       aaid &&
       applsFlyerUID &&
       idfv &&
@@ -382,7 +388,16 @@ function App() {
 
     // For subsequent launches, only need base requirements
     return baseRequirements;
-  }, [isReadyToVisit, aaid, applsFlyerUID, idfv, timeStamp, isConversionDataReceived, sabData, isFirstVisit]);
+  }, [
+    isReadyToVisit,
+    aaid,
+    applsFlyerUID,
+    idfv,
+    timeStamp,
+    isConversionDataReceived,
+    sabData,
+    isFirstVisit,
+  ]);
 
   return (
     <PracticeProvider>
@@ -393,7 +408,7 @@ function App() {
             animation: 'fade',
             animationDuration: 600,
           }}>
-             {/* {isReadyToVisit ? */}
+          {/* {isReadyToVisit ? */}
           {isReadyForTestScreen ? (
             <Stack.Screen
               name="TestScreen"
@@ -401,14 +416,14 @@ function App() {
               initialParams={{
                 idfa: aaid,
                 oneSignalUserId,
-               idfv,
+                idfv,
                 applsFlyerUID,
                 jthrhg: timeStamp,
                 isFirstVisit,
                 timeStamp,
                 naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
-                ...(isFirstVisit && { sabData }),
+                ...(isFirstVisit && {sabData}),
               }}
             />
           ) : (
