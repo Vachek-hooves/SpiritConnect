@@ -22,7 +22,7 @@ const TestScreen = ({route}) => {
   //   console.log('jthrhg',jthrhg);
   //   console.log('timeStamp TestScreen',timeStamp);
   //   console.log('naming TestScreen',naming);
-  //   console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
+    console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
   console.log('isFirstVisit TestScreen',isFirstVisit);
   console.log('sabData TestScreen', sabData);
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
@@ -54,6 +54,11 @@ const TestScreen = ({route}) => {
       fetch(
         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
       );
+      if(isFirstVisit && oneSignalPermissionStatus){
+        fetch(
+          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
+        );
+      }
       //   console.log('WebView open event sent:', response.status);
     } catch (error) {
       console.error('Error in handleWebViewLoad:', error);

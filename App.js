@@ -79,6 +79,7 @@ function App() {
   const [sabData, setSabData] = useState(null);
   const [isConversionDataReceived, setIsConversionDataReceived] =
     useState(false);
+    console.log('timeStamp',timeStamp);
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -88,7 +89,7 @@ function App() {
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
-    // console.log('OneSignal: notification clicked:', event);
+    console.log('OneSignal: notification clicked:', event);
     // console.log('🔔 Notification:', event.notification);
   });
   // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
@@ -178,7 +179,7 @@ function App() {
       if (!hasVisited) {
         fetch(visitUrl)
           .then(res => {
-            console.log('is URL ok-', res.status);
+            // console.log('is URL ok-', res.status);
             if (res.status === 200) {
               // console.log('URL is ok');
               // console.log('res.data first launch', res);
@@ -227,7 +228,7 @@ function App() {
     appsFlyer.initSdk(
       option,
       res => {
-        console.log('AppsFlyer SDK integration:', res);
+        // console.log('AppsFlyer SDK integration:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to start:', error);
@@ -246,7 +247,7 @@ function App() {
     appsFlyer.setCustomerUserId(
       customerUserId,
       res => {
-        console.log('AppsFlyer SDK setCustomerUserId:', res);
+        // console.log('AppsFlyer SDK setCustomerUserId:', res);
       },
       error => {
         console.error('AppsFlyer SDK failed to setCustomerUserId:', error);
@@ -258,7 +259,7 @@ function App() {
       if (err) {
         console.error(err);
       } else {
-        console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
+        // console.log('App.js on getAppsFlyerUID: ', appsFlyerUID);
         setApplsFlyerUID(appsFlyerUID);
       }
     });
@@ -289,7 +290,9 @@ function App() {
   }, [isMusicEnable]);
 
   const handleNotificationClick = async event => {
-    console.log('🔔 Handling notification click:- data commented', 'event');
+    console.log('🔔 Handling notification click:', event);
+    const timeStamp = await AsyncStorage.getItem('timeStamp');
+    console.log('🔔 timeStamp inside handleNotificationClick',timeStamp);
 
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -300,20 +303,24 @@ function App() {
     if (!hasVisited) {
       // First time visit case
       // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
+      
     } else if (event.notification.launchURL) {
       // Has launchURL case
-      finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`;
+      finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
+     
     }
-    // else {
-    //   // Regular webview case
-    //   finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`;
-    // }
+    else {
+      // Regular webview case
+      finalUrl = `${baseUrl}?utretg=push_open_webview&&yhugh=true&jthrhg=${timeStamp}`;
+      
+    }
 
-    console.log('🔔 Constructed URL:', finalUrl);
+    console.log('🔔 Constructed finalUrl:', finalUrl);
 
     try {
       // Send request to the constructed URL
       const response = await fetch(finalUrl);
+      console.log('🔔 timeStamp inside try',timeStamp);
       console.log('🔔 URL fetch response status:', response.status);
 
       // Handle different cases after fetch
