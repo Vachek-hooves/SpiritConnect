@@ -72,6 +72,7 @@ function App() {
   const [timeStamp, setTimeStamp] = useState(null);
   const [organicInstall, setOrganicInstall] = useState(null);
   const [sabData, setSabData] = useState(null);
+  
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -184,24 +185,23 @@ function App() {
           var media_source = res.data.media_source;
           var campaign = res.data.campaign;
           
-          setSabData(campaign)
-          
           console.log(
             'This is first launch and a Non-Organic install. Media source: ' +
-              // media_source +
+              media_source +
               ' Campaign: ' +
               campaign,
           );
-
-          // console.log('Naming', campaign);
-          // setNaming(campaign);
+          setSabData(campaign)
+          
         } else if (res.data.af_status === 'Organic') {
+          const sabDataTest='organic_first_launch_test'
+          setSabData(sabDataTest)
           setOrganicInstall(res.data);
           console.log('This is first launch and a Organic Install');
           console.log('res.data', res.data);
         }
       } else {
-        console.log('This is not first launch');
+        console.log('This is not first launch, sab Data is not required');
         console.log('res.data', res.data);
       }
     });
@@ -357,6 +357,8 @@ function App() {
       applsFlyerUID &&
       idfv &&
       timeStamp;
+      // isAppsFlyerDataReady && // Add this check
+      // sabData !== null;       // Ensure sabData exists
       
     // console.log('🔍 Is ready for TestScreen:', isReady, {
     //   isReadyToVisit,

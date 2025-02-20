@@ -120,23 +120,23 @@ const TestScreen = ({route}) => {
         onMessage={event => {
           console.log('WebView Message:', event.nativeEvent.data);
         }}
-        onShouldStartLoadWithRequest={(request) => {
-          // Only allow navigating within this website
-          return request.url.startsWith('https://reactnative.dev');
-        }}// if e-mail do not openned. url data...
+        // onShouldStartLoadWithRequest={(request) => {
+        //   // Only allow navigating within this website
+        //   return request.url.startsWith('https://reactnative.dev');
+        // }}// if e-mail do not openned. url data...
 
-        onNavigationStateChange={(navState) => {
-          // Keep track of going back navigation within component
-          this.canGoBack = navState.canGoBack;
-        }}
-        originWhitelist={[
-          '*',
-          'http://*',
-          'https://*',
-          'intent://*',
-          'tel:*',
-          'mailto:*',
-        ]}
+        // onNavigationStateChange={(navState) => {
+        //   // Keep track of going back navigation within component
+        //   this.canGoBack = navState.canGoBack;
+        // }}
+        // originWhitelist={[
+        //   '*',
+        //   'http://*',
+        //   'https://*',
+        //   'intent://*',
+        //   'tel:*',
+        //   'mailto:*',
+        // ]}
     />
   );
 };
