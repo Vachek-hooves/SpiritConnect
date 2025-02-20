@@ -20,10 +20,10 @@ const TestScreen = ({route}) => {
   //   console.log('idfv',idfv);
   //   console.log('applsFlyerUID',applsFlyerUID);
   //   console.log('jthrhg',jthrhg);
-  //   console.log('isFirstVisit TestScreen',isFirstVisit);
   //   console.log('timeStamp TestScreen',timeStamp);
   //   console.log('naming TestScreen',naming);
   //   console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
+  console.log('isFirstVisit TestScreen',isFirstVisit);
   console.log('sabData TestScreen', sabData);
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
   const URL_IDENTIFAIRE = `9QNrrgg5`;
@@ -36,7 +36,7 @@ const TestScreen = ({route}) => {
       if (!sabDataArray.length) return '';
 
       const sabDataLink = sabDataArray
-        .map((item, index) => (item ? `subId${index}=${item}` : ''))
+        .map((item, index) => (item ? `subId${index+1}=${item}` : ''))
         // .filter(item => item) // Remove empty strings
         .join('&');
 
@@ -75,16 +75,27 @@ const TestScreen = ({route}) => {
 
 
     // Process sabData if exists (campaign data from AppsFlyer)
-    const sabDataParams = processSabData();
+    // const sabDataParams = processSabData();
+    if (isFirstVisit && sabData) {
+      const sabDataParams = sabData.split('_')
+        .map((item, index) => item ? `subId${index+1}=${item}` : '')
+        // .filter(item => item)
+        .join('&');
+      
+      return `${baseUrl}&${params.toString()}&${sabDataParams}`;
+    }
     // Example sabData: "fb_test2_test3_test4_test5"
   // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
 
 //   Combine everything into final URL
-    const finalUrl = sabDataParams
-      ? `${baseUrl}&${params.toString()}&${sabDataParams}`
-      : `${baseUrl}&${params.toString()}`;
-    console.log('finalUrl', finalUrl);
-    return finalUrl;
+    // const finalUrl = sabDataParams
+    //   ? `${baseUrl}&${params.toString()}&${sabDataParams}`
+    //   : `${baseUrl}&${params.toString()}`;
+    // console.log('finalUrl', finalUrl);
+    // return finalUrl;
+
+    // Return URL without sabData for subsequent visits
+    return `${baseUrl}&${params.toString()}`;
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
   return (

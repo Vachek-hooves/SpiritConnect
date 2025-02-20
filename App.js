@@ -72,6 +72,7 @@ function App() {
   const [timeStamp, setTimeStamp] = useState(null);
   const [organicInstall, setOrganicInstall] = useState(null);
   const [sabData, setSabData] = useState(null);
+  const [isConversionDataReceived, setIsConversionDataReceived] = useState(false);
   
 
   // Remove this method to stop OneSignal Debugging
@@ -103,8 +104,12 @@ function App() {
     isReadyToVisitHandler();
     initAppsFlyer();
     getOneSignalUserId();
-   
-  }, []);
+
+    // If it's not first visit, mark conversion data as received immediately
+    if (!isFirstVisit) {
+      setIsConversionDataReceived(true);
+    }
+  }, [isFirstVisit]);
 
   const getOneSignalUserId = async () => {
     const userId = await OneSignal.User.getOnesignalId();
@@ -172,45 +177,27 @@ function App() {
   };
 
   const initAppsFlyer = async () => {
-    // Set up conversion listener BEFORE initializing SDK
-    // launch before appsflyer init. First install registration
-    // const onInstallConversionDataCanceller =
-
-    //! for test porpose only
-    // const campaign = 'fb_test2_test3_test4_test5'
-    // setSabData(campaign)
+    // Set up conversion listener first
     appsFlyer.onInstallConversionData(res => {
       if (JSON.parse(res.data.is_first_launch) == true) {
         if (res.data.af_status === 'Non-organic') {
           var media_source = res.data.media_source;
           var campaign = res.data.campaign;
-          
-          console.log(
-            'This is first launch and a Non-Organic install. Media source: ' +
-              media_source +
-              ' Campaign: ' +
-              campaign,
-          );
-          setSabData(campaign)
-          
+          console.log('First launch - Non-Organic install. Campaign:', campaign);
+          setSabData(campaign);
         } else if (res.data.af_status === 'Organic') {
-          const sabDataTest='organic_first_launch_test'
-          setSabData(sabDataTest)
-          setOrganicInstall(res.data);
-          console.log('This is first launch and a Organic Install');
-          console.log('res.data', res.data);
+          const sabDataTest = 'organic_first_launch_test';
+          console.log('First launch - Organic install. Setting test data:', sabDataTest);
+          setSabData(sabDataTest);
         }
-      } else {
-        console.log('This is not first launch, sab Data is not required');
-        console.log('res.data', res.data);
       }
+      setIsConversionDataReceived(true);
     });
 
-    // Non appsflyer fn
+    // Rest of AppsFlyer initialization
     const aaid = await handleGetAaid();
-    console.log('aaid', aaid);
     setAaid(aaid);
-
+    
     // handleInitSdk();
     appsFlyer.initSdk(
       option,
@@ -277,7 +264,7 @@ function App() {
   }, [isMusicEnable]);
 
   const handleNotificationClick = async (event) => {
-    console.log('🔔 Handling notification click:', event);
+    console.log('🔔 Handling notification click:- data commented', 'event');
     
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -351,26 +338,33 @@ function App() {
 
   // For example, if OneSignal ID isn't immediately necessary:
   const isReadyForTestScreen = useMemo(() => {
-    const isReady = isReadyToVisit &&
-      // oneSignalUserId && // Comment this out temporarily if causing issues
+    // Log current state for debugging
+    console.log('Ready check:', {
+      isReadyToVisit,
+      aaid,
+      applsFlyerUID,
+      idfv,
+      timeStamp,
+      isFirstVisit,
+      isConversionDataReceived
+    });
+
+    // Basic requirements for all launches
+    const baseRequirements = isReadyToVisit &&
       aaid &&
       applsFlyerUID &&
       idfv &&
-      timeStamp;
-      // isAppsFlyerDataReady && // Add this check
-      // sabData !== null;       // Ensure sabData exists
-      
-    // console.log('🔍 Is ready for TestScreen:', isReady, {
-    //   isReadyToVisit,
-    //   oneSignalUserId,
-    //   aaid,
-    //   applsFlyerUID,
-    //   idfv,
-    //   timeStamp
-    // });
-    
-    return isReady;
-  }, [isReadyToVisit, oneSignalUserId, aaid, applsFlyerUID, idfv, timeStamp]);
+      timeStamp &&
+      isConversionDataReceived;
+
+    // For first launch, also require sabData
+    if (isFirstVisit) {
+      return baseRequirements && sabData !== null;
+    }
+
+    // For subsequent launches, only need base requirements
+    return baseRequirements;
+  }, [isReadyToVisit, aaid, applsFlyerUID, idfv, timeStamp, isConversionDataReceived, sabData, isFirstVisit]);
 
   return (
     <PracticeProvider>
@@ -396,7 +390,7 @@ function App() {
                 timeStamp: timeStamp,
                 naming: naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
-                sabData: sabData,
+                ...(isFirstVisit && { sabData }),
               }}
             />
           ) : (
