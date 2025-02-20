@@ -1,5 +1,7 @@
 import {WebView} from 'react-native-webview';
 import {useEffect, useCallback} from 'react';
+import {BackHandler} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
 const TestScreen = ({route}) => {
   const {
@@ -14,6 +16,20 @@ const TestScreen = ({route}) => {
     oneSignalPermissionStatus,
     sabData,
   } = route.params;
+
+  const navigation = useNavigation();
+  
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Navigate back to previous screen instead of closing the app
+      navigation.goBack();
+      // Return true to prevent default behavior (app closing)
+      return true;
+    });
+
+    // Cleanup listener on component unmount
+    return () => backHandler.remove();
+  }, [navigation]);
 
   //   console.log('idfa',idfa);
   //   console.log('oneSignalUserId',oneSignalUserId);
