@@ -32,16 +32,11 @@ import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
 import {Linking} from 'react-native';
+
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
 // API token V2 (optional): [Enter the token]
 // OneSignal 843280c8-82d4-461c-97a6-28e5f209ddb3
-
-// const deviceId = getUniqueId();
-// const manufacturer = getManufacturer();
-
-// console.log('deviceId,line33', deviceId);
-// console.log('manufacturer', manufacturer);
 
 const option = {
   devKey: 'ZP6F7NaeyNmgAdC29AdB4T',
@@ -58,7 +53,7 @@ const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
 )}`;
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `9QNrrgg5`;
-const targetData = new Date('2025-02-10T10:00:00Z');
+const targetData = new Date('2025-02-18T10:00:00Z');
 const currentDate = new Date();
 
 function App() {
