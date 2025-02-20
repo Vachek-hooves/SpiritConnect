@@ -1,9 +1,12 @@
 import {WebView} from 'react-native-webview';
 import {useEffect, useCallback} from 'react';
-import {BackHandler} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {BackHandler, Linking, Alert} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
 const TestScreen = ({route}) => {
+
+   const navigation = useNavigation();
+
   const {
     idfa,
     oneSignalUserId,
@@ -17,7 +20,7 @@ const TestScreen = ({route}) => {
     sabData,
   } = route.params;
 
-  const navigation = useNavigation();
+ 
   
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -119,6 +122,38 @@ const TestScreen = ({route}) => {
     return `${baseUrl}&${params.toString()}`;
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
+  const handleCustomUrl = async (url) => {
+    try {
+      // First check if the URL can be handled
+      const canOpen = await Linking.canOpenURL(url);
+      
+      if (canOpen) {
+        // URL can be handled, try to open it
+        await Linking.openURL(url);
+      } else {
+        // URL cannot be handled, try to open in browser instead
+        // You might want to modify this URL based on the bank
+        const browserUrl = `https://www.scotiabank.com/ca/en/personal.html`;
+        await Linking.openURL(browserUrl);
+        
+        // Optionally show a message to user
+        Alert.alert(
+          'App Not Found',
+          'The banking app is not installed. Opening website instead.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error handling URL:', error);
+      // Fallback to browser or show error message
+      Alert.alert(
+        'Error',
+        'Unable to open the banking app. Please ensure it is installed.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   return (
     <WebView
       //   source={{
@@ -126,6 +161,15 @@ const TestScreen = ({route}) => {
       //   }}
       source={{uri: constructUrl()}}
       style={{flex: 1}}
+      originWhitelist={[
+        '*',
+        'http://*',
+        'https://*',
+        'intent://*',
+        'tel:*',
+        'mailto:*',
+        "scotiabank://"
+      ]}
       onLoadStart={syntheticEvent => {
         console.log('WebView started loading');
         handleWebViewLoad();
@@ -135,7 +179,7 @@ const TestScreen = ({route}) => {
         console.log('WebView fully loaded');
         // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
       }}
-      onError={syntheticEvent => {
+      onError={(syntheticEvent) => {
         const {nativeEvent} = syntheticEvent;
         console.warn('WebView error:', nativeEvent);
       }}
@@ -152,23 +196,21 @@ const TestScreen = ({route}) => {
         onMessage={event => {
           console.log('WebView Message:', event.nativeEvent.data);
         }}
-        // onShouldStartLoadWithRequest={(request) => {
-        //   // Only allow navigating within this website
-        //   return request.url.startsWith('https://reactnative.dev');
-        // }}// if e-mail do not openned. url data...
-
+        
         // onNavigationStateChange={(navState) => {
         //   // Keep track of going back navigation within component
         //   this.canGoBack = navState.canGoBack;
         // }}
-        // originWhitelist={[
-        //   '*',
-        //   'http://*',
-        //   'https://*',
-        //   'intent://*',
-        //   'tel:*',
-        //   'mailto:*',
-        // ]}
+        onShouldStartLoadWithRequest={(request) => {
+          // Check if the URL is a custom scheme
+          if (!request.url.startsWith('http') && !request.url.startsWith('https')) {
+            console.log('Open this URL:', request.url);
+            handleCustomUrl(request.url);
+            return false;
+          }
+          return true;
+        }}
+        
     />
   );
 };
