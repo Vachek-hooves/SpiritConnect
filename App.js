@@ -12,7 +12,7 @@ import {PracticeProvider} from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
 import {useState, useEffect, useMemo} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {AppState} from 'react-native';
+import {AppState, BackHandler} from 'react-native';
 import {
   pauseBackgroundMusic,
   playBackgroundMusic,

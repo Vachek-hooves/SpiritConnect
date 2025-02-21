@@ -1,13 +1,12 @@
 import {WebView} from 'react-native-webview';
 import {useEffect, useCallback} from 'react';
 import {BackHandler, Linking, Alert} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 // const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
 import {useRef} from 'react';
 const TestScreen = ({route}) => {
-
-   const navigation = useNavigation();
-   const webViewRef = useRef(null);
+  const navigation = useNavigation();
+  const webViewRef = useRef(null);
 
   const {
     idfa,
@@ -22,25 +21,40 @@ const TestScreen = ({route}) => {
     sabData,
   } = route.params;
 
- 
-  
+  //  useEffect(() => {
+  //   const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+  //     // Prevent default back button behavior
+  //     return true; // This will block the back button completely
+  //   });
+
+  //   return () => backHandler.remove();
+  // }, []);
+
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // First check if WebView can go back
-      if (webViewRef.current && webViewRef.current.canGoBack) {
-        webViewRef.current.goBack();
-        return true;
-      }
-      
-      // Then check if we can navigate back
-      if (navigation.canGoBack()) {
-        navigation.goBack();
-        return true;
-      }
-      
-      // If we can't go back anywhere, minimize the app
-      return false;
-    });
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // First check if WebView can go back
+        if (webViewRef.current && webViewRef.current.canGoBack) {
+          console.log(
+            'webViewRef.current.canGoBack',
+            webViewRef.current.canGoBack,
+          );
+          webViewRef.current.goBack();
+          return true;
+        }
+
+        // Then check if we can navigate back
+        if (navigation.canGoBack()) {
+          console.log('navigation.canGoBack()', navigation.canGoBack());
+          navigation.goBack();
+          return true;
+        }
+
+        // If we can't go back anywhere, minimize the app
+        return false;
+      },
+    );
 
     return () => backHandler.remove();
   }, [navigation]);
@@ -52,9 +66,9 @@ const TestScreen = ({route}) => {
   //   console.log('jthrhg',jthrhg);
   //   console.log('timeStamp TestScreen',timeStamp);
   //   console.log('naming TestScreen',naming);
-    console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
-  console.log('isFirstVisit TestScreen',isFirstVisit);
-  console.log('sabData TestScreen', sabData);
+  // console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
+  // console.log('isFirstVisit TestScreen',isFirstVisit);
+  // console.log('sabData TestScreen', sabData);
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
   const URL_IDENTIFAIRE = `9QNrrgg5`;
 
@@ -66,7 +80,7 @@ const TestScreen = ({route}) => {
       if (!sabDataArray.length) return '';
 
       const sabDataLink = sabDataArray
-        .map((item, index) => (item ? `subId${index+1}=${item}` : ''))
+        .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
         // .filter(item => item) // Remove empty strings
         .join('&');
 
@@ -84,7 +98,7 @@ const TestScreen = ({route}) => {
       fetch(
         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
       );
-      if(isFirstVisit && oneSignalPermissionStatus){
+      if (isFirstVisit && oneSignalPermissionStatus) {
         fetch(
           `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
         );
@@ -108,21 +122,21 @@ const TestScreen = ({route}) => {
     params.append('customerUserId', idfv);
     params.append('jthrhg', jthrhg);
 
-
     // Process sabData if exists (campaign data from AppsFlyer)
     // const sabDataParams = processSabData();
     if (isFirstVisit && sabData) {
-      const sabDataParams = sabData.split('_')
-        .map((item, index) => item ? `subId${index+1}=${item}` : '')
+      const sabDataParams = sabData
+        .split('_')
+        .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
         // .filter(item => item)
         .join('&');
-      
+
       return `${baseUrl}&${params.toString()}&${sabDataParams}`;
     }
     // Example sabData: "fb_test2_test3_test4_test5"
-  // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
+    // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
 
-//   Combine everything into final URL
+    //   Combine everything into final URL
     // const finalUrl = sabDataParams
     //   ? `${baseUrl}&${params.toString()}&${sabDataParams}`
     //   : `${baseUrl}&${params.toString()}`;
@@ -133,37 +147,112 @@ const TestScreen = ({route}) => {
     return `${baseUrl}&${params.toString()}`;
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
-  const handleCustomUrl = async (url) => {
-    console.log('handleCustomUrl', url);
+  const handleCustomUrl = async url => {
+    console.log('handleCustomUrl-', url);
+
     try {
       // Check URL scheme
       if (url.startsWith('mailto:')) {
-        // Handle email links
         await Linking.openURL(url);
         return;
       }
 
-      if (url.startsWith('tel:')) {
-        // Handle phone links
-        await Linking.openURL(url);
-        return;
-      }
-
+      // Handle different bank apps
       if (url.startsWith('scotiabank:')) {
-        // Handle bank app links
         const canOpen = await Linking.canOpenURL(url);
-        
         if (canOpen) {
           await Linking.openURL(url);
         } else {
-          // Fallback for bank app
           const browserUrl = `https://www.scotiabank.com/ca/en/personal.html`;
           await Linking.openURL(browserUrl);
-          
           Alert.alert(
             'App Not Found',
-            'The banking app is not installed. Opening website instead.',
-            [{ text: 'OK' }]
+            'The Scotiabank app is not installed. Opening website instead.',
+            [{text: 'OK'}],
+          );
+        }
+        return;
+      }
+
+      if (url.includes('rbcbanking')) {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          const browserUrl = `https://www.rbcroyalbank.com/personal.html`;
+          await Linking.openURL(browserUrl);
+          Alert.alert(
+            'App Not Found',
+            'The RBC app is not installed. Opening website instead.',
+            [{text: 'OK'}],
+          );
+        }
+        return;
+      }
+
+      // Handle BMO
+      if ( url.includes('bmoolbb:')) {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          const browserUrl = 'https://www.bmo.com/en-ca/main/personal/';
+          await Linking.openURL(browserUrl);
+          Alert.alert(
+            'App Not Found',
+            'The BMO app is not installed. Opening website instead.',
+            [{text: 'OK'}],
+          );
+        }
+        return;
+      }
+
+      // Handle TD
+      if ( url.includes('tdct')) {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          const browserUrl = 'https://www.td.com/ca/en/personal-banking';
+          await Linking.openURL(browserUrl);
+          Alert.alert(
+            'App Not Found',
+            'The TD app is not installed. Opening website instead.',
+            [{text: 'OK'}],
+          );
+        }
+        return;
+      }
+
+      // Handle NBC
+      if (url.startsWith('nbc:') || url.includes('nbc')) {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          const browserUrl = 'https://www.nbc.ca/';
+          await Linking.openURL(browserUrl);
+          Alert.alert(
+            'App Not Found',
+            'The NBC app is not installed. Opening website instead.',
+            [{text: 'OK'}],
+          );
+        }
+        return;
+      }
+
+      // Handle CIBC
+      if (url.startsWith('cibc:') || url.includes('cibc')) {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          const browserUrl = 'https://www.cibc.com/en/personal-banking.html';
+          await Linking.openURL(browserUrl);
+          Alert.alert(
+            'App Not Found',
+            'The CIBC app is not installed. Opening website instead.',
+            [{text: 'OK'}],
           );
         }
         return;
@@ -175,19 +264,23 @@ const TestScreen = ({route}) => {
         await Linking.openURL(url);
       } else {
         console.warn('Cannot open URL:', url);
+        Alert.alert(
+          'App Not Found',
+          'The requested app is not installed. Opening website instead.',
+          [{text: 'OK'}],
+        );
       }
     } catch (error) {
       console.error('Error handling URL:', error);
-      Alert.alert(
-        'Error',
-        'Unable to open the link. Please try again.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Error', 'Unable to open the link. Please try again.', [
+        {text: 'OK'},
+      ]);
     }
   };
 
   return (
     <WebView
+      ref={webViewRef}
       //   source={{
       //     uri: `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`,
       //   }}
@@ -200,52 +293,81 @@ const TestScreen = ({route}) => {
         'intent://*',
         'tel:*',
         'mailto:*',
-        "scotiabank://"
+        'scotiabank://',
+        'bmo://',
+        'td://',
+        'nbc://',
+        'cibc://',
       ]}
       onLoadStart={syntheticEvent => {
-        console.log('WebView started loading');
+        // console.log('WebView started loading');
         handleWebViewLoad();
       }}
       // OR use onLoad if want to wait until the page is fully loaded
       onLoad={() => {
-        console.log('WebView fully loaded');
+        // console.log('WebView fully loaded');
         // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
       }}
-      onError={(syntheticEvent) => {
+      onError={syntheticEvent => {
         const {nativeEvent} = syntheticEvent;
         console.warn('WebView error:', nativeEvent);
       }}
       thirdPartyCookiesEnabled={true}
-        allowsBackForwardNavigationGestures={true}
-        domStorageEnabled={true}
-        javaScriptEnabled={true}
-        allowsInlineMediaPlayback={true}
-        //setSupportMultipleWindows={false}
-        mediaPlaybackRequiresUserAction={false}
-        allowFileAccess={true}
-        javaScriptCanOpenWindowsAutomatically={true}
-        setSupportMultipleWindows={false} // prevent opening external browser
-        onMessage={event => {
-          console.log('WebView Message:', event.nativeEvent.data);
-        }}
-        
-        onNavigationStateChange={(navState) => {
-          // Update webview's canGoBack state
-          if (webViewRef.current) {
-            webViewRef.current.canGoBack = navState.canGoBack;
-          }
-        }}
-        onShouldStartLoadWithRequest={(request) => {
-          // Check if the URL is a custom scheme
-          if (!request.url.startsWith('http') && !request.url.startsWith('https')) {
-            console.log('Open this URL:', request.url);
-            handleCustomUrl(request.url);
-            return false;
-          }
-          return true;
-        }}
+      allowsBackForwardNavigationGestures={true}
+      domStorageEnabled={true}
+      javaScriptEnabled={true}
+      allowsInlineMediaPlayback={true}
+      mediaPlaybackRequiresUserAction={false}
+      allowFileAccess={true}
+      javaScriptCanOpenWindowsAutomatically={true}
+      setSupportMultipleWindows={false} // prevent opening external browser
+      onMessage={event => {
+        console.log('WebView Message:', event.nativeEvent.data);
+      }}
+      onNavigationStateChange={navState => {
+        // Update webview's canGoBack state
+        if (webViewRef.current) {
+          // console.log('navState.canGoBack', navState.canGoBack);
+          // console.log(
+          //   'webViewRef.current.canGoBack',
+          //   webViewRef.current.canGoBack,
+          // );
+          webViewRef.current.canGoBack = navState.canGoBack;
+        }
+        console.log('Navigation State:', {
+          // url: navState.url,
+          title: navState.title,
+          loading: navState.loading,
+          canGoBack: navState.canGoBack,
+          canGoForward: navState.canGoForward
+        });
+      }}
+      onShouldStartLoadWithRequest={request => {
+        console.log('Request:', {
+          request,
+          url: request.url,
+          method: request.method,
+          headers: request.headers,
+          mainDocumentURL: request.mainDocumentURL
+        });
+        // Check if the URL is a custom scheme
+        // console.log('request URL to open', request);
+        if (
+          !request.url.startsWith('http') &&
+          !request.url.startsWith('https')
+        ) {
+          console.log('request', request);
+          // console.log('Open this URL:', request.url);
+          handleCustomUrl(request.url);
+          return false;
+        }
+        return true;
+
+        // if (request.url) {
+        //   handleCustomUrl(request.url);
+        // }
+      }}
       
-        
     />
   );
 };
