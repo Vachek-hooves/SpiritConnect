@@ -2,10 +2,12 @@ import {WebView} from 'react-native-webview';
 import {useEffect, useCallback} from 'react';
 import {BackHandler, Linking, Alert} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
+// const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
+import {useRef} from 'react';
 const TestScreen = ({route}) => {
 
    const navigation = useNavigation();
+   const webViewRef = useRef(null);
 
   const {
     idfa,
@@ -24,13 +26,22 @@ const TestScreen = ({route}) => {
   
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // Navigate back to previous screen instead of closing the app
-      navigation.goBack();
-      // Return true to prevent default behavior (app closing)
-      return true;
+      // First check if WebView can go back
+      if (webViewRef.current && webViewRef.current.canGoBack) {
+        webViewRef.current.goBack();
+        return true;
+      }
+      
+      // Then check if we can navigate back
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return true;
+      }
+      
+      // If we can't go back anywhere, minimize the app
+      return false;
     });
 
-    // Cleanup listener on component unmount
     return () => backHandler.remove();
   }, [navigation]);
 
@@ -123,32 +134,53 @@ const TestScreen = ({route}) => {
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
   const handleCustomUrl = async (url) => {
+    console.log('handleCustomUrl', url);
     try {
-      // First check if the URL can be handled
+      // Check URL scheme
+      if (url.startsWith('mailto:')) {
+        // Handle email links
+        await Linking.openURL(url);
+        return;
+      }
+
+      if (url.startsWith('tel:')) {
+        // Handle phone links
+        await Linking.openURL(url);
+        return;
+      }
+
+      if (url.startsWith('scotiabank:')) {
+        // Handle bank app links
+        const canOpen = await Linking.canOpenURL(url);
+        
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          // Fallback for bank app
+          const browserUrl = `https://www.scotiabank.com/ca/en/personal.html`;
+          await Linking.openURL(browserUrl);
+          
+          Alert.alert(
+            'App Not Found',
+            'The banking app is not installed. Opening website instead.',
+            [{ text: 'OK' }]
+          );
+        }
+        return;
+      }
+
+      // Handle other custom schemes
       const canOpen = await Linking.canOpenURL(url);
-      
       if (canOpen) {
-        // URL can be handled, try to open it
         await Linking.openURL(url);
       } else {
-        // URL cannot be handled, try to open in browser instead
-        // You might want to modify this URL based on the bank
-        const browserUrl = `https://www.scotiabank.com/ca/en/personal.html`;
-        await Linking.openURL(browserUrl);
-        
-        // Optionally show a message to user
-        Alert.alert(
-          'App Not Found',
-          'The banking app is not installed. Opening website instead.',
-          [{ text: 'OK' }]
-        );
+        console.warn('Cannot open URL:', url);
       }
     } catch (error) {
       console.error('Error handling URL:', error);
-      // Fallback to browser or show error message
       Alert.alert(
         'Error',
-        'Unable to open the banking app. Please ensure it is installed.',
+        'Unable to open the link. Please try again.',
         [{ text: 'OK' }]
       );
     }
@@ -192,15 +224,17 @@ const TestScreen = ({route}) => {
         mediaPlaybackRequiresUserAction={false}
         allowFileAccess={true}
         javaScriptCanOpenWindowsAutomatically={true}
-        setSupportMultipleWindows={true}
+        setSupportMultipleWindows={false} // prevent opening external browser
         onMessage={event => {
           console.log('WebView Message:', event.nativeEvent.data);
         }}
         
-        // onNavigationStateChange={(navState) => {
-        //   // Keep track of going back navigation within component
-        //   this.canGoBack = navState.canGoBack;
-        // }}
+        onNavigationStateChange={(navState) => {
+          // Update webview's canGoBack state
+          if (webViewRef.current) {
+            webViewRef.current.canGoBack = navState.canGoBack;
+          }
+        }}
         onShouldStartLoadWithRequest={(request) => {
           // Check if the URL is a custom scheme
           if (!request.url.startsWith('http') && !request.url.startsWith('https')) {
@@ -210,6 +244,7 @@ const TestScreen = ({route}) => {
           }
           return true;
         }}
+      
         
     />
   );

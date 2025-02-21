@@ -79,7 +79,7 @@ function App() {
   const [sabData, setSabData] = useState(null);
   const [isConversionDataReceived, setIsConversionDataReceived] =
     useState(false);
-    console.log('timeStamp',timeStamp);
+  
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -169,23 +169,29 @@ function App() {
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-    const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    // const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    const visitUrl = `https://brilliant-grand-happiness.space/9QNrrgg5`;
 
     if (currentDate >= targetData) {
       // console.log('Date is after target date');
+      console.log('Today date passed target date');
       if (hasVisited) {
         setIsReadyToVisit(true);
+        console.log('App WAS visited before');
       }
       if (!hasVisited) {
+        console.log('App WAS NOT visited before');
         fetch(visitUrl)
-          .then(res => {
-            // console.log('is URL ok-', res.status);
+        .then(res => {
+            console.log('visitUrl',visitUrl);
+            console.log('URL status ', res.status);
             if (res.status === 200) {
-              // console.log('URL is ok');
-              // console.log('res.data first launch', res);
+              console.log('URL is ok');
+              console.log('res.data first launch', res.url);
+              console.log('res.data first launch', res.status);
               setIsReadyToVisit(true);
             } else {
-              // console.log('URL is not ok');
+              console.log('URL is not ok');
               setIsReadyToVisit(false);
             }
           })
@@ -193,6 +199,8 @@ function App() {
             console.log('isReadyToVisit fn check error', error);
           });
       }
+    }else{
+      console.log('Today date did not pass target date');
     }
   };
 
@@ -371,12 +379,12 @@ function App() {
     // Log current state for debugging
     console.log('Ready check:', {
       isReadyToVisit,
-      aaid,
-      applsFlyerUID,
-      idfv,
-      timeStamp,
-      isFirstVisit,
-      isConversionDataReceived,
+      // aaid,
+      // applsFlyerUID,
+      // idfv,
+      // timeStamp,
+      // isFirstVisit,
+      // isConversionDataReceived,
     });
 
     // Basic requirements for all launches
