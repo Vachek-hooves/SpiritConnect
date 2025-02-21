@@ -169,8 +169,8 @@ function App() {
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-    // const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    const visitUrl = `https://brilliant-grand-happiness.space/9QNrrgg5`;
+    const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    
 
     if (currentDate >= targetData) {
       // console.log('Date is after target date');
