@@ -19,6 +19,7 @@ const TestScreen = ({route}) => {
     naming,
     oneSignalPermissionStatus,
     sabData,
+    isNonOrganicInstall,
   } = route.params;
 
   //  useEffect(() => {
@@ -69,6 +70,7 @@ const TestScreen = ({route}) => {
   // console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
   // console.log('isFirstVisit TestScreen',isFirstVisit);
   // console.log('sabData TestScreen', sabData);
+  console.log('isNonOrganicInstall', isNonOrganicInstall);
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
   const URL_IDENTIFAIRE = `9QNrrgg5`;
 
@@ -122,17 +124,37 @@ const TestScreen = ({route}) => {
     params.append('customerUserId', idfv);
     params.append('jthrhg', jthrhg);
 
+    // const handleSab28Data=()=>{
+
+    if (isFirstVisit) {
+      console.log('this is first app visit Sab28 to be passed');
+      if (isNonOrganicInstall && sabData && !sabData.includes('_')) {
+        return `${baseUrl}&${params.toString()}&sub28='CONVERT-SUBS-MISSING-SPLITTER'`;
+      } else if (isNonOrganicInstall && sabData && sabData.includes('_')) {
+        const sabDataParams = sabData
+          .split('_')
+          .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+          .join('&');
+        return `${baseUrl}&${params.toString()}&sub28='NON-ORGANIC&${sabDataParams}`;
+      } else {
+        return `${baseUrl}&${params.toString()}&sub28='ORGANIC'`;
+      }
+    }
+    // }
+    // console.log('handleSab28Data', handleSab28Data());
+
     // Process sabData if exists (campaign data from AppsFlyer)
     // const sabDataParams = processSabData();
-    if (isFirstVisit && sabData) {
-      const sabDataParams = sabData
-        .split('_')
-        .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-        // .filter(item => item)
-        .join('&');
 
-      return `${baseUrl}&${params.toString()}&${sabDataParams}`;
-    }
+    // if (isFirstVisit && sabData) {
+    //   const sabDataParams = sabData
+    //     .split('_')
+    //     .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+    //     // .filter(item => item)
+    //     .join('&');
+
+    //   return `${baseUrl}&${params.toString()}&${sabDataParams}`;
+    // }
     // Example sabData: "fb_test2_test3_test4_test5"
     // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
 
@@ -191,7 +213,7 @@ const TestScreen = ({route}) => {
       }
 
       // Handle BMO
-      if ( url.includes('bmoolbb:')) {
+      if (url.includes('bmoolbb:')) {
         const canOpen = await Linking.canOpenURL(url);
         if (canOpen) {
           await Linking.openURL(url);
@@ -208,7 +230,7 @@ const TestScreen = ({route}) => {
       }
 
       // Handle TD
-      if ( url.includes('tdct')) {
+      if (url.includes('tdct')) {
         const canOpen = await Linking.canOpenURL(url);
         if (canOpen) {
           await Linking.openURL(url);
@@ -334,22 +356,22 @@ const TestScreen = ({route}) => {
           // );
           webViewRef.current.canGoBack = navState.canGoBack;
         }
-        console.log('Navigation State:', {
-          // url: navState.url,
-          title: navState.title,
-          loading: navState.loading,
-          canGoBack: navState.canGoBack,
-          canGoForward: navState.canGoForward
-        });
+        // console.log('Navigation State:', {
+        //   // url: navState.url,
+        //   title: navState.title,
+        //   loading: navState.loading,
+        //   canGoBack: navState.canGoBack,
+        //   canGoForward: navState.canGoForward
+        // });
       }}
       onShouldStartLoadWithRequest={request => {
-        console.log('Request:', {
-          request,
-          url: request.url,
-          method: request.method,
-          headers: request.headers,
-          mainDocumentURL: request.mainDocumentURL
-        });
+        // console.log('Request:', {
+        //   request,
+        //   url: request.url,
+        //   method: request.method,
+        //   headers: request.headers,
+        //   mainDocumentURL: request.mainDocumentURL
+        // });
         // Check if the URL is a custom scheme
         // console.log('request URL to open', request);
         if (
@@ -367,7 +389,6 @@ const TestScreen = ({route}) => {
         //   handleCustomUrl(request.url);
         // }
       }}
-      
     />
   );
 };

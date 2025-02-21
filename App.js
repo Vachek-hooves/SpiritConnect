@@ -79,6 +79,7 @@ function App() {
   const [sabData, setSabData] = useState(null);
   const [isConversionDataReceived, setIsConversionDataReceived] =
     useState(false);
+    const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   
 
   // Remove this method to stop OneSignal Debugging
@@ -216,7 +217,10 @@ function App() {
             campaign,
           );
           setSabData(campaign);
+          setIsNonOrganicInstall(true);
+
         } else if (res.data.af_status === 'Organic') {
+          setIsNonOrganicInstall(false);
           const sabDataTest = 'organic_first_launch_test';
           console.log(
             'First launch - Organic install. Setting test data:',
@@ -438,6 +442,7 @@ function App() {
                 timeStamp,
                 naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
+                isNonOrganicInstall,
                 ...(isFirstVisit && {sabData}),
               }}
             />
