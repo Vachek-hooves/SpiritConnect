@@ -277,29 +277,29 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
-        playBackgroundMusic();
-      } else if (nextAppState === 'inactive' || nextAppState === 'background') {
-        pauseBackgroundMusic();
-      }
-    });
+  // useEffect(() => {
+  //   const subscription = AppState.addEventListener('change', nextAppState => {
+  //     if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
+  //       playBackgroundMusic();
+  //     } else if (nextAppState === 'inactive' || nextAppState === 'background') {
+  //       pauseBackgroundMusic();
+  //     }
+  //   });
 
-    const initMusic = async () => {
-      await setupPlayer();
-      if (isMusicEnable) {
-        await playBackgroundMusic();
-        setIsPlayMusic(true);
-      }
-    };
-    initMusic();
+  //   const initMusic = async () => {
+  //     await setupPlayer();
+  //     if (isMusicEnable) {
+  //       await playBackgroundMusic();
+  //       setIsPlayMusic(true);
+  //     }
+  //   };
+  //   initMusic();
 
-    return () => {
-      subscription.remove();
-      pauseBackgroundMusic();
-    };
-  }, [isMusicEnable]);
+  //   return () => {
+  //     subscription.remove();
+  //     pauseBackgroundMusic();
+  //   };
+  // }, [isMusicEnable]);
 
   const handleNotificationClick = async event => {
     console.log('🔔 Handling notification click:', event);
