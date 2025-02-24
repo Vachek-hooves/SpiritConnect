@@ -79,8 +79,8 @@ function App() {
   const [sabData, setSabData] = useState(null);
   const [isConversionDataReceived, setIsConversionDataReceived] =
     useState(false);
-    const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
-  
+  const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
+  const [openWithPush, setOpenWithPush] = useState(false);
 
   // Remove this method to stop OneSignal Debugging
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -90,7 +90,7 @@ function App() {
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
   // Method for listening for notification clicks
   OneSignal.Notifications.addEventListener('click', event => {
-    console.log('OneSignal: notification clicked:', event);
+    // console.log('OneSignal: notification clicked:', event);
     // console.log('🔔 Notification:', event.notification);
   });
   // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
@@ -101,6 +101,10 @@ function App() {
   // });
   OneSignal.Notifications.requestPermission(true).then(response => {
     // console.log('OneSignal: notification request permission:', response);
+    OneSignal.User.getOnesignalId().then(userId => {
+      // console.log('OneSignal: user id:', userId);
+      setOneSignalUserId(userId);
+    });
     setOneSignalPermissionStatus(response);
   });
 
@@ -108,7 +112,7 @@ function App() {
     checkFirstVisit();
     isReadyToVisitHandler();
     initAppsFlyer();
-    getOneSignalUserId();
+    // getOneSignalUserId();
 
     // If it's not first visit, mark conversion data as received immediately
     if (!isFirstVisit) {
@@ -116,15 +120,15 @@ function App() {
     }
   }, [isFirstVisit]);
 
-  const getOneSignalUserId = async () => {
-    const userId = await OneSignal.User.getOnesignalId();
-    setOneSignalUserId(userId);
-  };
+  // const getOneSignalUserId = async () => {
+  //   const userId = await OneSignal.User.getOnesignalId();
+  //   setOneSignalUserId(userId);
+  // };
 
   const checkFirstVisit = async () => {
     try {
       const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-      console.log('hasVisited', hasVisited);
+      // console.log('hasVisited', hasVisited);
 
       // Get stored timestamp_user_id first
       let storedTimeStamp = await AsyncStorage.getItem('timeStamp');
@@ -132,16 +136,16 @@ function App() {
         // Generate new timestamp_user_id only if none exists
         storedTimeStamp = generateTimestampUserId();
         await AsyncStorage.setItem('timeStamp', storedTimeStamp);
-        console.log('Generated new timestamp_user_id:', storedTimeStamp);
+        // console.log('Generated new timestamp_user_id:', storedTimeStamp);
       } else {
-        console.log('Retrieved stored timestamp_user_id:', storedTimeStamp);
+        // console.log('Retrieved stored timestamp_user_id:', storedTimeStamp);
       }
 
       // Set timestamp for use in app
       setTimeStamp(storedTimeStamp);
 
       if (!hasVisited) {
-        console.log('First visit');
+        // console.log('First visit');
         setIsFirstVisit(true);
 
         OneSignal.User.addTag('timestamp_user_id', storedTimeStamp);
@@ -156,7 +160,7 @@ function App() {
 
         // const timeStamp = await AsyncStorage.getItem('timeStamp');
         // console.log('timeStamp Returning user', timeStamp);
-        console.log('Returning user, using stored timestamp:', storedTimeStamp);
+        // console.log('Returning user, using stored timestamp:', storedTimeStamp);
         setIsFirstVisit(false);
         // setTimeStamp(parsedTimeStamp);
       }
@@ -171,11 +175,10 @@ function App() {
     // console.log('timeStamp',timeStamp);
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    
 
     if (currentDate >= targetData) {
       // console.log('Date is after target date');
-      console.log('Today date passed target date');
+      // console.log('Today date passed target date');
       if (hasVisited) {
         setIsReadyToVisit(true);
         console.log('App WAS visited before');
@@ -183,13 +186,13 @@ function App() {
       if (!hasVisited) {
         console.log('App WAS NOT visited before');
         fetch(visitUrl)
-        .then(res => {
-            console.log('visitUrl',visitUrl);
-            console.log('URL status ', res.status);
+          .then(res => {
+            // console.log('visitUrl',visitUrl);
+            // console.log('URL status ', res.status);
             if (res.status === 200) {
-              console.log('URL is ok');
-              console.log('res.data first launch', res.url);
-              console.log('res.data first launch', res.status);
+              console.log('URL is ok. Status 200');
+              // console.log('res.data first launch', res.url);
+              // console.log('res.data first launch', res.status);
               setIsReadyToVisit(true);
             } else {
               console.log('URL is not ok');
@@ -200,14 +203,41 @@ function App() {
             console.log('isReadyToVisit fn check error', error);
           });
       }
-    }else{
+    } else {
       console.log('Today date did not pass target date');
     }
   };
 
   const initAppsFlyer = async () => {
     // Set up conversion listener first
-    appsFlyer.onInstallConversionData(res => {
+    // appsFlyer.onInstallConversionData( async (res) => {
+    //   if (JSON.parse(res.data.is_first_launch) == true) {
+    //     if (res.data.af_status === 'Non-organic') {
+    //       var media_source = res.data.media_source;
+    //       var campaign = res.data.campaign;
+    //       console.log(
+    //         'First launch - Non-Organic install. Campaign:',
+    //         campaign,
+    //       );
+    //       // setSabData(campaign);
+    //       setIsNonOrganicInstall(true);
+    //       await AsyncStorage.setItem('sabData', campaign);
+
+    //     } else if (res.data.af_status === 'Organic') {
+    //       setIsNonOrganicInstall(false);
+    //       const sabDataTest = 'organic_first_launch_test';
+    //       AsyncStorage.setItem('sabData', sabDataTest);
+    //       console.log(
+    //         'First launch - Organic install. Setting test data:',
+    //         sabDataTest,
+    //       );
+    //       // setSabData(sabDataTest);
+    //     }
+    //   }
+    //   setIsConversionDataReceived(true);
+    // });
+
+    appsFlyer.onInstallConversionData(async res => {
       if (JSON.parse(res.data.is_first_launch) == true) {
         if (res.data.af_status === 'Non-organic') {
           var media_source = res.data.media_source;
@@ -217,16 +247,37 @@ function App() {
             campaign,
           );
           setSabData(campaign);
-          setIsNonOrganicInstall(true);
-
+          // Save campaign data
+          try {
+            await AsyncStorage.setItem('sabData', campaign);
+            setIsNonOrganicInstall(true);
+            // await AsyncStorage.setItem('isNonOrganicInstall', 'true');
+          } catch (error) {
+            console.error('Error saving non-organic data:', error);
+          }
         } else if (res.data.af_status === 'Organic') {
-          setIsNonOrganicInstall(false);
-          const sabDataTest = 'organic_first_launch_test';
-          console.log(
-            'First launch - Organic install. Setting test data:',
-            sabDataTest,
-          );
-          setSabData(sabDataTest);
+          
+          const sabDataTest = '';
+          // setSabData(sabDataTest);
+          // Save organic test data
+          try {
+            await AsyncStorage.setItem('sabData', sabDataTest);
+            setIsNonOrganicInstall(false);
+            // await AsyncStorage.setItem('isNonOrganicInstall', 'false');
+          } catch (error) {
+            console.error('Error saving organic data:', error);
+          }
+        }
+      } else {
+        // Not first launch - try to get stored data
+        try {
+          const storedSabData = await AsyncStorage.getItem('sabData');
+          if (storedSabData) {
+            console.log('Retrieved stored sabData:', storedSabData);
+            setSabData(storedSabData);
+          }
+        } catch (error) {
+          console.error('Error retrieving stored sabData:', error);
         }
       }
       setIsConversionDataReceived(true);
@@ -304,7 +355,7 @@ function App() {
   const handleNotificationClick = async event => {
     console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
-    console.log('🔔 timeStamp inside handleNotificationClick',timeStamp);
+    console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
 
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -315,16 +366,13 @@ function App() {
     if (!hasVisited) {
       // First time visit case
       // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
-      
     } else if (event.notification.launchURL) {
       // Has launchURL case
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
-     
-    }
-    else {
+    } else {
       // Regular webview case
       finalUrl = `${baseUrl}?utretg=push_open_webview&&yhugh=true&jthrhg=${timeStamp}`;
-      
+      setOpenWithPush(true);
     }
 
     console.log('🔔 Constructed finalUrl:', finalUrl);
@@ -332,7 +380,7 @@ function App() {
     try {
       // Send request to the constructed URL
       const response = await fetch(finalUrl);
-      console.log('🔔 timeStamp inside try',timeStamp);
+      console.log('🔔 timeStamp inside try', timeStamp);
       console.log('🔔 URL fetch response status:', response.status);
 
       // Handle different cases after fetch
@@ -382,13 +430,14 @@ function App() {
   const isReadyForTestScreen = useMemo(() => {
     // Log current state for debugging
     console.log('Ready check:', {
-      isReadyToVisit,
+      // isReadyToVisit,
       // aaid,
       // applsFlyerUID,
       // idfv,
       // timeStamp,
       // isFirstVisit,
       // isConversionDataReceived,
+      oneSignalUserId,
     });
 
     // Basic requirements for all launches
@@ -399,10 +448,12 @@ function App() {
       idfv &&
       timeStamp &&
       isConversionDataReceived;
+    // oneSignalUserId;
 
     // For first launch, also require sabData
     if (isFirstVisit) {
-      return baseRequirements && sabData !== null;
+      // return baseRequirements && sabData !== null;
+      return baseRequirements;
     }
 
     // For subsequent launches, only need base requirements
@@ -414,7 +465,7 @@ function App() {
     idfv,
     timeStamp,
     isConversionDataReceived,
-    sabData,
+    // sabData,
     isFirstVisit,
   ]);
 
@@ -443,7 +494,9 @@ function App() {
                 naming,
                 oneSignalPermissionStatus: oneSignalPermissionStatus,
                 isNonOrganicInstall,
-                ...(isFirstVisit && {sabData}),
+                openWithPush,
+
+                // ...(isFirstVisit && {sabData}),
               }}
             />
           ) : (

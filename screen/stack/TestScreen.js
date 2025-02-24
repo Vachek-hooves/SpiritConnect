@@ -2,11 +2,15 @@ import {WebView} from 'react-native-webview';
 import {useEffect, useCallback} from 'react';
 import {BackHandler, Linking, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-// const idfa = 'd1e5bd8c-a54d-4143-ad5e-7dd21cf238ff';
-import {useRef} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import {useRef,useState} from 'react';
 const TestScreen = ({route}) => {
+  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
+  const URL_IDENTIFAIRE = `9QNrrgg5`;
   const navigation = useNavigation();
   const webViewRef = useRef(null);
+  const [sabData, setSabData] = useState(null);
 
   const {
     idfa,
@@ -18,20 +22,36 @@ const TestScreen = ({route}) => {
     timeStamp,
     naming,
     oneSignalPermissionStatus,
-    sabData,
+    // sabData,
     isNonOrganicInstall,
+    openWithPush,
   } = route.params;
 
-  //  useEffect(() => {
-  //   const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-  //     // Prevent default back button behavior
-  //     return true; // This will block the back button completely
-  //   });
+  useEffect(() => {
+    const getStoredData = async () => {
+      try {
+        const sabData = await AsyncStorage.getItem('sabData');
+        // const isNonOrganicInstall = await AsyncStorage.getItem('isNonOrganicInstall');
+        
+        if (sabData) {
+          setSabData(sabData);
+        }
+        // setIsNonOrganic(isNonOrganicInstall === 'true');
+        
+        console.log('Retrieved stored data:', {
+          sabData,
+          // isNonOrganicInstall
+        });
+      } catch (error) {
+        console.error('Error retrieving stored data:', error);
+      }
+    };
 
-  //   return () => backHandler.remove();
-  // }, []);
+    getStoredData();
+  }, []);
 
   useEffect(() => {
+    
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
@@ -60,47 +80,36 @@ const TestScreen = ({route}) => {
     return () => backHandler.remove();
   }, [navigation]);
 
-  //   console.log('idfa',idfa);
-  //   console.log('oneSignalUserId',oneSignalUserId);
-  //   console.log('idfv',idfv);
-  //   console.log('applsFlyerUID',applsFlyerUID);
-  //   console.log('jthrhg',jthrhg);
-  //   console.log('timeStamp TestScreen',timeStamp);
-  //   console.log('naming TestScreen',naming);
-  // console.log('oneSignalPermissionStatus TestScreen',oneSignalPermissionStatus);
-  // console.log('isFirstVisit TestScreen',isFirstVisit);
-  // console.log('sabData TestScreen', sabData);
-  console.log('isNonOrganicInstall', isNonOrganicInstall);
-  const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
-  const URL_IDENTIFAIRE = `9QNrrgg5`;
+ 
 
-  const processSabData = useCallback(() => {
-    if (!sabData) return '';
+  // const processSabData = useCallback(() => {
+  //   if (!sabData) return '';
 
-    try {
-      const sabDataArray = sabData.split('_');
-      if (!sabDataArray.length) return '';
+  //   try {
+  //     const sabDataArray = sabData.split('_');
+  //     if (!sabDataArray.length) return '';
 
-      const sabDataLink = sabDataArray
-        .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-        // .filter(item => item) // Remove empty strings
-        .join('&');
+  //     const sabDataLink = sabDataArray
+  //       .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+  //       // .filter(item => item) // Remove empty strings
+  //       .join('&');
 
-      console.log('Processed sab data:', sabDataLink);
-      return sabDataLink;
-    } catch (error) {
-      console.error('Error processing sabData:', error);
-      return '';
-    }
-  }, [sabData]);
+  //     console.log('Processed sab data:', sabDataLink);
+  //     return sabDataLink;
+  //   } catch (error) {
+  //     console.error('Error processing sabData:', error);
+  //     return '';
+  //   }
+  // }, [sabData]);
 
   const handleWebViewLoad = useCallback(async () => {
     try {
-      // Your function logic here
+      // every time the webview is opened
       fetch(
         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
       );
       if (isFirstVisit && oneSignalPermissionStatus) {
+        // only when user accepts notifications
         fetch(
           `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
         );
@@ -126,20 +135,57 @@ const TestScreen = ({route}) => {
 
     // const handleSab28Data=()=>{
 
-    if (isFirstVisit) {
-      console.log('this is first app visit Sab28 to be passed');
-      if (isNonOrganicInstall && sabData && !sabData.includes('_')) {
-        return `${baseUrl}&${params.toString()}&sub28='CONVERT-SUBS-MISSING-SPLITTER'`;
-      } else if (isNonOrganicInstall && sabData && sabData.includes('_')) {
-        const sabDataParams = sabData
+
+      const extractSabData=()=>{
+        if(sabData && !sabData.includes('_')){
+          return '';
+        }
+
+        if(sabData && sabData.includes('_')){
+          const sabDataParams = sabData
           .split('_')
           .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
           .join('&');
-        return `${baseUrl}&${params.toString()}&sub28='NON-ORGANIC&${sabDataParams}`;
+          return sabDataParams;
+      }
+     
+    };
+
+    
+
+    if (isFirstVisit) {
+      console.log('this is first app visit Sab28 to be passed');
+      if (isNonOrganicInstall && sabData && !sabData.includes('_')) {
+        console.log('this is non organic install and sabData is missing splitter');
+        return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
+      } else if (isNonOrganicInstall && sabData && sabData.includes('_')) {
+        console.log('this is non organic install and sabData is present');
+        const sabDataParams = extractSabData();
+        return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
       } else {
-        return `${baseUrl}&${params.toString()}&sub28='ORGANIC'`;
+        console.log('this is organic install and sabData is present');
+        const sabDataParams = extractSabData();
+        return `${baseUrl}&${params.toString()}&testParam=ORGANIC&${sabDataParams}`;
       }
     }
+
+    if(!isFirstVisit && isNonOrganicInstall && sabData){
+      console.log('this is non organic install and sabData is present');
+      const sabDataParams = extractSabData();
+      return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+    }
+
+   
+
+
+    // else if(!isFirstVisit && isNonOrganicInstall && sabData){
+    //   const sabDataParams = sabData
+    //       .split('_')
+    //       .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+    //       .join('&');
+    //     return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+    // }
+
     // }
     // console.log('handleSab28Data', handleSab28Data());
 
@@ -166,7 +212,12 @@ const TestScreen = ({route}) => {
     // return finalUrl;
 
     // Return URL without sabData for subsequent visits
-    return `${baseUrl}&${params.toString()}`;
+    // return `${baseUrl}&${params.toString()}`;
+
+
+console.log('extractSabData TestScreen-',extractSabData());
+    // console.log(`${baseUrl}&${params.toString()}&${extractSabData()}`);
+    return !isFirstVisit &&  `${baseUrl}&${params.toString()}&${extractSabData()}`+ (openWithPush?'&yhugh=true':'');
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
   const handleCustomUrl = async url => {
