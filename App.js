@@ -81,32 +81,84 @@ function App() {
     useState(false);
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const [openWithPush, setOpenWithPush] = useState(false);
+  const [isOneSignalReady, setIsOneSignalReady] = useState(false);
 
-  // Remove this method to stop OneSignal Debugging
-  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-  // OneSignal Initialization
-  OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
-  // requestPermission will show the native iOS or Android notification permission prompt.
-  // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  // Method for listening for notification clicks
-  OneSignal.Notifications.addEventListener('click', event => {
-    // console.log('OneSignal: notification clicked:', event);
-    // console.log('🔔 Notification:', event.notification);
-  });
-  // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
-  //   console.log('🔔 Notification received in foreground:', event);
+  // // Remove this method to stop OneSignal Debugging
+  // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+  // // OneSignal Initialization
+  // OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
+  // // requestPermission will show the native iOS or Android notification permission prompt.
+  // // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  // // Method for listening for notification clicks
+  // OneSignal.Notifications.addEventListener('click', event => {
+  //   // console.log('OneSignal: notification clicked:', event);
+  //   // console.log('🔔 Notification:', event.notification);
   // });
-  // OneSignal.Notifications.addEventListener('permissionChanged', event => {
-  //   console.log('🔔 Permission changed:', event);
-  // });
-  OneSignal.Notifications.requestPermission(true).then(response => {
-    // console.log('OneSignal: notification request permission:', response);
-    OneSignal.User.getOnesignalId().then(userId => {
-      // console.log('OneSignal: user id:', userId);
-      setOneSignalUserId(userId);
-    });
-    setOneSignalPermissionStatus(response);
-  });
+  // // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
+  // //   console.log('🔔 Notification received in foreground:', event);
+  // // });
+  // // OneSignal.Notifications.addEventListener('permissionChanged', event => {
+  // //   console.log('🔔 Permission changed:', event);
+  // // });
+  // OneSignal.Notifications.requestPermission(true).then(response => {
+  //   // console.log('OneSignal: notification request permission:', response);
+  //   OneSignal.User.getOnesignalId().then(userId => {
+  //     // console.log('OneSignal: user id:', userId);
+  //     setOneSignalUserId(userId);
+  //   });
+  //   setOneSignalPermissionStatus(response);
+  // // });
+
+  // Initialize OneSignal
+  useEffect(() => {
+    const initOneSignal = async () => {
+      // Remove this method to stop OneSignal Debugging
+      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+      // OneSignal Initialization
+      OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
+
+      try {
+        // Request permission and get user ID
+        const permissionResult = await OneSignal.Notifications.requestPermission(true);
+        console.log('OneSignal permission result:', permissionResult);
+        setOneSignalPermissionStatus(permissionResult)
+        
+
+        if (permissionResult) {
+          const userId = await OneSignal.User.getOnesignalId();
+          console.log('OneSignal: user id:', userId);
+          
+          if (userId) {
+            setOneSignalUserId(userId);
+            await AsyncStorage.setItem('oneSignalUserId', userId);
+            setIsOneSignalReady(true);
+          } else {
+            // If no userId, set up a listener for when it becomes available
+            const userStateChangedListener = OneSignal.User.addEventListener('change', async (event) => {
+              const newUserId = await OneSignal.User.getOnesignalId();
+              if (newUserId) {
+                console.log('OneSignal: got delayed user id:', newUserId);
+                setOneSignalUserId(newUserId);
+                await AsyncStorage.setItem('oneSignalUserId', newUserId);
+                setIsOneSignalReady(true);
+                userStateChangedListener.remove();
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing OneSignal:', error);
+        // Fallback: try to get stored userId
+        const storedUserId = await AsyncStorage.getItem('oneSignalUserId');
+        if (storedUserId) {
+          setOneSignalUserId(storedUserId);
+          setIsOneSignalReady(true);
+        }
+      }
+    };
+
+    initOneSignal();
+  }, []);
 
   useEffect(() => {
     checkFirstVisit();
@@ -426,18 +478,17 @@ function App() {
     setupNotifications();
   }, []);
 
-  // For example, if OneSignal ID isn't immediately necessary:
+  // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
-    // Log current state for debugging
     console.log('Ready check:', {
-      // isReadyToVisit,
-      // aaid,
-      // applsFlyerUID,
-      // idfv,
-      // timeStamp,
-      // isFirstVisit,
-      // isConversionDataReceived,
+      isReadyToVisit,
+      aaid,
+      applsFlyerUID,
+      idfv,
+      timeStamp,
+      isConversionDataReceived,
       oneSignalUserId,
+      isOneSignalReady
     });
 
     // Basic requirements for all launches
@@ -447,12 +498,12 @@ function App() {
       applsFlyerUID &&
       idfv &&
       timeStamp &&
-      isConversionDataReceived;
-    // oneSignalUserId;
+      isConversionDataReceived &&
+      isOneSignalReady &&
+      oneSignalUserId;
 
     // For first launch, also require sabData
     if (isFirstVisit) {
-      // return baseRequirements && sabData !== null;
       return baseRequirements;
     }
 
@@ -465,8 +516,9 @@ function App() {
     idfv,
     timeStamp,
     isConversionDataReceived,
-    // sabData,
-    isFirstVisit,
+    isOneSignalReady,
+    oneSignalUserId,
+    isFirstVisit
   ]);
 
   return (
@@ -478,25 +530,23 @@ function App() {
             animation: 'fade',
             animationDuration: 600,
           }}>
-          {/* {isReadyToVisit ? */}
           {isReadyForTestScreen ? (
             <Stack.Screen
               name="TestScreen"
               component={TestScreen}
               initialParams={{
                 idfa: aaid,
-                oneSignalUserId,
+                oneSignalUserId, // Now guaranteed to have a value
                 idfv,
                 applsFlyerUID,
                 jthrhg: timeStamp,
                 isFirstVisit,
                 timeStamp,
                 naming,
-                oneSignalPermissionStatus: oneSignalPermissionStatus,
+                oneSignalPermissionStatus,
                 isNonOrganicInstall,
                 openWithPush,
-
-                // ...(isFirstVisit && {sabData}),
+                ...(isFirstVisit && {sabData}),
               }}
             />
           ) : (

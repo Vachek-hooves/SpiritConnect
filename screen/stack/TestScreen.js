@@ -26,7 +26,7 @@ const TestScreen = ({route}) => {
     isNonOrganicInstall,
     openWithPush,
   } = route.params;
-
+console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
   useEffect(() => {
     const getStoredData = async () => {
       try {
