@@ -303,7 +303,7 @@ function App() {
           try {
             await AsyncStorage.setItem('sabData', campaign);
             setIsNonOrganicInstall(true);
-            // await AsyncStorage.setItem('isNonOrganicInstall', 'true');
+            await AsyncStorage.setItem('isNonOrganicInstall', 'true');
           } catch (error) {
             console.error('Error saving non-organic data:', error);
           }
@@ -315,7 +315,7 @@ function App() {
           try {
             await AsyncStorage.setItem('sabData', sabDataTest);
             setIsNonOrganicInstall(false);
-            // await AsyncStorage.setItem('isNonOrganicInstall', 'false');
+            await AsyncStorage.setItem('isNonOrganicInstall', 'false');
           } catch (error) {
             console.error('Error saving organic data:', error);
           }

@@ -4,14 +4,15 @@ import {BackHandler, Linking, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {useRef,useState} from 'react';
+import {useRef, useState} from 'react';
 const TestScreen = ({route}) => {
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
   const URL_IDENTIFAIRE = `9QNrrgg5`;
   const navigation = useNavigation();
   const webViewRef = useRef(null);
   const [sabData, setSabData] = useState(null);
-
+  // const [isNonOrganic, setIsNonOrganic] = useState(false);
+  const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const {
     idfa,
     oneSignalUserId,
@@ -23,24 +24,28 @@ const TestScreen = ({route}) => {
     naming,
     oneSignalPermissionStatus,
     // sabData,
-    isNonOrganicInstall,
+    // isNonOrganicInstall,
     openWithPush,
   } = route.params;
-console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
+  console.log('isNonOrganicInstall', isNonOrganicInstall);
+  // console.log('isNonOrganic',isNonOrganic);
+  console.log('oneSignalPermissionStatus', oneSignalPermissionStatus);
   useEffect(() => {
     const getStoredData = async () => {
       try {
         const sabData = await AsyncStorage.getItem('sabData');
-        // const isNonOrganicInstall = await AsyncStorage.getItem('isNonOrganicInstall');
-        
+        const isNonOrganicInstall = await AsyncStorage.getItem(
+          'isNonOrganicInstall',
+        );
+
         if (sabData) {
           setSabData(sabData);
         }
-        // setIsNonOrganic(isNonOrganicInstall === 'true');
-        
+        setIsNonOrganicInstall(isNonOrganicInstall === 'true');
+
         console.log('Retrieved stored data:', {
           sabData,
-          // isNonOrganicInstall
+          isNonOrganicInstall,
         });
       } catch (error) {
         console.error('Error retrieving stored data:', error);
@@ -51,7 +56,6 @@ console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
   }, []);
 
   useEffect(() => {
-    
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
@@ -79,8 +83,6 @@ console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
 
     return () => backHandler.remove();
   }, [navigation]);
-
- 
 
   // const processSabData = useCallback(() => {
   //   if (!sabData) return '';
@@ -135,48 +137,73 @@ console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
 
     // const handleSab28Data=()=>{
 
-
-      const extractSabData=()=>{
-        if(sabData && !sabData.includes('_')){
-          return '';
-        }
-
-        if(sabData && sabData.includes('_')){
-          const sabDataParams = sabData
-          .split('_')
-          .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-          .join('&');
-          return sabDataParams;
+    // Helper function to extract sabData parameters
+    const extractSabData = () => {
+      if (!sabData || !sabData.includes('_')) {
+        return '';
       }
-     
+      return sabData
+        .split('_')
+        .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+        .join('&');
     };
 
-    
-
+    // First Visit Scenarios
     if (isFirstVisit) {
-      console.log('this is first app visit Sab28 to be passed');
-      if (isNonOrganicInstall && sabData && !sabData.includes('_')) {
-        console.log('this is non organic install and sabData is missing splitter');
-        return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
-      } else if (isNonOrganicInstall && sabData && sabData.includes('_')) {
-        console.log('this is non organic install and sabData is present');
-        const sabDataParams = extractSabData();
-        return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
-      } else {
-        console.log('this is organic install and sabData is present');
-        const sabDataParams = extractSabData();
-        return `${baseUrl}&${params.toString()}&testParam=ORGANIC&${sabDataParams}`;
+      console.log('First app visit - determining URL type');
+
+      // Non-organic install with sabData
+      if (isNonOrganicInstall && sabData) {
+        // Check if sabData has proper format with underscore
+        if (sabData.includes('_')) {
+          console.log('Non-organic install with valid sabData format');
+          const sabDataParams = extractSabData();
+          return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+        } else {
+          console.log('Non-organic install with missing splitter in sabData');
+          return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
+        }
+      }
+      // Organic install
+      else {
+        console.log('Organic install');
+        return `${baseUrl}&${params.toString()}&testParam=ORGANIC`;
       }
     }
-
-    if(!isFirstVisit && isNonOrganicInstall && sabData){
-      console.log('this is non organic install and sabData is present');
+    // Subsequent Visits
+    else {
+      console.log('Subsequent visit');
       const sabDataParams = extractSabData();
-      return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+      const baseUrlWithParams = `${baseUrl}&${params.toString()}`;
+
+      // Add sabData parameters if they exist (for non-organic installs)
+      if (isNonOrganicInstall && sabDataParams) {
+        return `${baseUrlWithParams}&${sabDataParams}`;
+      }
+
+      // For organic installs or when no sabData available
+      return baseUrlWithParams;
     }
 
-   
+    //   if (isNonOrganic && sabData && !sabData.includes('_')) {
+    //     console.log('this is non organic install and sabData is missing splitter');
+    //     return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
+    //   } else if (isNonOrganic && sabData && sabData.includes('_')) {
+    //     console.log('this is non organic install and sabData is present');
+    //     const sabDataParams = extractSabData();
+    //     return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+    //   } else {
+    //     console.log('this is organic install and sabData is present');
+    //     const sabDataParams = extractSabData();
+    //     return `${baseUrl}&${params.toString()}&testParam=ORGANIC&${sabDataParams}`;
+    //   }
+    // }
 
+    // if(!isFirstVisit && isNonOrganic && sabData){
+    //   console.log('this is non organic install and sabData is present');
+    //   const sabDataParams = extractSabData();
+    //   return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
+    // }
 
     // else if(!isFirstVisit && isNonOrganicInstall && sabData){
     //   const sabDataParams = sabData
@@ -211,66 +238,74 @@ console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
     // console.log('finalUrl', finalUrl);
     // return finalUrl;
 
-
-// console.log('extractSabData TestScreen-',extractSabData());
+    // console.log('extractSabData TestScreen-',extractSabData());
     // console.log(`${baseUrl}&${params.toString()}&${extractSabData()}`);
-    console.log('openWithPush',openWithPush);
-    return !isFirstVisit &&  `${baseUrl}&${params.toString()}&${extractSabData()}`+ (openWithPush?'&yhugh=true':'');
-  }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
+    // console.log('openWithPush',openWithPush);
+    // return !isFirstVisit &&  `${baseUrl}&${params.toString()}&${extractSabData()}`+ (openWithPush?'&yhugh=true':'');
+  }, [
+    idfa,
+    oneSignalUserId,
+    idfv,
+    applsFlyerUID,
+    jthrhg,
+    isFirstVisit,
+    isNonOrganicInstall,
+    sabData,
+  ]);
 
-//   const handleCustomUrl = async request => {
-//     const url = request.url;
-    
-//     // Handle regular web URLs
-//     if (url.startsWith('http://') || url.startsWith('https://')) {
-//         return true; // Let WebView handle these
-//     }
+  //   const handleCustomUrl = async request => {
+  //     const url = request.url;
 
-//     // Handle custom schemes (deep links)
-//     try {
-//         const canOpen = await Linking.canOpenURL(url);
-//         if (canOpen) {
-//             await Linking.openURL(url);
-//         } else {
-//             Alert.alert(
-//                 'App Not Found',
-//                 'The requested app is not installed.',
-//                 [{text: 'OK'}]
-//             );
-//         }
-//         return false; // Prevent WebView from trying to load the URL
-//     } catch (error) {
-//         console.error('Error handling URL:', error);
-//         return false;
-//     }
-// };
+  //     // Handle regular web URLs
+  //     if (url.startsWith('http://') || url.startsWith('https://')) {
+  //         return true; // Let WebView handle these
+  //     }
+
+  //     // Handle custom schemes (deep links)
+  //     try {
+  //         const canOpen = await Linking.canOpenURL(url);
+  //         if (canOpen) {
+  //             await Linking.openURL(url);
+  //         } else {
+  //             Alert.alert(
+  //                 'App Not Found',
+  //                 'The requested app is not installed.',
+  //                 [{text: 'OK'}]
+  //             );
+  //         }
+  //         return false; // Prevent WebView from trying to load the URL
+  //     } catch (error) {
+  //         console.error('Error handling URL:', error);
+  //         return false;
+  //     }
+  // };
   // Wrapper function to handle the async nature of handleCustomUrl
-const onShouldStartLoadWithRequest = event => {
+  const onShouldStartLoadWithRequest = event => {
     const {url} = event;
 
     // Handle banking apps
     if (
-        url.startsWith('scotiabank://') ||
-        url.startsWith('cibcbanking://')||
-        url.startsWith('intent://rbcbanking')||
-        url.startsWith('bncmobile:/')||
-        url.startsWith('tdct://')||
-        url.startsWith('bmoolbb://') 
+      url.startsWith('scotiabank://') ||
+      url.startsWith('cibcbanking://') ||
+      url.startsWith('intent://rbcbanking') ||
+      url.startsWith('bncmobile:/') ||
+      url.startsWith('tdct://') ||
+      url.startsWith('bmoolbb://')
     ) {
-      console.log('app url',url);
-        Linking.openURL(url).catch(error => {
-            Alert.alert(
-                'App Not Found',
-                'The requested banking app is not installed.',
-                [{text: 'OK'}]
-            );
-        });
-        return false;
+      console.log('app url', url);
+      Linking.openURL(url).catch(error => {
+        Alert.alert(
+          'App Not Found',
+          'The requested banking app is not installed.',
+          [{text: 'OK'}],
+        );
+      });
+      return false;
     }
 
     // Handle regular web URLs to be opened in the webview ,logic to be added ....
     return true;
-};
+  };
 
   return (
     <WebView
@@ -294,11 +329,11 @@ const onShouldStartLoadWithRequest = event => {
         'cibc://',
         'bmoolbb://',
         'scotiabank://',
-        'rbcbanking://',  
+        'rbcbanking://',
         'tdct://',
         'cibcbanking://',
         'www.cibconline.cibc.com://',
-        'secure.scotiabank.com'
+        'secure.scotiabank.com',
       ]}
       onLoadStart={syntheticEvent => {
         // console.log('WebView started loading');
@@ -331,12 +366,9 @@ const onShouldStartLoadWithRequest = event => {
           webViewRef.current.canGoBack = navState.canGoBack;
         }
       }}
-     
       onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   );
 };
 
 export default TestScreen;
-
-
