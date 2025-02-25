@@ -82,6 +82,7 @@ function App() {
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const [openWithPush, setOpenWithPush] = useState(false);
   const [isOneSignalReady, setIsOneSignalReady] = useState(false);
+  console.log('Opened with push App.js', openWithPush);
 
   // // Remove this method to stop OneSignal Debugging
   // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -405,9 +406,9 @@ function App() {
   // }, [isMusicEnable]);
 
   const handleNotificationClick = async event => {
-    console.log('🔔 Handling notification click:', event);
+    // console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
-    console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
+    // console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
 
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -481,14 +482,14 @@ function App() {
   // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
     console.log('Ready check:', {
-      isReadyToVisit,
-      aaid,
-      applsFlyerUID,
-      idfv,
-      timeStamp,
-      isConversionDataReceived,
-      oneSignalUserId,
-      isOneSignalReady
+      // isReadyToVisit,
+      // aaid,
+      // applsFlyerUID,
+      // idfv,
+      // timeStamp,
+      // isConversionDataReceived,
+      // oneSignalUserId,
+      // isOneSignalReady
     });
 
     // Basic requirements for all launches

@@ -27,9 +27,10 @@ const TestScreen = ({route}) => {
     // isNonOrganicInstall,
     openWithPush,
   } = route.params;
-  console.log('isNonOrganicInstall', isNonOrganicInstall);
+  // console.log('isNonOrganicInstall', isNonOrganicInstall);
   // console.log('isNonOrganic',isNonOrganic);
-  console.log('oneSignalPermissionStatus', oneSignalPermissionStatus);
+  // console.log('openWithPush TestScreen - ',openWithPush);
+  // console.log('oneSignalPermissionStatus', oneSignalPermissionStatus);
   useEffect(() => {
     const getStoredData = async () => {
       try {
@@ -148,42 +149,52 @@ const TestScreen = ({route}) => {
         .join('&');
     };
 
-    // First Visit Scenarios
-    if (isFirstVisit) {
-      console.log('First app visit - determining URL type');
+    const addPushParam = (url) => {
+      console.log('openWithPush line 153', openWithPush);
+      return openWithPush ? `${url}&yhugh=true` : url;
+  };
 
+  // First Visit 
+  if (isFirstVisit) {
+      console.log('First app visit - determining URL type');
+      
       // Non-organic install with sabData
       if (isNonOrganicInstall && sabData) {
-        // Check if sabData has proper format with underscore
-        if (sabData.includes('_')) {
-          console.log('Non-organic install with valid sabData format');
-          const sabDataParams = extractSabData();
-          return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
-        } else {
-          console.log('Non-organic install with missing splitter in sabData');
-          return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
-        }
-      }
+          // Check if sabData has proper format with underscore
+          if (sabData.includes('_')) {
+              console.log('Non-organic install with valid sabData format');
+              const sabDataParams = extractSabData();
+              return addPushParam(`${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`);
+          } else {
+              console.log('Non-organic install with missing splitter in sabData');
+              return addPushParam(`${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`);
+          }
+      } 
       // Organic install
       else {
-        console.log('Organic install');
-        return `${baseUrl}&${params.toString()}&testParam=ORGANIC`;
+          console.log('Organic install');
+          return addPushParam(`${baseUrl}&${params.toString()}&testParam=ORGANIC`);
       }
-    }
-    // Subsequent Visits
-    else {
+  }
+  
+  // Subsequent Visits
+  else {
       console.log('Subsequent visit');
       const sabDataParams = extractSabData();
       const baseUrlWithParams = `${baseUrl}&${params.toString()}`;
-
+      
       // Add sabData parameters if they exist (for non-organic installs)
       if (isNonOrganicInstall && sabDataParams) {
-        return `${baseUrlWithParams}&${sabDataParams}`;
+          console.log('isNonOrganicInstall && sabDataParams', isNonOrganicInstall && sabDataParams);
+          return addPushParam(`${baseUrlWithParams}&${sabDataParams}`);
       }
-
+      
       // For organic installs or when no sabData available
-      return baseUrlWithParams;
-    }
+      console.log('sabDataParams line 193', sabDataParams);
+      console.log('isNonOrganicInstall line 194', isNonOrganicInstall);
+      console.log('baseUrlWithParams line 195', baseUrlWithParams);
+      return addPushParam(baseUrlWithParams);
+  }
 
     //   if (isNonOrganic && sabData && !sabData.includes('_')) {
     //     console.log('this is non organic install and sabData is missing splitter');
@@ -199,37 +210,6 @@ const TestScreen = ({route}) => {
     //   }
     // }
 
-    // if(!isFirstVisit && isNonOrganic && sabData){
-    //   console.log('this is non organic install and sabData is present');
-    //   const sabDataParams = extractSabData();
-    //   return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
-    // }
-
-    // else if(!isFirstVisit && isNonOrganicInstall && sabData){
-    //   const sabDataParams = sabData
-    //       .split('_')
-    //       .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-    //       .join('&');
-    //     return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
-    // }
-
-    // }
-    // console.log('handleSab28Data', handleSab28Data());
-
-    // Process sabData if exists (campaign data from AppsFlyer)
-    // const sabDataParams = processSabData();
-
-    // if (isFirstVisit && sabData) {
-    //   const sabDataParams = sabData
-    //     .split('_')
-    //     .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-    //     // .filter(item => item)
-    //     .join('&');
-
-    //   return `${baseUrl}&${params.toString()}&${sabDataParams}`;
-    // }
-    // Example sabData: "fb_test2_test3_test4_test5"
-    // Becomes: "subId0=fb&subId1=test2&subId2=test3&subId3=test4&subId4=test5"
 
     //   Combine everything into final URL
     // const finalUrl = sabDataParams
@@ -285,6 +265,7 @@ const TestScreen = ({route}) => {
 
     // Handle banking apps
     if (
+      url.startsWith('intent://') ||
       url.startsWith('scotiabank://') ||
       url.startsWith('cibcbanking://') ||
       url.startsWith('intent://rbcbanking') ||
@@ -293,6 +274,7 @@ const TestScreen = ({route}) => {
       url.startsWith('bmoolbb://')
     ) {
       console.log('app url', url);
+
       Linking.openURL(url).catch(error => {
         Alert.alert(
           'App Not Found',
