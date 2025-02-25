@@ -211,156 +211,66 @@ console.log('oneSignalPermissionStatus',oneSignalPermissionStatus);
     // console.log('finalUrl', finalUrl);
     // return finalUrl;
 
-    // Return URL without sabData for subsequent visits
-    // return `${baseUrl}&${params.toString()}`;
 
-
-console.log('extractSabData TestScreen-',extractSabData());
+// console.log('extractSabData TestScreen-',extractSabData());
     // console.log(`${baseUrl}&${params.toString()}&${extractSabData()}`);
+    console.log('openWithPush',openWithPush);
     return !isFirstVisit &&  `${baseUrl}&${params.toString()}&${extractSabData()}`+ (openWithPush?'&yhugh=true':'');
   }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, sabData]);
 
-  const handleCustomUrl = async url => {
-    console.log('handleCustomUrl-', url);
+//   const handleCustomUrl = async request => {
+//     const url = request.url;
     
+//     // Handle regular web URLs
+//     if (url.startsWith('http://') || url.startsWith('https://')) {
+//         return true; // Let WebView handle these
+//     }
 
-    if(url){
-      const canOpen=await Linking.canOpenURL(url);
-      if(canOpen){
-        await Linking.openURL(url);
-      }else{
-        Alert.alert('App Not Found', 'The requested app is not installed. Opening website instead.', [{text: 'OK'}]);
-      }
+//     // Handle custom schemes (deep links)
+//     try {
+//         const canOpen = await Linking.canOpenURL(url);
+//         if (canOpen) {
+//             await Linking.openURL(url);
+//         } else {
+//             Alert.alert(
+//                 'App Not Found',
+//                 'The requested app is not installed.',
+//                 [{text: 'OK'}]
+//             );
+//         }
+//         return false; // Prevent WebView from trying to load the URL
+//     } catch (error) {
+//         console.error('Error handling URL:', error);
+//         return false;
+//     }
+// };
+  // Wrapper function to handle the async nature of handleCustomUrl
+const onShouldStartLoadWithRequest = event => {
+    const {url} = event;
+
+    // Handle banking apps
+    if (
+        url.startsWith('scotiabank://') ||
+        url.startsWith('cibcbanking://')||
+        url.startsWith('intent://rbcbanking')||
+        url.startsWith('bncmobile:/')||
+        url.startsWith('tdct://')||
+        url.startsWith('bmoolbb://') 
+    ) {
+      console.log('app url',url);
+        Linking.openURL(url).catch(error => {
+            Alert.alert(
+                'App Not Found',
+                'The requested banking app is not installed.',
+                [{text: 'OK'}]
+            );
+        });
+        return false;
     }
 
-
-    // try {
-    //   // Check URL scheme
-    //   if (url.startsWith('mailto:')) {
-    //     await Linking.openURL(url);
-    //     return;
-    //   }
-
-    //   // Handle different bank apps
-    //   if (url.startsWith('scotiabank:')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = `https://www.scotiabank.com/ca/en/personal.html`;
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The Scotiabank app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   if (url.includes('rbcbanking')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = `https://www.rbcroyalbank.com/personal.html`;
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The RBC app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   // Handle BMO
-    //   if (url.includes('bmoolbb:')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = 'https://www.bmo.com/en-ca/main/personal/';
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The BMO app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   // Handle TD
-    //   if (url.includes('tdct')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = 'https://www.td.com/ca/en/personal-banking';
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The TD app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   // Handle NBC
-    //   if (url.startsWith('nbc:') || url.includes('nbc')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = 'https://www.nbc.ca/';
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The NBC app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   // Handle CIBC
-    //   if (url.startsWith('cibc:') || url.includes('cibc')) {
-    //     const canOpen = await Linking.canOpenURL(url);
-    //     if (canOpen) {
-    //       await Linking.openURL(url);
-    //     } else {
-    //       const browserUrl = 'https://www.cibc.com/en/personal-banking.html';
-    //       await Linking.openURL(browserUrl);
-    //       Alert.alert(
-    //         'App Not Found',
-    //         'The CIBC app is not installed. Opening website instead.',
-    //         [{text: 'OK'}],
-    //       );
-    //     }
-    //     return;
-    //   }
-
-    //   // Handle other custom schemes
-    //   const canOpen = await Linking.canOpenURL(url);
-    //   if (canOpen) {
-    //     await Linking.openURL(url);
-    //   } else {
-    //     console.warn('Cannot open URL:', url);
-    //     Alert.alert(
-    //       'App Not Found',
-    //       'The requested app is not installed. Opening website instead.',
-    //       [{text: 'OK'}],
-    //     );
-    //   }
-    // } catch (error) {
-    //   console.error('Error handling URL:', error);
-    //   Alert.alert('Error', 'Unable to open the link. Please try again.', [
-    //     {text: 'OK'},
-    //   ]);
-    // }
-  };
+    // Handle regular web URLs to be opened in the webview ,logic to be added ....
+    return true;
+};
 
   return (
     <WebView
@@ -416,88 +326,17 @@ console.log('extractSabData TestScreen-',extractSabData());
         console.log('WebView Message:', event.nativeEvent.data);
       }}
       onNavigationStateChange={navState => {
-        // Update webview's canGoBack state
+        // Updates webview's canGoBack state
         if (webViewRef.current) {
-          // console.log('navState.canGoBack', navState.canGoBack);
-          // console.log(
-          //   'webViewRef.current.canGoBack',
-          //   webViewRef.current.canGoBack,
-          // );
           webViewRef.current.canGoBack = navState.canGoBack;
         }
-        console.log('Navigation State:', {
-          url: navState.url,
-          title: navState.title,
-        //   loading: navState.loading,
-        //   canGoBack: navState.canGoBack,
-        //   canGoForward: navState.canGoForward
-        });
       }}
-      onShouldStartLoadWithRequest={request => {
-        console.log('Request:', {
-        //   request,
-          url: request.url,
-        //   method: request.method,
-        //   headers: request.headers,
-          mainDocumentURL: request.mainDocumentURL
-        });
-        // Check if the URL is a custom scheme
-        // console.log('request URL to open', request);
-        if (
-          !request.url.startsWith('http') &&
-          !request.url.startsWith('https')
-        ) {
-          console.log('request', request);
-          // console.log('Open this URL:', request.url);
-          handleCustomUrl(request.url);
-          return false;
-        }
-        return true;
-
-        // if (request.url) {
-        //   handleCustomUrl(request.url);
-        // }
-      }}
+     
+      onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   );
 };
 
 export default TestScreen;
 
-//  Check params before launch
-// const TestScreen = ({route}) => {
-//     // Destructure with default values to prevent undefined
-//     const {
-//       idfa = '',
-//       oneSignalUserId = '',
-//       idfv = '',
-//       applsFlyerUID = '',
-//       jthrhg = ''
-//     } = route.params || {};
 
-//     // Create URL params only with existing values
-//     const urlParams = new URLSearchParams();
-//     urlParams.append(URL_IDENTIFIER, '1');
-
-//     if (idfa) urlParams.append('idfa', idfa);
-//     if (oneSignalUserId) urlParams.append('oneSignalId', oneSignalUserId);
-//     if (idfv) {
-//       urlParams.append('idfv', idfv);
-//       urlParams.append('customerUserId', idfv);
-//     }
-//     if (applsFlyerUID) urlParams.append('uid', applsFlyerUID);
-//     if (jthrhg) urlParams.append('jthrhg', jthrhg);
-
-//     const finalUrl = `${URL}${URL_IDENTIFAIRE}?${urlParams.toString()}`;
-
-//     console.log('Final URL:', finalUrl);
-
-//     return (
-//       <WebView
-//         source={{
-//           uri: finalUrl,
-//         }}
-//         style={{flex: 1}}
-//       />
-//     );
-//   };
