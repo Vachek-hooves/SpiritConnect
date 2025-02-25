@@ -423,7 +423,7 @@ function App() {
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
     } else {
       // Regular webview case
-      finalUrl = `${baseUrl}?utretg=push_open_webview&&yhugh=true&jthrhg=${timeStamp}`;
+      finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
       setOpenWithPush(true);
     }
 
