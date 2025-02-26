@@ -82,6 +82,7 @@ function App() {
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const [openWithPush, setOpenWithPush] = useState(false);
   const [isOneSignalReady, setIsOneSignalReady] = useState(false);
+  const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
   console.log('Opened with push App.js', openWithPush);
 
   // // Remove this method to stop OneSignal Debugging
@@ -121,13 +122,13 @@ function App() {
       try {
         // Request permission and get user ID
         const permissionResult = await OneSignal.Notifications.requestPermission(true);
-        console.log('OneSignal permission result:', permissionResult);
+        // console.log('OneSignal permission result:', permissionResult);
         setOneSignalPermissionStatus(permissionResult)
         
 
         if (permissionResult) {
           const userId = await OneSignal.User.getOnesignalId();
-          console.log('OneSignal: user id:', userId);
+          // console.log('OneSignal: user id:', userId);
           
           if (userId) {
             setOneSignalUserId(userId);
@@ -234,7 +235,7 @@ function App() {
       // console.log('Today date passed target date');
       if (hasVisited) {
         setIsReadyToVisit(true);
-        console.log('App WAS visited before');
+        // console.log('App WAS visited before');
       }
       if (!hasVisited) {
         console.log('App WAS NOT visited before');
@@ -309,7 +310,6 @@ function App() {
             console.error('Error saving non-organic data:', error);
           }
         } else if (res.data.af_status === 'Organic') {
-          
           const sabDataTest = '';
           // setSabData(sabDataTest);
           // Save organic test data
@@ -406,9 +406,9 @@ function App() {
   // }, [isMusicEnable]);
 
   const handleNotificationClick = async event => {
-    // console.log('🔔 Handling notification click:', event);
+    console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
-    // console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
+    console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
 
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -421,9 +421,11 @@ function App() {
       // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
     } else if (event.notification.launchURL) {
       // Has launchURL case
+      console.log('Regular push_open_browser case',`${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`)
       finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
     } else {
       // Regular webview case
+      console.log('Regular push_open_webview case',`${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`)
       finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
       setOpenWithPush(true);
     }
@@ -433,8 +435,8 @@ function App() {
     try {
       // Send request to the constructed URL
       const response = await fetch(finalUrl);
-      console.log('🔔 timeStamp inside try', timeStamp);
-      console.log('🔔 URL fetch response status:', response.status);
+      // console.log('🔔 timeStamp inside try', timeStamp);
+      // console.log('🔔 URL fetch response status:', response.status);
 
       // Handle different cases after fetch
       if (!hasVisited) {
@@ -481,7 +483,7 @@ function App() {
 
   // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
-    console.log('Ready check:', {
+    // console.log('Ready check:', {
       // isReadyToVisit,
       // aaid,
       // applsFlyerUID,
@@ -490,7 +492,7 @@ function App() {
       // isConversionDataReceived,
       // oneSignalUserId,
       // isOneSignalReady
-    });
+    // });
 
     // Basic requirements for all launches
     const baseRequirements =
@@ -519,7 +521,7 @@ function App() {
     isConversionDataReceived,
     isOneSignalReady,
     oneSignalUserId,
-    isFirstVisit
+    isFirstVisit,
   ]);
 
   return (
