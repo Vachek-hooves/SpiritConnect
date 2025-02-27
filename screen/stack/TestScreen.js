@@ -34,6 +34,7 @@ const TestScreen = ({route}) => {
     // isNonOrganicInstall,
     // openWithPush,
   } = route.params;
+  console.log('oneSignalPermissionStatus TestScreen', oneSignalPermissionStatus);
 
   useEffect(() => {
     const initPushState = async () => {
@@ -163,26 +164,6 @@ const TestScreen = ({route}) => {
       );
     }
   }, [isFirstVisit, oneSignalPermissionStatus]);
-
-  // const handleWebViewLoad = useCallback(async () => {
-  //   try {
-  //     // every time the webview is opened
-  //     // console.log('Every time the webview is opened',`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`)
-  //     // fetch(
-  //     //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
-  //     // );
-  //     if (isFirstVisit && oneSignalPermissionStatus) {
-  //       // only when user accepts notifications
-  //       console.log('Only when user accepts notifications',`${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`)
-  //       fetch(
-  //         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
-  //       );
-  //     }
-  //     //   console.log('WebView open event sent:', response.status);
-  //   } catch (error) {
-  //     console.error('Error in handleWebViewLoad:', error);
-  //   }
-  // }, [timeStamp]);
 
   const constructUrl = useCallback(() => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;

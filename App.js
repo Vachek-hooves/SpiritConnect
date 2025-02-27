@@ -120,15 +120,16 @@ function App() {
       OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
 
       try {
+       
         // Request permission and get user ID
         const permissionResult = await OneSignal.Notifications.requestPermission(true);
-        // console.log('OneSignal permission result:', permissionResult);
+        console.log('OneSignal permission result:', permissionResult);
         setOneSignalPermissionStatus(permissionResult)
         
-
-        if (permissionResult) {
-          const userId = await OneSignal.User.getOnesignalId();
+        
+        // if (permissionResult) {
           // console.log('OneSignal: user id:', userId);
+          const userId = await OneSignal.User.getOnesignalId();
           
           if (userId) {
             setOneSignalUserId(userId);
@@ -147,7 +148,7 @@ function App() {
               }
             });
           }
-        }
+        // }
       } catch (error) {
         console.error('Error initializing OneSignal:', error);
         // Fallback: try to get stored userId
@@ -528,16 +529,16 @@ function App() {
 
   // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
-    // console.log('Ready check:', {
+    console.log('Ready check:', {
       // isReadyToVisit,
       // aaid,
       // applsFlyerUID,
       // idfv,
       // timeStamp,
       // isConversionDataReceived,
-      // oneSignalUserId,
-      // isOneSignalReady
-    // });
+      oneSignalUserId,
+      isOneSignalReady
+    });
 
     // Basic requirements for all launches
     const baseRequirements =
