@@ -1,5 +1,5 @@
 import {WebView} from 'react-native-webview';
-import {useEffect, useCallback,useRef, useState} from 'react';
+import {useEffect, useCallback, useRef, useState} from 'react';
 import {BackHandler, Linking, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,13 +13,17 @@ const TestScreen = ({route}) => {
   // const [isNonOrganic, setIsNonOrganic] = useState(false);
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
-  const [localOpenWithPush, setLocalOpenWithPush] = useState(route.params.openWithPush);
+  const [localOpenWithPush, setLocalOpenWithPush] = useState(
+    route.params.openWithPush,
+  );
   const hasHandledPush = useRef(false);
-  
-  console.log('Initial openWithPush from route params:', route.params.openWithPush);
+
+  console.log(
+    'Initial openWithPush from route params:',
+    route.params.openWithPush,
+  );
   console.log('Initial localOpenWithPush state:', localOpenWithPush);
-  
-  
+
   const {
     idfa,
     oneSignalUserId,
@@ -34,33 +38,38 @@ const TestScreen = ({route}) => {
     // isNonOrganicInstall,
     // openWithPush,
   } = route.params;
-  console.log('oneSignalPermissionStatus TestScreen', oneSignalPermissionStatus);
+  console.log(
+    'oneSignalPermissionStatus TestScreen',
+    oneSignalPermissionStatus,
+  );
 
   useEffect(() => {
     const initPushState = async () => {
-        try {
-            const storedPushState = await AsyncStorage.getItem('openedWithPush');
-            console.log('Checking push state:', {
-                storedPushState,
-                routeOpenWithPush: route.params.openWithPush
-            });
+      try {
+        const storedPushState = await AsyncStorage.getItem('openedWithPush');
+        console.log('Checking push state:', {
+          storedPushState,
+          routeOpenWithPush: route.params.openWithPush,
+        });
 
-            if ((storedPushState === 'true' || route.params.openWithPush) && !hasHandledPush.current) {
-                console.log('Setting localOpenWithPush to true');
-                setLocalOpenWithPush(true);
-                hasHandledPush.current = true;
-                
-                // Clear the push state after handling it
-                await AsyncStorage.removeItem('openedWithPush');
-            }
-        } catch (error) {
-            console.error('Error checking push state:', error);
+        if (
+          (storedPushState === 'true' || route.params.openWithPush) &&
+          !hasHandledPush.current
+        ) {
+          console.log('Setting localOpenWithPush to true');
+          setLocalOpenWithPush(true);
+          hasHandledPush.current = true;
+
+          // Clear the push state after handling it
+          await AsyncStorage.removeItem('openedWithPush');
         }
+      } catch (error) {
+        console.error('Error checking push state:', error);
+      }
     };
 
     initPushState();
-}, []); // Run only on mount
- 
+  }, []); // Run only on mount
 
   useEffect(() => {
     const getStoredData = async () => {
@@ -168,7 +177,7 @@ const TestScreen = ({route}) => {
   const constructUrl = useCallback(() => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
     const params = new URLSearchParams();
-    
+
     // Add tracking parameters
     params.append('idfa', idfa);
     params.append('oneSignalId', oneSignalUserId);
@@ -184,7 +193,7 @@ const TestScreen = ({route}) => {
 
     // First Visit
     if (isFirstVisit) {
-      console.log('First app visit - determining URL type');
+      // console.log('First app visit - determining URL type');
 
       // Non-organic install with sabData
       if (isNonOrganicInstall && sabData) {
@@ -195,10 +204,15 @@ const TestScreen = ({route}) => {
             .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
             .join('&');
           finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
-        } else {
+        } else if (!sabData.includes('_')) {
           // Handle missing splitter case
           console.log('Non-organic install with missing splitter in sabData');
           finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
+          Alert.alert(
+            `&testParam=CONVERT-SUBS-MISSING-SPLITTER`,
+            '-sabData-',
+            sabData,
+          );
         }
       }
       // Organic install
@@ -206,6 +220,7 @@ const TestScreen = ({route}) => {
         // Handle organic install
         console.log('Organic install first visit');
         finalUrl += '&testParam=ORGANIC';
+        // Alert.alert(`&testParam=ORGANIC`,'-sabData-',sabData);
       }
     }
 
@@ -223,6 +238,7 @@ const TestScreen = ({route}) => {
       if (localOpenWithPush) {
         console.log('Adding yhugh parameter due to push notification');
         finalUrl += '&yhugh=true';
+        Alert.alert('app open with push', localOpenWithPush);
       } else {
         console.log('Regular link, no subData,no push');
         finalUrl;
@@ -265,56 +281,13 @@ const TestScreen = ({route}) => {
     isFirstVisit,
     isNonOrganicInstall,
     sabData,
-    localOpenWithPush
+    localOpenWithPush,
   ]);
 
-  //   const handleCustomUrl = async request => {
-  //     const url = request.url;
-
-  //     // Handle regular web URLs
-  //     if (url.startsWith('http://') || url.startsWith('https://')) {
-  //         return true; // Let WebView handle these
-  //     }
-
-  //     // Handle custom schemes (deep links)
-  //     try {
-  //         const canOpen = await Linking.canOpenURL(url);
-  //         if (canOpen) {
-  //             await Linking.openURL(url);
-  //         } else {
-  //             Alert.alert(
-  //                 'App Not Found',
-  //                 'The requested app is not installed.',
-  //                 [{text: 'OK'}]
-  //             );
-  //         }
-  //         return false; // Prevent WebView from trying to load the URL
-  //     } catch (error) {
-  //         console.error('Error handling URL:', error);
-  //         return false;
-  //     }
-  // };
   // Wrapper function to handle the async nature of handleCustomUrl
   const onShouldStartLoadWithRequest = event => {
     const {url} = event;
     // console.log('Intercepted URL:', url);
-
-    //   // Handle BMO app (bmoolbb://)
-    //   if (url.startsWith('bmoolbb://')) {
-    //     console.log('BMO URL detected:', url);
-    //     Linking.openURL(url).catch(error => {
-    //         console.error('Error opening BMO app:', error);
-    //         Alert.alert(
-    //             'App Not Found',
-    //             'The BMO banking app is not installed.',
-    //             [{text: 'OK'}]
-    //         );
-    //     });
-    //     return false;
-    // }
-
-    
-
     // Handle RBC intent URL
     if (url.startsWith('intent://rbcbanking')) {
       console.log('RBC URL detected:', url);
@@ -348,7 +321,7 @@ const TestScreen = ({route}) => {
 
     // Handle banking apps
     if (
-      url.startsWith('mailto:')||
+      url.startsWith('mailto:') ||
       url.startsWith('intent://') ||
       url.startsWith('scotiabank://') ||
       url.startsWith('cibcbanking://') ||
@@ -357,7 +330,14 @@ const TestScreen = ({route}) => {
       url.startsWith('tdct://') ||
       url.startsWith('bmoolbb://') ||
       url.startsWith('bmo://') ||
-      url.startsWith('rbc://')
+      url.startsWith('rbc://') ||
+      url.startsWith('https://m.facebook.com/') ||
+      url.startsWith('https://www.facebook.com/') ||
+      url.startsWith('https://www.instagram.com/') ||
+      url.startsWith('https://twitter.com/') ||
+      url.startsWith('https://www.whatsapp.com/') ||
+      url.startsWith('fb://') ||
+      url.startsWith('googlepay://')
     ) {
       console.log('app url', url);
 
@@ -378,11 +358,11 @@ const TestScreen = ({route}) => {
   // Clean up on unmount
   useEffect(() => {
     return () => {
-        AsyncStorage.removeItem('openedWithPush');
-        setLocalOpenWithPush(false);
-        hasHandledPush.current = false;
+      AsyncStorage.removeItem('openedWithPush');
+      setLocalOpenWithPush(false);
+      hasHandledPush.current = false;
     };
-}, []);
+  }, []);
 
   return (
     <WebView

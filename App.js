@@ -84,6 +84,7 @@ function App() {
   const [isOneSignalReady, setIsOneSignalReady] = useState(false);
   const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
   // console.log('Opened with push App.js', openWithPush);
+  // console.log(!'fb-test1-test2-test-3'.includes('_'));
 
   // // Remove this method to stop OneSignal Debugging
   // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
