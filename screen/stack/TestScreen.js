@@ -1,10 +1,9 @@
 import {WebView} from 'react-native-webview';
-import {useEffect, useCallback} from 'react';
+import {useEffect, useCallback,useRef, useState} from 'react';
 import {BackHandler, Linking, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {useRef, useState} from 'react';
 const TestScreen = ({route}) => {
   const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
   const URL_IDENTIFAIRE = `9QNrrgg5`;
@@ -14,6 +13,13 @@ const TestScreen = ({route}) => {
   // const [isNonOrganic, setIsNonOrganic] = useState(false);
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
   const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
+  const [localOpenWithPush, setLocalOpenWithPush] = useState(route.params.openWithPush);
+  const hasHandledPush = useRef(false);
+  
+  console.log('Initial openWithPush from route params:', route.params.openWithPush);
+  console.log('Initial localOpenWithPush state:', localOpenWithPush);
+  
+  
   const {
     idfa,
     oneSignalUserId,
@@ -26,9 +32,34 @@ const TestScreen = ({route}) => {
     oneSignalPermissionStatus,
     // sabData,
     // isNonOrganicInstall,
-    openWithPush,
+    // openWithPush,
   } = route.params;
-  console.log('openWithPush TestScreen', openWithPush);
+
+  useEffect(() => {
+    const initPushState = async () => {
+        try {
+            const storedPushState = await AsyncStorage.getItem('openedWithPush');
+            console.log('Checking push state:', {
+                storedPushState,
+                routeOpenWithPush: route.params.openWithPush
+            });
+
+            if ((storedPushState === 'true' || route.params.openWithPush) && !hasHandledPush.current) {
+                console.log('Setting localOpenWithPush to true');
+                setLocalOpenWithPush(true);
+                hasHandledPush.current = true;
+                
+                // Clear the push state after handling it
+                await AsyncStorage.removeItem('openedWithPush');
+            }
+        } catch (error) {
+            console.error('Error checking push state:', error);
+        }
+    };
+
+    initPushState();
+}, []); // Run only on mount
+ 
 
   useEffect(() => {
     const getStoredData = async () => {
@@ -155,10 +186,9 @@ const TestScreen = ({route}) => {
 
   const constructUrl = useCallback(() => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
-    // Create URLSearchParams object to handle parameter encoding
     const params = new URLSearchParams();
-
-    // tracking parameters
+    
+    // Add tracking parameters
     params.append('idfa', idfa);
     params.append('oneSignalId', oneSignalUserId);
     params.append('idfv', idfv);
@@ -168,23 +198,8 @@ const TestScreen = ({route}) => {
 
     let finalUrl = `${baseUrl}&${params.toString()}`;
 
-    // const handleSab28Data=()=>{
-
-    // Helper function to extract sabData parameters
-    // const extractSabData = () => {
-    //   if (!sabData || !sabData.includes('_')) {
-    //     return '';
-    //   }
-    //   return sabData
-    //     .split('_')
-    //     .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-    //     .join('&');
-    // };
-
-    //   const addPushParam = (url) => {
-    //     console.log('openWithPush line 153', openWithPush);
-    //     return openWithPush ? `${url}&yhugh=true` : url;
-    // };
+    console.log('constructUrl - localOpenWithPush:', localOpenWithPush);
+    console.log('constructUrl - isFirstVisit:', isFirstVisit);
 
     // First Visit
     if (isFirstVisit) {
@@ -224,17 +239,15 @@ const TestScreen = ({route}) => {
         finalUrl += `&${sabParams}`;
       }
       // Add push parameter only for subsequent visits
-      if (openWithPush) {
-        console.log('openWithPush', openWithPush);
-        console.log('Opened with push notification');
+      if (localOpenWithPush) {
+        console.log('Adding yhugh parameter due to push notification');
         finalUrl += '&yhugh=true';
       } else {
-        console.log('openWithPush', openWithPush);
         console.log('Regular link, no subData,no push');
         finalUrl;
       }
     }
-    console.log('finalUrl', finalUrl);
+    console.log('Final URL:', finalUrl);
     return finalUrl;
 
     //   if (isNonOrganic && sabData && !sabData.includes('_')) {
@@ -271,6 +284,7 @@ const TestScreen = ({route}) => {
     isFirstVisit,
     isNonOrganicInstall,
     sabData,
+    localOpenWithPush
   ]);
 
   //   const handleCustomUrl = async request => {
@@ -376,6 +390,15 @@ const TestScreen = ({route}) => {
     // Handle regular web URLs to be opened in the webview ,logic to be added ....
     return true;
   };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+        AsyncStorage.removeItem('openedWithPush');
+        setLocalOpenWithPush(false);
+        hasHandledPush.current = false;
+    };
+}, []);
 
   return (
     <WebView

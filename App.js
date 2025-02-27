@@ -10,7 +10,7 @@ import {
 } from './screen/stack';
 import {PracticeProvider} from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
-import {useState, useEffect, useMemo} from 'react';
+import {useState, useEffect, useMemo, useCallback} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppState, BackHandler} from 'react-native';
 import {
@@ -83,7 +83,7 @@ function App() {
   const [openWithPush, setOpenWithPush] = useState(false);
   const [isOneSignalReady, setIsOneSignalReady] = useState(false);
   const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
-  console.log('Opened with push App.js', openWithPush);
+  // console.log('Opened with push App.js', openWithPush);
 
   // // Remove this method to stop OneSignal Debugging
   // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -168,7 +168,7 @@ function App() {
     initAppsFlyer();
     // getOneSignalUserId();
 
-    // If it's not first visit, mark conversion data as received immediately
+    // If it's not first visit, mark conversion data as already received 
     if (!isFirstVisit) {
       setIsConversionDataReceived(true);
     }
@@ -405,56 +405,101 @@ function App() {
   //   };
   // }, [isMusicEnable]);
 
-  const handleNotificationClick = async event => {
+  const handleNotificationClick = useCallback(async event => {
     console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
-    console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
-
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
 
-    // Check if it's first visit
-    const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-
-    if (!hasVisited) {
-      // First time visit case
-      // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
-    } else if (event.notification.launchURL) {
-      // Has launchURL case
-      console.log('Regular push_open_browser case',`${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`)
-      finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
-    } else {
-      // Regular webview case
-      console.log('Regular push_open_webview case',`${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`)
-      finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
-      setOpenWithPush(true);
-    }
-
-    console.log('🔔 Constructed finalUrl:', finalUrl);
-
     try {
-      // Send request to the constructed URL
-      const response = await fetch(finalUrl);
-      // console.log('🔔 timeStamp inside try', timeStamp);
-      // console.log('🔔 URL fetch response status:', response.status);
-
-      // Handle different cases after fetch
-      if (!hasVisited) {
-        // First visit - mark as visited after successful fetch
-        await AsyncStorage.setItem('hasVisitedBefore', 'true');
-      } else if (event.notification.launchURL) {
-        // Browser case - open in external browser
-        await Linking.openURL(finalUrl);
-      } else {
-        // WebView case - update app state for navigation
-        setIsReadyToVisit(true);
+        // Check if this is first visit
+        const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+        
+        if (event.notification.launchURL) {
+            console.log('Regular push_open_browser case');
+            finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
+            await fetch(finalUrl);
+            await Linking.openURL(finalUrl);
+        } else {
+            console.log('Regular push_open_webview case');
+            finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
+            
+            // Set push state in AsyncStorage
+            await AsyncStorage.setItem('openedWithPush', 'true');
+            console.log('Set openedWithPush in AsyncStorage');
+            if (!hasVisited) {
+              await AsyncStorage.setItem('hasVisitedBefore', 'true');
+              console.log('Marked as visited for the first time');
+          }
+          
+          // Update states
+          setOpenWithPush(true);
+          console.log('Set openWithPush state to true');
+          
+          // Make the fetch request
+          await fetch(finalUrl);
+          
+          // Ensure ready to visit
+          setIsReadyToVisit(true);
       }
-    } catch (error) {
-      console.error('🔔 Error fetching URL:', error);
-    }
+  } catch (error) {
+      console.error('🔔 Error handling notification:', error);
+  }
+}, []);
 
-    return finalUrl;
-  };
+
+
+  // const handleNotificationClick = async event => {
+  //   console.log('🔔 Handling notification click:', event);
+  //   const timeStamp = await AsyncStorage.getItem('timeStamp');
+  //   console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
+
+  //   const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+  //   let finalUrl;
+
+  //   // Check if it's first visit
+  //   const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+
+  //   if (!hasVisited) {
+  //     // First time visit case
+  //     // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
+  //   } else if (event.notification.launchURL) {
+  //     // Has launchURL case
+  //     console.log('Regular push_open_browser case',`${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`)
+  //     finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
+  //   } else {
+  //     // Regular webview case
+  //     console.log('Regular push_open_webview case',`${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`)
+  //     finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
+  //     await AsyncStorage.setItem('openedWithPush', 'true');
+  //     setOpenWithPush(true);
+  //   }
+
+  //   console.log('🔔 Constructed finalUrl:', finalUrl);
+
+  //   try {
+  //     // Send request to the constructed URL
+  //     const response = await fetch(finalUrl);
+  //     // console.log('🔔 timeStamp inside try', timeStamp);
+  //     // console.log('🔔 URL fetch response status:', response.status);
+
+  //     // Handle different cases after fetch
+  //     if (!hasVisited) {
+  //       // First visit - mark as visited after successful fetch
+  //       await AsyncStorage.setItem('hasVisitedBefore', 'true');
+  //     } else if (event.notification.launchURL) {
+  //       // Browser case - open in external browser
+  //       await Linking.openURL(finalUrl);
+  //     } else {
+  //       // WebView case - update app state for navigation
+  //       setIsReadyToVisit(true);
+  //     }
+  //   } catch (error) {
+  //     console.error('🔔 Error fetching URL:', error);
+  //   }
+
+  //   return finalUrl;
+  // };
 
   useEffect(() => {
     const setupNotifications = async () => {
