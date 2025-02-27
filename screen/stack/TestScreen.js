@@ -313,6 +313,8 @@ const TestScreen = ({route}) => {
     //     return false;
     // }
 
+    
+
     // Handle RBC intent URL
     if (url.startsWith('intent://rbcbanking')) {
       console.log('RBC URL detected:', url);
@@ -346,6 +348,7 @@ const TestScreen = ({route}) => {
 
     // Handle banking apps
     if (
+      url.startsWith('mailto:')||
       url.startsWith('intent://') ||
       url.startsWith('scotiabank://') ||
       url.startsWith('cibcbanking://') ||
