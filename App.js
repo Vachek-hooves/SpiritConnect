@@ -124,7 +124,7 @@ function App() {
        
         // Request permission and get user ID
         const permissionResult = await OneSignal.Notifications.requestPermission(true);
-        console.log('OneSignal permission result:', permissionResult);
+        // console.log('OneSignal permission result:', permissionResult);
         setOneSignalPermissionStatus(permissionResult)
         
         
@@ -408,7 +408,7 @@ function App() {
   // }, [isMusicEnable]);
 
   const handleNotificationClick = useCallback(async event => {
-    console.log('🔔 Handling notification click:', event);
+    // console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
     let finalUrl;
@@ -425,9 +425,9 @@ function App() {
         } else {
             console.log('Regular push_open_webview case');
             finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
-            
+            setOpenWithPush(true);
             // Set push state in AsyncStorage
-            await AsyncStorage.setItem('openedWithPush', 'true');
+            await AsyncStorage.setItem('openedWithPush', JSON.stringify(true));
             console.log('Set openedWithPush in AsyncStorage');
             if (!hasVisited) {
               await AsyncStorage.setItem('hasVisitedBefore', 'true');
@@ -530,16 +530,16 @@ function App() {
 
   // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
-    console.log('Ready check:', {
+    // console.log('Ready check:', {
       // isReadyToVisit,
       // aaid,
       // applsFlyerUID,
       // idfv,
       // timeStamp,
       // isConversionDataReceived,
-      oneSignalUserId,
-      isOneSignalReady
-    });
+    //   oneSignalUserId,
+    //   isOneSignalReady
+    // });
 
     // Basic requirements for all launches
     const baseRequirements =
@@ -550,7 +550,8 @@ function App() {
       timeStamp &&
       isConversionDataReceived &&
       isOneSignalReady &&
-      oneSignalUserId;
+      oneSignalUserId 
+     
 
     // For first launch, also require sabData
     if (isFirstVisit) {
@@ -569,6 +570,7 @@ function App() {
     isOneSignalReady,
     oneSignalUserId,
     isFirstVisit,
+    openWithPush
   ]);
 
   return (

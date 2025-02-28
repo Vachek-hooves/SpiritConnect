@@ -10,19 +10,15 @@ const TestScreen = ({route}) => {
   const navigation = useNavigation();
   const webViewRef = useRef(null);
   const [sabData, setSabData] = useState(null);
-  // const [isNonOrganic, setIsNonOrganic] = useState(false);
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
-  const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
-  const [localOpenWithPush, setLocalOpenWithPush] = useState(
-    route.params.openWithPush,
-  );
+  // const [localOpenWithPush, setLocalOpenWithPush] = useState(
+  //   route.params.openWithPush,
+  // );
   const hasHandledPush = useRef(false);
-
-  console.log(
-    'Initial openWithPush from route params:',
-    route.params.openWithPush,
-  );
-  console.log('Initial localOpenWithPush state:', localOpenWithPush);
+  const [isUrlReady, setIsUrlReady] = useState(false);
+  const [localOpenWithPush, setLocalOpenWithPush] = useState(false);
+  const [webViewUrl, setWebViewUrl] = useState('about:blank'); // Initial blank page
+  const isFirstLoad = useRef(true);
 
   const {
     idfa,
@@ -36,43 +32,16 @@ const TestScreen = ({route}) => {
     oneSignalPermissionStatus,
     // sabData,
     // isNonOrganicInstall,
-    // openWithPush,
+    openWithPush,
   } = route.params;
-  console.log(
-    'oneSignalPermissionStatus TestScreen',
-    oneSignalPermissionStatus,
-  );
-
-  useEffect(() => {
-    const initPushState = async () => {
-      try {
-        const storedPushState = await AsyncStorage.getItem('openedWithPush');
-        console.log('Checking push state:', {
-          storedPushState,
-          routeOpenWithPush: route.params.openWithPush,
-        });
-
-        if (
-          (storedPushState === 'true' || route.params.openWithPush) &&
-          !hasHandledPush.current
-        ) {
-          console.log('Setting localOpenWithPush to true');
-          setLocalOpenWithPush(true);
-          hasHandledPush.current = true;
-
-          // Clear the push state after handling it
-          await AsyncStorage.removeItem('openedWithPush');
-        }
-      } catch (error) {
-        console.error('Error checking push state:', error);
-      }
-    };
-
-    initPushState();
-  }, []); // Run only on mount
+  // console.log(
+  //   'oneSignalPermissionStatus TestScreen',
+  //   oneSignalPermissionStatus,
+  // );
 
   useEffect(() => {
     const getStoredData = async () => {
+      console.log('getStoredData started');
       try {
         const sabData = await AsyncStorage.getItem('sabData');
         const isNonOrganicInstall = await AsyncStorage.getItem(
@@ -91,6 +60,7 @@ const TestScreen = ({route}) => {
       } catch (error) {
         console.error('Error retrieving stored data:', error);
       }
+      console.log('getStoredData finished');
     };
 
     getStoredData();
@@ -193,11 +163,7 @@ const TestScreen = ({route}) => {
 
     // First Visit
     if (isFirstVisit) {
-      // console.log('First app visit - determining URL type');
-
-      // Non-organic install with sabData
       if (isNonOrganicInstall && sabData) {
-        // Check if sabData has proper format with underscore
         if (sabData.includes('_')) {
           const sabParams = sabData
             .split('_')
@@ -205,28 +171,19 @@ const TestScreen = ({route}) => {
             .join('&');
           finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
         } else if (!sabData.includes('_')) {
-          // Handle missing splitter case
           console.log('Non-organic install with missing splitter in sabData');
           finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
           Alert.alert(
             `&testParam=CONVERT-SUBS-MISSING-SPLITTER`,
             '-sabData-',
-            sabData,
+            String(sabData),
           );
         }
-      }
-      // Organic install
-      else {
-        // Handle organic install
+      } else {
         console.log('Organic install first visit');
         finalUrl += '&testParam=ORGANIC';
-        // Alert.alert(`&testParam=ORGANIC`,'-sabData-',sabData);
       }
-    }
-
-    // Subsequent Visits
-    else {
-      // Add sabData parameters for non-organic subsequent visits
+    } else {
       if (isNonOrganicInstall && sabData && sabData.includes('_')) {
         const sabParams = sabData
           .split('_')
@@ -234,44 +191,16 @@ const TestScreen = ({route}) => {
           .join('&');
         finalUrl += `&${sabParams}`;
       }
-      // Add push parameter only for subsequent visits
       if (localOpenWithPush) {
         console.log('Adding yhugh parameter due to push notification');
         finalUrl += '&yhugh=true';
-        Alert.alert('app open with push', localOpenWithPush);
+        // Alert.alert('app open with push',String( localOpenWithPush));
       } else {
         console.log('Regular link, no subData,no push');
-        finalUrl;
       }
     }
     console.log('Final URL:', finalUrl);
     return finalUrl;
-
-    //   if (isNonOrganic && sabData && !sabData.includes('_')) {
-    //     console.log('this is non organic install and sabData is missing splitter');
-    //     return `${baseUrl}&${params.toString()}&testParam=CONVERT-SUBS-MISSING-SPLITTER`;
-    //   } else if (isNonOrganic && sabData && sabData.includes('_')) {
-    //     console.log('this is non organic install and sabData is present');
-    //     const sabDataParams = extractSabData();
-    //     return `${baseUrl}&${params.toString()}&testParam=NON-ORGANIC&${sabDataParams}`;
-    //   } else {
-    //     console.log('this is organic install and sabData is present');
-    //     const sabDataParams = extractSabData();
-    //     return `${baseUrl}&${params.toString()}&testParam=ORGANIC&${sabDataParams}`;
-    //   }
-    // }
-
-    //   Combine everything into final URL
-    // const finalUrl = sabDataParams
-    //   ? `${baseUrl}&${params.toString()}&${sabDataParams}`
-    //   : `${baseUrl}&${params.toString()}`;
-    // console.log('finalUrl', finalUrl);
-    // return finalUrl;
-
-    // console.log('extractSabData TestScreen-',extractSabData());
-    // console.log(`${baseUrl}&${params.toString()}&${extractSabData()}`);
-    // console.log('openWithPush',openWithPush);
-    // return !isFirstVisit &&  `${baseUrl}&${params.toString()}&${extractSabData()}`+ (openWithPush?'&yhugh=true':'');
   }, [
     idfa,
     oneSignalUserId,
@@ -284,22 +213,76 @@ const TestScreen = ({route}) => {
     localOpenWithPush,
   ]);
 
-  // Wrapper function to handle the async nature of handleCustomUrl
-  const onShouldStartLoadWithRequest = event => {
-    const {url} = event;
-    // console.log('Intercepted URL:', url);
-    // Handle RBC intent URL
-    if (url.startsWith('intent://rbcbanking')) {
-      console.log('RBC URL detected:', url);
-      // Extract the scheme and package from the intent URL
-      const scheme = 'rbcbanking';
-      const packageName = 'com.rbc.mobile.android';
-
+  // Initialize push state
+  useEffect(() => {
+    const initPushState = async () => {
       try {
-        // Try to open with custom scheme first
-        console.log('scheme', `${scheme}://${url.split('?')[1].split('#')[0]}`);
-        Linking.openURL(`${scheme}://${url.split('?')[1].split('#')[0]}`).catch(
-          () => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const storedPushState = await AsyncStorage.getItem('openedWithPush');
+        console.log('Initial push state check:', {
+          storedPushState,
+          routeOpenWithPush: route.params.openWithPush
+        });
+        
+        const shouldEnablePush = storedPushState === 'true' || route.params.openWithPush;
+        if (shouldEnablePush) {
+          console.log('Setting localOpenWithPush to true');
+          setLocalOpenWithPush(true);
+        }
+        setIsUrlReady(true);
+      } catch (error) {
+        console.error('Error checking push state:', error);
+        setIsUrlReady(true);
+      }
+    };
+
+    initPushState();
+  }, [route.params.openWithPush]);
+
+  const handleLoadStart = useCallback(() => {
+    if (isFirstLoad.current && isUrlReady) {
+      console.log('Generating URL in onLoadStart');
+      const generatedUrl = constructUrl();
+      setWebViewUrl(generatedUrl);
+      isFirstLoad.current = false;
+
+      // Clean up push state after URL is generated
+      if (localOpenWithPush) {
+        setTimeout(() => {
+          console.log('Clearing push state');
+          setLocalOpenWithPush(false);
+          AsyncStorage.removeItem('openedWithPush');
+        }, 1000);
+      }
+    }
+  }, [isUrlReady, constructUrl, localOpenWithPush]);
+
+  const renderContent = () => {
+    if (!isUrlReady) {
+      return null;
+    }
+
+    // Wrapper function to handle the async nature of handleCustomUrl
+    const onShouldStartLoadWithRequest = event => {
+      console.log('onShouldStartLoadWithRequest started');
+      const {url} = event;
+      // console.log('Intercepted URL:', url);
+      // Handle RBC intent URL
+      if (url.startsWith('intent://rbcbanking')) {
+        console.log('RBC URL detected:', url);
+        // Extract the scheme and package from the intent URL
+        const scheme = 'rbcbanking';
+        const packageName = 'com.rbc.mobile.android';
+
+        try {
+          // Try to open with custom scheme first
+          console.log(
+            'scheme',
+            `${scheme}://${url.split('?')[1].split('#')[0]}`,
+          );
+          Linking.openURL(
+            `${scheme}://${url.split('?')[1].split('#')[0]}`,
+          ).catch(() => {
             // If custom scheme fails, try using intent
             Linking.sendIntent('android.intent.action.VIEW', [
               {key: 'package_name', value: packageName},
@@ -311,122 +294,108 @@ const TestScreen = ({route}) => {
                 [{text: 'OK'}],
               );
             });
-          },
-        );
-      } catch (error) {
-        console.error('Error parsing RBC URL:', error);
+          });
+        } catch (error) {
+          console.error('Error parsing RBC URL:', error);
+        }
+        return false;
       }
-      return false;
-    }
 
-    // Handle banking apps
-    if (
-      url.startsWith('mailto:') ||
-      url.startsWith('intent://') ||
-      url.startsWith('scotiabank://') ||
-      url.startsWith('cibcbanking://') ||
-      url.startsWith('intent://rbcbanking') ||
-      url.startsWith('bncmobile:/') ||
-      url.startsWith('tdct://') ||
-      url.startsWith('bmoolbb://') ||
-      url.startsWith('bmo://') ||
-      url.startsWith('rbc://') ||
-      url.startsWith('https://m.facebook.com/') ||
-      url.startsWith('https://www.facebook.com/') ||
-      url.startsWith('https://www.instagram.com/') ||
-      url.startsWith('https://twitter.com/') ||
-      url.startsWith('https://www.whatsapp.com/') ||
-      url.startsWith('fb://') ||
-      url.startsWith('googlepay://')
-    ) {
-      console.log('app url', url);
+      // Handle banking apps
+      if (
+        url.startsWith('mailto:') ||
+        url.startsWith('intent://') ||
+        url.startsWith('scotiabank://') ||
+        url.startsWith('cibcbanking://') ||
+        url.startsWith('intent://rbcbanking') ||
+        url.startsWith('bncmobile:/') ||
+        url.startsWith('tdct://') ||
+        url.startsWith('bmoolbb://') ||
+        url.startsWith('bmo://') ||
+        url.startsWith('rbc://') ||
+        url.startsWith('https://m.facebook.com/') ||
+        url.startsWith('https://www.facebook.com/') ||
+        url.startsWith('https://www.instagram.com/') ||
+        url.startsWith('https://twitter.com/') ||
+        url.startsWith('https://www.whatsapp.com/') ||
+        url.startsWith('fb://') ||
+        url.startsWith('googlepay://')
+      ) {
+        console.log('app url', url);
 
-      Linking.openURL(url).catch(error => {
-        Alert.alert(
-          'App Not Found',
-          'The requested banking app is not installed.',
-          [{text: 'OK'}],
-        );
-      });
-      return false;
-    }
+        Linking.openURL(url).catch(error => {
+          Alert.alert(
+            'App Not Found',
+            'The requested banking app is not installed.',
+            [{text: 'OK'}],
+          );
+        });
+        return false;
+      }
+      console.log('onShouldStartLoadWithRequest finished');
+      // Handle regular web URLs to be opened in the webview ,logic to be added ....
+      return true;
+    };
 
-    // Handle regular web URLs to be opened in the webview ,logic to be added ....
-    return true;
+    return (
+      <WebView
+        ref={webViewRef}
+        source={{uri: webViewUrl}}
+        onLoadStart={handleLoadStart}
+        style={{flex: 1}}
+        originWhitelist={[
+          '*',
+          'http://*',
+          'https://*',
+          'intent://*',
+          'tel:*',
+          'mailto:*',
+          'scotiabank://',
+          'bmo://',
+          'td://',
+          'nbc://',
+          'cibc://',
+          'bmoolbb://*',
+          'scotiabank://',
+          'rbcbanking://',
+          'tdct://',
+          'cibcbanking://',
+          'www.cibconline.cibc.com://',
+          'secure.scotiabank.com',
+          'rbc://*',
+        ]}
+        onLoad={() => {
+          // console.log('WebView fully loaded');
+          // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
+        }}
+        onError={syntheticEvent => {
+          const {nativeEvent} = syntheticEvent;
+          console.warn('WebView error:', nativeEvent);
+        }}
+        thirdPartyCookiesEnabled={true}
+        allowsBackForwardNavigationGestures={true}
+        domStorageEnabled={true}
+        javaScriptEnabled={true}
+        allowsInlineMediaPlayback={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowFileAccess={true}
+        javaScriptCanOpenWindowsAutomatically={true}
+        setSupportMultipleWindows={false} // prevent opening external browser
+        onMessage={event => {
+          console.log('WebView Message:', event.nativeEvent.data);
+        }}
+        onNavigationStateChange={navState => {
+          // Updates webview's canGoBack state
+          if (webViewRef.current) {
+            webViewRef.current.canGoBack = navState.canGoBack;
+          }
+        }}
+        onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+      />
+    );
   };
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      AsyncStorage.removeItem('openedWithPush');
-      setLocalOpenWithPush(false);
-      hasHandledPush.current = false;
-    };
-  }, []);
-
-  return (
-    <WebView
-      ref={webViewRef}
-      //   source={{
-      //     uri: `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1&idfa=${idfa}&oneSignalId=${oneSignalUserId}&idfv=${idfv}&uid=${applsFlyerUID}&customerUserId=${idfv}&jthrhg=${jthrhg}`,
-      //   }}
-      source={{uri: constructUrl()}}
-      style={{flex: 1}}
-      originWhitelist={[
-        '*',
-        'http://*',
-        'https://*',
-        'intent://*',
-        'tel:*',
-        'mailto:*',
-        'scotiabank://',
-        'bmo://',
-        'td://',
-        'nbc://',
-        'cibc://',
-        'bmoolbb://*',
-        'scotiabank://',
-        'rbcbanking://',
-        'tdct://',
-        'cibcbanking://',
-        'www.cibconline.cibc.com://',
-        'secure.scotiabank.com',
-        'rbc://*',
-      ]}
-      onLoadStart={syntheticEvent => {
-        // console.log('WebView started loading');
-        // handleWebViewLoad();
-      }}
-      // OR use onLoad if want to wait until the page is fully loaded
-      onLoad={() => {
-        // console.log('WebView fully loaded');
-        // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
-      }}
-      onError={syntheticEvent => {
-        const {nativeEvent} = syntheticEvent;
-        console.warn('WebView error:', nativeEvent);
-      }}
-      thirdPartyCookiesEnabled={true}
-      allowsBackForwardNavigationGestures={true}
-      domStorageEnabled={true}
-      javaScriptEnabled={true}
-      allowsInlineMediaPlayback={true}
-      mediaPlaybackRequiresUserAction={false}
-      allowFileAccess={true}
-      javaScriptCanOpenWindowsAutomatically={true}
-      setSupportMultipleWindows={false} // prevent opening external browser
-      onMessage={event => {
-        console.log('WebView Message:', event.nativeEvent.data);
-      }}
-      onNavigationStateChange={navState => {
-        // Updates webview's canGoBack state
-        if (webViewRef.current) {
-          webViewRef.current.canGoBack = navState.canGoBack;
-        }
-      }}
-      onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-    />
-  );
+  return renderContent();
 };
 
 export default TestScreen;
