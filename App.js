@@ -121,24 +121,25 @@ function App() {
       OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
 
       try {
-       
         // Request permission and get user ID
-        const permissionResult = await OneSignal.Notifications.requestPermission(true);
+        const permissionResult =
+          await OneSignal.Notifications.requestPermission(true);
         // console.log('OneSignal permission result:', permissionResult);
-        setOneSignalPermissionStatus(permissionResult)
-        
-        
+        setOneSignalPermissionStatus(permissionResult);
+
         // if (permissionResult) {
-          // console.log('OneSignal: user id:', userId);
-          const userId = await OneSignal.User.getOnesignalId();
-          
-          if (userId) {
-            setOneSignalUserId(userId);
-            await AsyncStorage.setItem('oneSignalUserId', userId);
-            setIsOneSignalReady(true);
-          } else {
-            // If no userId, set up a listener for when it becomes available
-            const userStateChangedListener = OneSignal.User.addEventListener('change', async (event) => {
+        // console.log('OneSignal: user id:', userId);
+        const userId = await OneSignal.User.getOnesignalId();
+
+        if (userId) {
+          setOneSignalUserId(userId);
+          await AsyncStorage.setItem('oneSignalUserId', userId);
+          setIsOneSignalReady(true);
+        } else {
+          // If no userId, set up a listener for when it becomes available
+          const userStateChangedListener = OneSignal.User.addEventListener(
+            'change',
+            async event => {
               const newUserId = await OneSignal.User.getOnesignalId();
               if (newUserId) {
                 console.log('OneSignal: got delayed user id:', newUserId);
@@ -147,8 +148,9 @@ function App() {
                 setIsOneSignalReady(true);
                 userStateChangedListener.remove();
               }
-            });
-          }
+            },
+          );
+        }
         // }
       } catch (error) {
         console.error('Error initializing OneSignal:', error);
@@ -170,7 +172,7 @@ function App() {
     initAppsFlyer();
     // getOneSignalUserId();
 
-    // If it's not first visit, mark conversion data as already received 
+    // If it's not first visit, mark conversion data as already received
     if (!isFirstVisit) {
       setIsConversionDataReceived(true);
     }
@@ -205,11 +207,17 @@ function App() {
         setIsFirstVisit(true);
 
         OneSignal.User.addTag('timestamp_user_id', storedTimeStamp);
+        // console.log(
+        //   'uniq_visit',
+        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        // );
+        // Simulate fetch with delay instead of real network request
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // First visit
-        await fetch(
-          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
-        );
+        // await fetch(
+        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        // );
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
@@ -414,42 +422,42 @@ function App() {
     let finalUrl;
 
     try {
-        // Check if this is first visit
-        const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-        
-        if (event.notification.launchURL) {
-            console.log('Regular push_open_browser case');
-            finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
-            await fetch(finalUrl);
-            await Linking.openURL(finalUrl);
-        } else {
-            console.log('Regular push_open_webview case');
-            finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
-            setOpenWithPush(true);
-            // Set push state in AsyncStorage
-            await AsyncStorage.setItem('openedWithPush', JSON.stringify(true));
-            console.log('Set openedWithPush in AsyncStorage');
-            if (!hasVisited) {
-              await AsyncStorage.setItem('hasVisitedBefore', 'true');
-              console.log('Marked as visited for the first time');
-          }
-          
-          // Update states
-          setOpenWithPush(true);
-          console.log('Set openWithPush state to true');
-          
-          // Make the fetch request
-          await fetch(finalUrl);
-          
-          // Ensure ready to visit
-          setIsReadyToVisit(true);
+      // Check if this is first visit
+      const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+
+      if (event.notification.launchURL) {
+        console.log('Regular push_open_browser case');
+        finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
+        await fetch(finalUrl);
+        await Linking.openURL(finalUrl);
+        await AsyncStorage.setItem('openedWithPush', JSON.stringify(true));
+        setOpenWithPush(true);
+      } else {
+        console.log('Regular push_open_webview case');
+        finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
+        setOpenWithPush(true);
+        // Set push state in AsyncStorage
+        await AsyncStorage.setItem('openedWithPush', JSON.stringify(true));
+        console.log('Set openedWithPush in AsyncStorage');
+        if (!hasVisited) {
+          await AsyncStorage.setItem('hasVisitedBefore', 'true');
+          console.log('Marked as visited for the first time');
+        }
+
+        // Update states
+        setOpenWithPush(true);
+        console.log('Set openWithPush state to true');
+
+        // Make the fetch request
+        await fetch(finalUrl);
+
+        // Ensure ready to visit
+        setIsReadyToVisit(true);
       }
-  } catch (error) {
+    } catch (error) {
       console.error('🔔 Error handling notification:', error);
-  }
-}, []);
-
-
+    }
+  }, []);
 
   // const handleNotificationClick = async event => {
   //   console.log('🔔 Handling notification click:', event);
@@ -531,12 +539,12 @@ function App() {
   // Update isReadyForTestScreen to include OneSignal check
   const isReadyForTestScreen = useMemo(() => {
     // console.log('Ready check:', {
-      // isReadyToVisit,
-      // aaid,
-      // applsFlyerUID,
-      // idfv,
-      // timeStamp,
-      // isConversionDataReceived,
+    // isReadyToVisit,
+    // aaid,
+    // applsFlyerUID,
+    // idfv,
+    // timeStamp,
+    // isConversionDataReceived,
     //   oneSignalUserId,
     //   isOneSignalReady
     // });
@@ -550,8 +558,7 @@ function App() {
       timeStamp &&
       isConversionDataReceived &&
       isOneSignalReady &&
-      oneSignalUserId 
-     
+      oneSignalUserId;
 
     // For first launch, also require sabData
     if (isFirstVisit) {
@@ -570,7 +577,7 @@ function App() {
     isOneSignalReady,
     oneSignalUserId,
     isFirstVisit,
-    openWithPush
+    openWithPush,
   ]);
 
   return (

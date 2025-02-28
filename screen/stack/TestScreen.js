@@ -44,6 +44,7 @@ const TestScreen = ({route}) => {
       console.log('getStoredData started');
       try {
         const sabData = await AsyncStorage.getItem('sabData');
+        console.log('sabData TestScreen', sabData);
         const isNonOrganicInstall = await AsyncStorage.getItem(
           'isNonOrganicInstall',
         );
@@ -53,10 +54,7 @@ const TestScreen = ({route}) => {
         }
         setIsNonOrganicInstall(isNonOrganicInstall === 'true');
 
-        // console.log('Retrieved stored data:', {
-        //   sabData,
-        //   isNonOrganicInstall,
-        // });
+        
       } catch (error) {
         console.error('Error retrieving stored data:', error);
       }
@@ -144,6 +142,22 @@ const TestScreen = ({route}) => {
     }
   }, [isFirstVisit, oneSignalPermissionStatus]);
 
+  useEffect(() => {
+    const sendUniqVisit = async () => {
+      if (isFirstVisit) {
+        const storedTimeStamp = await AsyncStorage.getItem('timeStamp');
+        console.log(
+          'UNIQ_VISIT ',
+          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        );
+        fetch(
+          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        );
+      }
+    };
+    sendUniqVisit();
+  }, [isFirstVisit]);
+
   const constructUrl = useCallback(() => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
     const params = new URLSearchParams();
@@ -169,8 +183,9 @@ const TestScreen = ({route}) => {
             .split('_')
             .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
             .join('&');
+          Alert.alert('sabParams', String(sabParams));
           finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
-        } else if (!sabData.includes('_')) {
+        } else  {
           console.log('Non-organic install with missing splitter in sabData');
           finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
           Alert.alert(
@@ -221,10 +236,11 @@ const TestScreen = ({route}) => {
         const storedPushState = await AsyncStorage.getItem('openedWithPush');
         console.log('Initial push state check:', {
           storedPushState,
-          routeOpenWithPush: route.params.openWithPush
+          routeOpenWithPush: route.params.openWithPush,
         });
-        
-        const shouldEnablePush = storedPushState === 'true' || route.params.openWithPush;
+
+        const shouldEnablePush =
+          storedPushState === 'true' || route.params.openWithPush;
         if (shouldEnablePush) {
           console.log('Setting localOpenWithPush to true');
           setLocalOpenWithPush(true);
@@ -264,7 +280,7 @@ const TestScreen = ({route}) => {
 
     // Wrapper function to handle the async nature of handleCustomUrl
     const onShouldStartLoadWithRequest = event => {
-      console.log('onShouldStartLoadWithRequest started');
+      // console.log('onShouldStartLoadWithRequest started');
       const {url} = event;
       // console.log('Intercepted URL:', url);
       // Handle RBC intent URL
@@ -332,7 +348,7 @@ const TestScreen = ({route}) => {
         });
         return false;
       }
-      console.log('onShouldStartLoadWithRequest finished');
+      // console.log('onShouldStartLoadWithRequest finished');
       // Handle regular web URLs to be opened in the webview ,logic to be added ....
       return true;
     };
