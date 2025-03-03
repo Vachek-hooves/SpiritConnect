@@ -197,7 +197,7 @@ useEffect(() => {
               }
           } else if (res.data.af_status === 'Organic') {
               console.log('Organic install detected');
-              const organicTestData = 'organic_test_data';
+              const organicTestData = '';
               
               try {
                   // Save organic test data

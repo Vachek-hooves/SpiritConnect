@@ -58,30 +58,7 @@ const TestScreen = ({route}) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const getStoredData = async () => {
-  //     console.log('getStoredData started');
-  //     try {
-  //       const sabData = await AsyncStorage.getItem('sabData');
-  //       console.log('sabData TestScreen', sabData);
-  //       const isNonOrganicInstall = await AsyncStorage.getItem(
-  //         'isNonOrganicInstall',
-  //       );
-
-  //       if (sabData) {
-  //         setSabData(sabData);
-  //       }
-  //       setIsNonOrganicInstall(isNonOrganicInstall === 'true');
-
-        
-  //     } catch (error) {
-  //       console.error('Error retrieving stored data:', error);
-  //     }
-  //     console.log('getStoredData finished');
-  //   };
-
-  //   getStoredData();
-  // }, []);
+ 
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -112,28 +89,6 @@ const TestScreen = ({route}) => {
     return () => backHandler.remove();
   }, [navigation]);
 
-  // const processSabData = useCallback(() => {
-  //   if (!sabData) return '';
-
-  //   try {
-  //     const sabDataArray = sabData.split('_');
-  //     if (!sabDataArray.length) return '';
-
-  //     const sabDataLink = sabDataArray
-  //       .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-  //       // .filter(item => item) // Remove empty strings
-  //       .join('&');
-
-  //     console.log('Processed sab data:', sabDataLink);
-  //     return sabDataLink;
-  //   } catch (error) {
-  //     console.error('Error processing sabData:', error);
-  //     return '';
-  //   }
-  // }, [sabData]);
-
-  // WORKING FINE FOR REGULAR WEBVIEW OPEN CASE
-  // const doNotRepeatPushOpen=useRef(false);
 
   useEffect(() => {
     // console.log(
@@ -198,17 +153,17 @@ const TestScreen = ({route}) => {
 ;
     if (isFirstVisit) {
 
-      Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
+      // Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
       if (currentIsNonOrganic) {
         // Alert.alert('First Visit,Non-Organic TestScreen:'+`${currentIsNonOrganic}`);
         
-        Alert.alert('sabData:'+`${currentSabData}`);
+        // Alert.alert('sabData:'+`${currentSabData}`);
           // Non-organic install cases
           finalUrl += '&testParam=NON-ORGANIC';
           if (!currentSabData) {
               // No sabData at all
               finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
-              Alert.alert('No SabData', 'Non-organic install without sabData');
+              // Alert.alert('No SabData', 'Non-organic install without sabData');
           } else if (currentSabData.includes('_')) {
               // Valid sabData with underscores
               const sabParams = currentSabData
@@ -216,11 +171,11 @@ const TestScreen = ({route}) => {
                   .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
                   .join('&');
               finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
-              Alert.alert('Valid SabData', `Adding params: ${sabParams}`);
+              // Alert.alert('Valid SabData', `Adding params: ${sabParams}`);
           } else {
               // sabData exists but without underscores
               finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
-              Alert.alert('Invalid SabData Format', 'SabData exists but no underscores');
+              // Alert.alert('Invalid SabData Format', 'SabData exists but no underscores');
           }
       } else {
           // Alert.alert('Organic install first visit');
