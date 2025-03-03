@@ -31,7 +31,7 @@ import {setupConversionListener} from './config/onInstallConversation';
 import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
-import {Linking} from 'react-native';
+import {Linking,Alert} from 'react-native';
 
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
@@ -165,6 +165,84 @@ function App() {
 
     initOneSignal();
   }, []);
+
+
+  // In App.js
+useEffect(() => {
+  // Alert.alert('App.js Init', 'App started');
+
+  appsFlyer.onInstallConversionData(async res => {
+    // Alert.alert('AppsFlyer Data', JSON.stringify(res.data));
+      console.log('AppsFlyer Conversion Data received:', res.data);
+      // Alert.alert('AppsFlyer resp data App.js:', JSON.stringify(res.data));
+      if (JSON.parse(res.data.is_first_launch) === true) {
+          if (res.data.af_status === 'Non-organic') {
+            var media_source = res.data.media_source;
+            var campaign = res.data.campaign;
+            // Alert.alert('Non-organic', campaign);
+              // const nonOrganicTest='non_organic_test_data';
+              try {
+                  // Save non-organic data
+                  // await AsyncStorage.setItem('sabData', campaign);
+                  await AsyncStorage.setItem('sabData', campaign);
+                  // console.log('Saved sabData to AsyncStorage:', campaign);
+                  // setSabData(campaign);
+                  setSabData(campaign);
+                  
+                  await AsyncStorage.setItem('isNonOrganicInstall', 'true');
+                  // console.log('Saved isNonOrganicInstall as true');
+                  setIsNonOrganicInstall(true);
+              } catch (error) {
+                  console.error('Error saving non-organic data:', error);
+              }
+          } else if (res.data.af_status === 'Organic') {
+              console.log('Organic install detected');
+              const organicTestData = 'organic_test_data';
+              
+              try {
+                  // Save organic test data
+                  await AsyncStorage.setItem('sabData', organicTestData);
+                  // console.log('Saved organic test sabData:', organicTestData);
+                  setSabData(organicTestData);
+                  
+                  await AsyncStorage.setItem('isNonOrganicInstall', 'false');
+                  // console.log('Saved isNonOrganicInstall as false');
+                  setIsNonOrganicInstall(false);
+              } catch (error) {
+                  console.error('Error saving organic data:', error);
+              }
+          }
+      } else {
+          // Not first launch - try to get stored data
+          try {
+              const storedSabData = await AsyncStorage.getItem('sabData');
+              const storedIsNonOrganic = await AsyncStorage.getItem('isNonOrganicInstall');
+              
+              console.log('Retrieved stored data:', {
+                  storedSabData,
+                  storedIsNonOrganic
+              });
+              
+              if (storedSabData) {
+                  setSabData(storedSabData);
+              }
+              setIsNonOrganicInstall(storedIsNonOrganic === 'true');
+          } catch (error) {
+              console.error('Error retrieving stored data:', error);
+          }
+      }
+      setIsConversionDataReceived(true);
+  });
+}, []);
+
+// Add this useEffect to monitor state changes
+useEffect(() => {
+  console.log('State update in App.js:', {
+      sabData,
+      isNonOrganicInstall,
+      isConversionDataReceived
+  });
+}, [sabData, isNonOrganicInstall, isConversionDataReceived]);
 
   useEffect(() => {
     checkFirstVisit();
@@ -301,50 +379,50 @@ function App() {
     //   setIsConversionDataReceived(true);
     // });
 
-    appsFlyer.onInstallConversionData(async res => {
-      if (JSON.parse(res.data.is_first_launch) == true) {
-        if (res.data.af_status === 'Non-organic') {
-          var media_source = res.data.media_source;
-          var campaign = res.data.campaign;
-          console.log(
-            'First launch - Non-Organic install. Campaign:',
-            campaign,
-          );
-          setSabData(campaign);
-          // Save campaign data
-          try {
-            await AsyncStorage.setItem('sabData', campaign);
-            setIsNonOrganicInstall(true);
-            await AsyncStorage.setItem('isNonOrganicInstall', 'true');
-          } catch (error) {
-            console.error('Error saving non-organic data:', error);
-          }
-        } else if (res.data.af_status === 'Organic') {
-          const sabDataTest = '';
-          // setSabData(sabDataTest);
-          // Save organic test data
-          try {
-            await AsyncStorage.setItem('sabData', sabDataTest);
-            setIsNonOrganicInstall(false);
-            await AsyncStorage.setItem('isNonOrganicInstall', 'false');
-          } catch (error) {
-            console.error('Error saving organic data:', error);
-          }
-        }
-      } else {
-        // Not first launch - try to get stored data
-        try {
-          const storedSabData = await AsyncStorage.getItem('sabData');
-          if (storedSabData) {
-            console.log('Retrieved stored sabData:', storedSabData);
-            setSabData(storedSabData);
-          }
-        } catch (error) {
-          console.error('Error retrieving stored sabData:', error);
-        }
-      }
-      setIsConversionDataReceived(true);
-    });
+    // appsFlyer.onInstallConversionData(async res => {
+    //   if (JSON.parse(res.data.is_first_launch) == true) {
+    //     if (res.data.af_status === 'Non-organic') {
+    //       var media_source = res.data.media_source;
+    //       var campaign = res.data.campaign;
+    //       console.log(
+    //         'First launch - Non-Organic install. Campaign:',
+    //         campaign,
+    //       );
+    //       setSabData(campaign);
+    //       // Save campaign data
+    //       try {
+    //         await AsyncStorage.setItem('sabData', campaign);
+    //         setIsNonOrganicInstall(true);
+    //         await AsyncStorage.setItem('isNonOrganicInstall', 'true');
+    //       } catch (error) {
+    //         console.error('Error saving non-organic data:', error);
+    //       }
+    //     } else if (res.data.af_status === 'Organic') {
+    //       const sabDataTest = 'organic_first_launch_test';
+    //       // setSabData(sabDataTest);
+    //       // Save organic test data
+    //       try {
+    //         await AsyncStorage.setItem('sabData', sabDataTest);
+    //         setIsNonOrganicInstall(false);
+    //         await AsyncStorage.setItem('isNonOrganicInstall', 'false');
+    //       } catch (error) {
+    //         console.error('Error saving organic data:', error);
+    //       }
+    //     }
+    //   } else {
+    //     // Not first launch - try to get stored data
+    //     try {
+    //       const storedSabData = await AsyncStorage.getItem('sabData');
+    //       if (storedSabData) {
+    //         console.log('Retrieved stored sabData:', storedSabData);
+    //         setSabData(storedSabData);
+    //       }
+    //     } catch (error) {
+    //       console.error('Error retrieving stored sabData:', error);
+    //     }
+    //   }
+    //   setIsConversionDataReceived(true);
+    // });
 
     // Rest of AppsFlyer initialization
     const aaid = await handleGetAaid();
@@ -579,6 +657,11 @@ function App() {
     isFirstVisit,
     openWithPush,
   ]);
+
+//   // Add alert before rendering TestScreen
+//   if (isReadyForTestScreen) {
+//     Alert.alert('Ready for TestScreen', 'About to render TestScreen');
+// }
 
   return (
     <PracticeProvider>

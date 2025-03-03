@@ -39,30 +39,49 @@ const TestScreen = ({route}) => {
   //   oneSignalPermissionStatus,
   // );
 
-  useEffect(() => {
-    const getStoredData = async () => {
-      console.log('getStoredData started');
-      try {
-        const sabData = await AsyncStorage.getItem('sabData');
-        console.log('sabData TestScreen', sabData);
-        const isNonOrganicInstall = await AsyncStorage.getItem(
-          'isNonOrganicInstall',
-        );
+  const retriveSabData = useCallback(async () => {
+    console.log('retriveSabData function started');
+    try {
+      const storedSabData = await AsyncStorage.getItem('sabData');
+      const storedIsNonOrganic = await AsyncStorage.getItem('isNonOrganicInstall');
+      
+      console.log('Retrieved sabData:', storedSabData);
+      console.log('Retrieved isNonOrganicInstall:', storedIsNonOrganic);
+      
+      setSabData(storedSabData);
+      setIsNonOrganicInstall(storedIsNonOrganic === 'true');
+      
+      return { sabData: storedSabData, isNonOrganic: storedIsNonOrganic === 'true' };
+    } catch (error) {
+      console.error('Error in retriveSabData:', error);
+      return { sabData: null, isNonOrganic: false };
+    }
+  }, []);
 
-        if (sabData) {
-          setSabData(sabData);
-        }
-        setIsNonOrganicInstall(isNonOrganicInstall === 'true');
+  // useEffect(() => {
+  //   const getStoredData = async () => {
+  //     console.log('getStoredData started');
+  //     try {
+  //       const sabData = await AsyncStorage.getItem('sabData');
+  //       console.log('sabData TestScreen', sabData);
+  //       const isNonOrganicInstall = await AsyncStorage.getItem(
+  //         'isNonOrganicInstall',
+  //       );
+
+  //       if (sabData) {
+  //         setSabData(sabData);
+  //       }
+  //       setIsNonOrganicInstall(isNonOrganicInstall === 'true');
 
         
-      } catch (error) {
-        console.error('Error retrieving stored data:', error);
-      }
-      console.log('getStoredData finished');
-    };
+  //     } catch (error) {
+  //       console.error('Error retrieving stored data:', error);
+  //     }
+  //     console.log('getStoredData finished');
+  //   };
 
-    getStoredData();
-  }, []);
+  //   getStoredData();
+  // }, []);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -117,10 +136,10 @@ const TestScreen = ({route}) => {
   // const doNotRepeatPushOpen=useRef(false);
 
   useEffect(() => {
-    console.log(
-      'regular webview open case',
-      `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
-    );
+    // console.log(
+    //   'regular webview open case',
+    //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
+    // );
 
     // if(doNotRepeatPushOpen.current){
     //   doNotRepeatPushOpen.current=true
@@ -132,10 +151,10 @@ const TestScreen = ({route}) => {
 
   useEffect(() => {
     if (isFirstVisit && oneSignalPermissionStatus) {
-      console.log(
-        'Only when user accepts notifications',
-        `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
-      );
+      // console.log(
+      //   'Only when user accepts notifications',
+      //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
+      // );
       fetch(
         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
       );
@@ -146,10 +165,10 @@ const TestScreen = ({route}) => {
     const sendUniqVisit = async () => {
       if (isFirstVisit) {
         const storedTimeStamp = await AsyncStorage.getItem('timeStamp');
-        console.log(
-          'UNIQ_VISIT ',
-          `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
-        );
+        // console.log(
+        //   'UNIQ_VISIT ',
+        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
+        // );
         fetch(
           `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
         );
@@ -158,11 +177,10 @@ const TestScreen = ({route}) => {
     sendUniqVisit();
   }, [isFirstVisit]);
 
-  const constructUrl = useCallback(() => {
+  const constructUrl = useCallback((currentSabData, currentIsNonOrganic) => {
     const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
     const params = new URLSearchParams();
 
-    // Add tracking parameters
     params.append('idfa', idfa);
     params.append('oneSignalId', oneSignalUserId);
     params.append('idfv', idfv);
@@ -172,61 +190,72 @@ const TestScreen = ({route}) => {
 
     let finalUrl = `${baseUrl}&${params.toString()}`;
 
-    console.log('constructUrl - localOpenWithPush:', localOpenWithPush);
-    console.log('constructUrl - isFirstVisit:', isFirstVisit);
-
-    // First Visit
+    console.log('URL Construction Debug:', {
+      isFirstVisit,
+      currentIsNonOrganic,
+      currentSabData
+    });
+;
     if (isFirstVisit) {
-      if (isNonOrganicInstall && sabData) {
-        if (sabData.includes('_')) {
-          const sabParams = sabData
-            .split('_')
-            .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-            .join('&');
-          Alert.alert('sabParams', String(sabParams));
-          finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
-        } else  {
-          console.log('Non-organic install with missing splitter in sabData');
-          finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
-          Alert.alert(
-            `&testParam=CONVERT-SUBS-MISSING-SPLITTER`,
-            '-sabData-',
-            String(sabData),
-          );
-        }
+
+      Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
+      if (currentIsNonOrganic) {
+        // Alert.alert('First Visit,Non-Organic TestScreen:'+`${currentIsNonOrganic}`);
+        
+        Alert.alert('sabData:'+`${currentSabData}`);
+          // Non-organic install cases
+          finalUrl += '&testParam=NON-ORGANIC';
+          if (!currentSabData) {
+              // No sabData at all
+              finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
+              Alert.alert('No SabData', 'Non-organic install without sabData');
+          } else if (currentSabData.includes('_')) {
+              // Valid sabData with underscores
+              const sabParams = currentSabData
+                  .split('_')
+                  .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+                  .join('&');
+              finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
+              Alert.alert('Valid SabData', `Adding params: ${sabParams}`);
+          } else {
+              // sabData exists but without underscores
+              finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
+              Alert.alert('Invalid SabData Format', 'SabData exists but no underscores');
+          }
       } else {
-        console.log('Organic install first visit');
-        finalUrl += '&testParam=ORGANIC';
+          // Alert.alert('Organic install first visit');
+          // Organic install
+          // console.log('Organic install first visit');
+          finalUrl += '&testParam=ORGANIC';
       }
-    } else {
-      if (isNonOrganicInstall && sabData && sabData.includes('_')) {
-        const sabParams = sabData
-          .split('_')
-          .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-          .join('&');
-        finalUrl += `&${sabParams}`;
+  } else {
+      // Subsequent visits
+      if (currentIsNonOrganic && currentSabData?.includes('_')) {
+          const sabParams = currentSabData
+              .split('_')
+              .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+              .join('&');
+          finalUrl += `&${sabParams}`;
       }
       if (localOpenWithPush) {
-        console.log('Adding yhugh parameter due to push notification');
-        finalUrl += '&yhugh=true';
-        // Alert.alert('app open with push',String( localOpenWithPush));
-      } else {
-        console.log('Regular link, no subData,no push');
+          finalUrl += '&yhugh=true';
       }
     }
-    console.log('Final URL:', finalUrl);
+    if(!isFirstVisit){
+      if (isNonOrganicInstall && currentSabData?.includes('_')) {
+        const sabParams = currentSabData  
+                .split('_')
+                .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+                .join('&');
+        finalUrl += `&${sabParams}`;
+      }else{
+        finalUrl ;
+      }
+    }
+
+    console.log('Final URL constructed:', finalUrl);
     return finalUrl;
-  }, [
-    idfa,
-    oneSignalUserId,
-    idfv,
-    applsFlyerUID,
-    jthrhg,
-    isFirstVisit,
-    isNonOrganicInstall,
-    sabData,
-    localOpenWithPush,
-  ]);
+  }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, isFirstVisit, localOpenWithPush]);
 
   // Initialize push state
   useEffect(() => {
@@ -255,23 +284,27 @@ const TestScreen = ({route}) => {
     initPushState();
   }, [route.params.openWithPush]);
 
-  const handleLoadStart = useCallback(() => {
-    if (isFirstLoad.current && isUrlReady) {
-      console.log('Generating URL in onLoadStart');
-      const generatedUrl = constructUrl();
-      setWebViewUrl(generatedUrl);
-      isFirstLoad.current = false;
+  // useEffect(() => {
+  //   Alert.alert('TestScreen Mounted', 'TestScreen component initialized');
+  // }, []);
 
-      // Clean up push state after URL is generated
-      if (localOpenWithPush) {
-        setTimeout(() => {
-          console.log('Clearing push state');
-          setLocalOpenWithPush(false);
-          AsyncStorage.removeItem('openedWithPush');
-        }, 1000);
+  const handleLoadStart = useCallback(async () => {
+    // Alert.alert('LoadStart', 'WebView load starting');
+    if (isFirstLoad.current && isUrlReady) {
+      try {
+        const { sabData: currentSabData, isNonOrganic: currentIsNonOrganic } = await retriveSabData();
+        // Alert.alert('Data Retrieved', `SabData: ${currentSabData}, NonOrganic: ${currentIsNonOrganic}`);
+        
+        const generatedUrl = constructUrl(currentSabData, currentIsNonOrganic);
+        // Alert.alert('URL Generated', generatedUrl);
+        
+        setWebViewUrl(generatedUrl);
+        isFirstLoad.current = false;
+      } catch (error) {
+        Alert.alert('Error', String(error.message));
       }
     }
-  }, [isUrlReady, constructUrl, localOpenWithPush]);
+  }, [isUrlReady, constructUrl, retriveSabData]);
 
   const renderContent = () => {
     if (!isUrlReady) {
@@ -384,9 +417,11 @@ const TestScreen = ({route}) => {
           // console.log('WebView fully loaded');
           // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
         }}
-        onError={syntheticEvent => {
-          const {nativeEvent} = syntheticEvent;
-          console.warn('WebView error:', nativeEvent);
+        onError={(syntheticEvent) => {
+          // Alert.alert('WebView Error', syntheticEvent.nativeEvent.description);
+        }}
+        onLoadError={(syntheticEvent) => {
+          // Alert.alert('Load Error', syntheticEvent.nativeEvent.description);
         }}
         thirdPartyCookiesEnabled={true}
         allowsBackForwardNavigationGestures={true}
