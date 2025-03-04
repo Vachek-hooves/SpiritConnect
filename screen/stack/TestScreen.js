@@ -40,25 +40,28 @@ const TestScreen = ({route}) => {
   // );
 
   const retriveSabData = useCallback(async () => {
-    console.log('retriveSabData function started');
+    // console.log('retriveSabData function started');
     try {
       const storedSabData = await AsyncStorage.getItem('sabData');
-      const storedIsNonOrganic = await AsyncStorage.getItem('isNonOrganicInstall');
-      
-      console.log('Retrieved sabData:', storedSabData);
-      console.log('Retrieved isNonOrganicInstall:', storedIsNonOrganic);
-      
+      const storedIsNonOrganic = await AsyncStorage.getItem(
+        'isNonOrganicInstall',
+      );
+
+      // console.log('Retrieved sabData:', storedSabData);
+      // console.log('Retrieved isNonOrganicInstall:', storedIsNonOrganic);
+
       setSabData(storedSabData);
       setIsNonOrganicInstall(storedIsNonOrganic === 'true');
-      
-      return { sabData: storedSabData, isNonOrganic: storedIsNonOrganic === 'true' };
+
+      return {
+        sabData: storedSabData,
+        isNonOrganic: storedIsNonOrganic === 'true',
+      };
     } catch (error) {
       console.error('Error in retriveSabData:', error);
-      return { sabData: null, isNonOrganic: false };
+      return {sabData: null, isNonOrganic: false};
     }
   }, []);
-
- 
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -88,7 +91,6 @@ const TestScreen = ({route}) => {
 
     return () => backHandler.remove();
   }, [navigation]);
-
 
   useEffect(() => {
     // console.log(
@@ -132,85 +134,94 @@ const TestScreen = ({route}) => {
     sendUniqVisit();
   }, [isFirstVisit]);
 
-  const constructUrl = useCallback((currentSabData, currentIsNonOrganic) => {
-    const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
-    const params = new URLSearchParams();
+  const constructUrl = useCallback(
+    (currentSabData, currentIsNonOrganic) => {
+      const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1`;
+      const params = new URLSearchParams();
 
-    params.append('idfa', idfa);
-    params.append('oneSignalId', oneSignalUserId);
-    params.append('idfv', idfv);
-    params.append('uid', applsFlyerUID);
-    params.append('customerUserId', idfv);
-    params.append('jthrhg', jthrhg);
+      params.append('idfa', idfa);
+      params.append('oneSignalId', oneSignalUserId);
+      params.append('idfv', idfv);
+      params.append('uid', applsFlyerUID);
+      params.append('customerUserId', idfv);
+      params.append('jthrhg', jthrhg);
 
-    let finalUrl = `${baseUrl}&${params.toString()}`;
+      let finalUrl = `${baseUrl}&${params.toString()}`;
 
-    console.log('URL Construction Debug:', {
-      isFirstVisit,
-      currentIsNonOrganic,
-      currentSabData
-    });
-;
-    if (isFirstVisit) {
+      console.log('URL Construction Debug:', {
+        isFirstVisit,
+        currentIsNonOrganic,
+        currentSabData,
+      });
+      if (isFirstVisit) {
+        // Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
+        if (currentIsNonOrganic) {
+          // Alert.alert('First Visit,Non-Organic TestScreen:'+`${currentIsNonOrganic}`);
 
-      // Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
-      if (currentIsNonOrganic) {
-        // Alert.alert('First Visit,Non-Organic TestScreen:'+`${currentIsNonOrganic}`);
-        
-        // Alert.alert('sabData:'+`${currentSabData}`);
+          // Alert.alert('sabData:'+`${currentSabData}`);
           // Non-organic install cases
           finalUrl += '&testParam=NON-ORGANIC';
           if (!currentSabData) {
-              // No sabData at all
-              finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
-              // Alert.alert('No SabData', 'Non-organic install without sabData');
+            // No sabData at all
+            finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
+            // Alert.alert('No SabData', 'Non-organic install without sabData');
           } else if (currentSabData.includes('_')) {
-              // Valid sabData with underscores
-              const sabParams = currentSabData
-                  .split('_')
-                  .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-                  .join('&');
-              finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
-              // Alert.alert('Valid SabData', `Adding params: ${sabParams}`);
+            // Valid sabData with underscores
+            const sabParams = currentSabData
+              .split('_')
+              .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+              .join('&');
+            finalUrl += `&testParam=NON-ORGANIC&${sabParams}`;
+            // Alert.alert('Valid SabData', `Adding params: ${sabParams}`);
           } else {
-              // sabData exists but without underscores
-              finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
-              // Alert.alert('Invalid SabData Format', 'SabData exists but no underscores');
+            // sabData exists but without underscores
+            finalUrl += '&testParam=CONVERT-SUBS-MISSING-SPLITTER';
+            // Alert.alert('Invalid SabData Format', 'SabData exists but no underscores');
           }
-      } else {
+        } else {
           // Alert.alert('Organic install first visit');
           // Organic install
           // console.log('Organic install first visit');
           finalUrl += '&testParam=ORGANIC';
-      }
-  } else {
-      // Subsequent visits
-      if (currentIsNonOrganic && currentSabData?.includes('_')) {
+        }
+      } else {
+        // Subsequent visits
+        if (currentIsNonOrganic && currentSabData?.includes('_')) {
           const sabParams = currentSabData
-              .split('_')
-              .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-              .join('&');
+            .split('_')
+            .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+            .join('&');
           finalUrl += `&${sabParams}`;
-      }
-      if (localOpenWithPush) {
+        }
+        if (localOpenWithPush) {
           finalUrl += '&yhugh=true';
+        }
       }
-    }
-    if(!isFirstVisit){
-      if (isNonOrganicInstall && currentSabData?.includes('_')) {
-        const sabParams = currentSabData  
-                .split('_')
-                .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
-                .join('&');
-        finalUrl += `&${sabParams}`;
-      }else{
-        finalUrl ;
+      if (!isFirstVisit) {
+        if (isNonOrganicInstall && currentSabData?.includes('_')) {
+          const sabParams = currentSabData
+            .split('_')
+            .map((item, index) => (item ? `subId${index + 1}=${item}` : ''))
+            .join('&');
+          finalUrl += `&${sabParams}`;
+        } else {
+          finalUrl;
+        }
       }
-    }
 
-    console.log('Final URL constructed:', finalUrl);
-    return finalUrl;
-  }, [idfa, oneSignalUserId, idfv, applsFlyerUID, jthrhg, isFirstVisit, localOpenWithPush]);
+      console.log('Final URL constructed:', finalUrl);
+      return finalUrl;
+    },
+    [
+      idfa,
+      oneSignalUserId,
+      idfv,
+      applsFlyerUID,
+      jthrhg,
+      isFirstVisit,
+      localOpenWithPush,
+    ],
+  );
 
   // Initialize push state
   useEffect(() => {
@@ -218,16 +229,19 @@ const TestScreen = ({route}) => {
       try {
         await new Promise(resolve => setTimeout(resolve, 500));
         const storedPushState = await AsyncStorage.getItem('openedWithPush');
-        console.log('Initial push state check:', {
-          storedPushState,
-          routeOpenWithPush: route.params.openWithPush,
-        });
+        // console.log('Initial push state check:', {
+        //   storedPushState,
+        //   routeOpenWithPush: route.params.openWithPush,
+        // });
 
         const shouldEnablePush =
           storedPushState === 'true' || route.params.openWithPush;
         if (shouldEnablePush) {
           console.log('Setting localOpenWithPush to true');
           setLocalOpenWithPush(true);
+          // Clear the push state immediately after reading
+          await AsyncStorage.removeItem('openedWithPush');
+          console.log('Cleared push state from storage');
         }
         setIsUrlReady(true);
       } catch (error) {
@@ -247,12 +261,13 @@ const TestScreen = ({route}) => {
     // Alert.alert('LoadStart', 'WebView load starting');
     if (isFirstLoad.current && isUrlReady) {
       try {
-        const { sabData: currentSabData, isNonOrganic: currentIsNonOrganic } = await retriveSabData();
+        const {sabData: currentSabData, isNonOrganic: currentIsNonOrganic} =
+          await retriveSabData();
         // Alert.alert('Data Retrieved', `SabData: ${currentSabData}, NonOrganic: ${currentIsNonOrganic}`);
-        
+
         const generatedUrl = constructUrl(currentSabData, currentIsNonOrganic);
         // Alert.alert('URL Generated', generatedUrl);
-        
+
         setWebViewUrl(generatedUrl);
         isFirstLoad.current = false;
       } catch (error) {
@@ -372,10 +387,10 @@ const TestScreen = ({route}) => {
           // console.log('WebView fully loaded');
           // handleWebViewLoad(); // Uncomment if prefer onLoad over onLoadStart
         }}
-        onError={(syntheticEvent) => {
+        onError={syntheticEvent => {
           // Alert.alert('WebView Error', syntheticEvent.nativeEvent.description);
         }}
-        onLoadError={(syntheticEvent) => {
+        onLoadError={syntheticEvent => {
           // Alert.alert('Load Error', syntheticEvent.nativeEvent.description);
         }}
         thirdPartyCookiesEnabled={true}

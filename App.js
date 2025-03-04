@@ -31,7 +31,7 @@ import {setupConversionListener} from './config/onInstallConversation';
 import {handleCustomerUserId} from './config/handleCustomerUserId';
 import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
-import {Linking,Alert} from 'react-native';
+import {Linking, Alert} from 'react-native';
 
 // App ID/Package name: id6740289002
 // Dev key: ZP6F7NaeyNmgAdC29AdB4T
@@ -142,7 +142,7 @@ function App() {
             async event => {
               const newUserId = await OneSignal.User.getOnesignalId();
               if (newUserId) {
-                console.log('OneSignal: got delayed user id:', newUserId);
+                // console.log('OneSignal: got delayed user id:', newUserId);
                 setOneSignalUserId(newUserId);
                 await AsyncStorage.setItem('oneSignalUserId', newUserId);
                 setIsOneSignalReady(true);
@@ -166,83 +166,84 @@ function App() {
     initOneSignal();
   }, []);
 
-
   // In App.js
-useEffect(() => {
-  // Alert.alert('App.js Init', 'App started');
+  useEffect(() => {
+    // Alert.alert('App.js Init', 'App started');
 
-  appsFlyer.onInstallConversionData(async res => {
-    // Alert.alert('AppsFlyer Data', JSON.stringify(res.data));
+    appsFlyer.onInstallConversionData(async res => {
+      // Alert.alert('AppsFlyer Data', JSON.stringify(res.data));
       console.log('AppsFlyer Conversion Data received:', res.data);
       // Alert.alert('AppsFlyer resp data App.js:', JSON.stringify(res.data));
       if (JSON.parse(res.data.is_first_launch) === true) {
-          if (res.data.af_status === 'Non-organic') {
-            var media_source = res.data.media_source;
-            var campaign = res.data.campaign;
-            // Alert.alert('Non-organic', campaign);
-              // const nonOrganicTest='non_organic_test_data';
-              try {
-                  // Save non-organic data
-                  // await AsyncStorage.setItem('sabData', campaign);
-                  await AsyncStorage.setItem('sabData', campaign);
-                  // console.log('Saved sabData to AsyncStorage:', campaign);
-                  // setSabData(campaign);
-                  setSabData(campaign);
-                  
-                  await AsyncStorage.setItem('isNonOrganicInstall', 'true');
-                  // console.log('Saved isNonOrganicInstall as true');
-                  setIsNonOrganicInstall(true);
-              } catch (error) {
-                  console.error('Error saving non-organic data:', error);
-              }
-          } else if (res.data.af_status === 'Organic') {
-              console.log('Organic install detected');
-              const organicTestData = '';
-              
-              try {
-                  // Save organic test data
-                  await AsyncStorage.setItem('sabData', organicTestData);
-                  // console.log('Saved organic test sabData:', organicTestData);
-                  setSabData(organicTestData);
-                  
-                  await AsyncStorage.setItem('isNonOrganicInstall', 'false');
-                  // console.log('Saved isNonOrganicInstall as false');
-                  setIsNonOrganicInstall(false);
-              } catch (error) {
-                  console.error('Error saving organic data:', error);
-              }
-          }
-      } else {
-          // Not first launch - try to get stored data
+        if (res.data.af_status === 'Non-organic') {
+          var media_source = res.data.media_source;
+          var campaign = res.data.campaign;
+          // Alert.alert('Non-organic', campaign);
+          // const nonOrganicTest='non_organic_test_data';
           try {
-              const storedSabData = await AsyncStorage.getItem('sabData');
-              const storedIsNonOrganic = await AsyncStorage.getItem('isNonOrganicInstall');
-              
-              console.log('Retrieved stored data:', {
-                  storedSabData,
-                  storedIsNonOrganic
-              });
-              
-              if (storedSabData) {
-                  setSabData(storedSabData);
-              }
-              setIsNonOrganicInstall(storedIsNonOrganic === 'true');
+            // Save non-organic data
+            // await AsyncStorage.setItem('sabData', campaign);
+            await AsyncStorage.setItem('sabData', campaign);
+            // console.log('Saved sabData to AsyncStorage:', campaign);
+            // setSabData(campaign);
+            setSabData(campaign);
+
+            await AsyncStorage.setItem('isNonOrganicInstall', 'true');
+            // console.log('Saved isNonOrganicInstall as true');
+            setIsNonOrganicInstall(true);
           } catch (error) {
-              console.error('Error retrieving stored data:', error);
+            console.error('Error saving non-organic data:', error);
           }
+        } else if (res.data.af_status === 'Organic') {
+          console.log('Organic install detected');
+          const organicTestData = '';
+
+          try {
+            // Save organic test data
+            await AsyncStorage.setItem('sabData', organicTestData);
+            // console.log('Saved organic test sabData:', organicTestData);
+            setSabData(organicTestData);
+
+            await AsyncStorage.setItem('isNonOrganicInstall', 'false');
+            // console.log('Saved isNonOrganicInstall as false');
+            setIsNonOrganicInstall(false);
+          } catch (error) {
+            console.error('Error saving organic data:', error);
+          }
+        }
+      } else {
+        // Not first launch - try to get stored data
+        try {
+          const storedSabData = await AsyncStorage.getItem('sabData');
+          const storedIsNonOrganic = await AsyncStorage.getItem(
+            'isNonOrganicInstall',
+          );
+
+          console.log('Retrieved stored data:', {
+            storedSabData,
+            storedIsNonOrganic,
+          });
+
+          if (storedSabData) {
+            setSabData(storedSabData);
+          }
+          setIsNonOrganicInstall(storedIsNonOrganic === 'true');
+        } catch (error) {
+          console.error('Error retrieving stored data:', error);
+        }
       }
       setIsConversionDataReceived(true);
-  });
-}, []);
+    });
+  }, []);
 
-// Add this useEffect to monitor state changes
-useEffect(() => {
-  console.log('State update in App.js:', {
-      sabData,
-      isNonOrganicInstall,
-      isConversionDataReceived
-  });
-}, [sabData, isNonOrganicInstall, isConversionDataReceived]);
+  // Add this useEffect to monitor state changes
+  // useEffect(() => {
+  //   console.log('State update in App.js:', {
+  //       sabData,
+  //       isNonOrganicInstall,
+  //       isConversionDataReceived
+  //   });
+  // }, [sabData, isNonOrganicInstall, isConversionDataReceived]);
 
   useEffect(() => {
     checkFirstVisit();
@@ -315,39 +316,58 @@ useEffect(() => {
     // console.log('isFirstVisit',isFirstVisit);
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
+    const kloakSuccess = await AsyncStorage.getItem('kloakSuccess');
     const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
     const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+    console.log('hasVisited', hasVisited);
+    console.log('kloakSuccess', kloakSuccess);
 
-    if (currentDate >= targetData) {
-      // console.log('Date is after target date');
-      // console.log('Today date passed target date');
-      if (hasVisited) {
-        setIsReadyToVisit(true);
-        // console.log('App WAS visited before');
-      }
-      if (!hasVisited) {
-        console.log('App WAS NOT visited before');
-        fetch(visitUrl)
-          .then(res => {
-            // console.log('visitUrl',visitUrl);
-            // console.log('URL status ', res.status);
-            if (res.status === 200) {
-              console.log('URL is ok. Status 200');
-              // console.log('res.data first launch', res.url);
-              // console.log('res.data first launch', res.status);
-              setIsReadyToVisit(true);
-            } else {
-              console.log('URL is not ok');
-              setIsReadyToVisit(false);
-            }
-          })
-          .catch(error => {
-            console.log('isReadyToVisit fn check error', error);
-          });
-      }
-    } else {
-      console.log('Today date did not pass target date');
+    if (hasVisited && kloakSuccess) {
+      console.log('App visited before and kloakSuccess 200');
+      setIsReadyToVisit(true);
     }
+
+    fetch(visitUrl)
+      .then(async res => {
+        if (res.status === 200) {
+          console.log('URL status ', res.status);
+          await AsyncStorage.setItem('kloakSuccess', 'true');
+          if (currentDate >= targetData) {
+            setIsReadyToVisit(true);
+          }
+        } else {
+          console.log('URL is not ok', res.status);
+          setIsReadyToVisit(false);
+        }
+      })
+      .catch(error => {
+        console.log('Ready to visit error', error);
+      });
+
+    // if (currentDate >= targetData) {
+    //   if (hasVisited) {
+    //     setIsReadyToVisit(true);
+    //   }
+    //   if (!hasVisited) {
+    //     console.log('App WAS NOT visited before');
+    //     fetch(visitUrl)
+    //       .then(res => {
+    //         console.log('URL status ', res.status);
+    //         if (res.status === 200) {
+    //           console.log('URL is ok. Status 200');
+    //           setIsReadyToVisit(true);
+    //         } else {
+    //           console.log('URL is not ok');
+    //           setIsReadyToVisit(false);
+    //         }
+    //       })
+    //       .catch(error => {
+    //         console.log('isReadyToVisit fn check error', error);
+    //       });
+    //   }
+    // } else {
+    //   console.log('Today date did not pass target date');
+    // }
   };
 
   const initAppsFlyer = async () => {
@@ -658,10 +678,10 @@ useEffect(() => {
     openWithPush,
   ]);
 
-//   // Add alert before rendering TestScreen
-//   if (isReadyForTestScreen) {
-//     Alert.alert('Ready for TestScreen', 'About to render TestScreen');
-// }
+  //   // Add alert before rendering TestScreen
+  //   if (isReadyForTestScreen) {
+  //     Alert.alert('Ready for TestScreen', 'About to render TestScreen');
+  // }
 
   return (
     <PracticeProvider>
