@@ -11,9 +11,6 @@ const TestScreen = ({route}) => {
   const webViewRef = useRef(null);
   const [sabData, setSabData] = useState(null);
   const [isNonOrganicInstall, setIsNonOrganicInstall] = useState(false);
-  // const [localOpenWithPush, setLocalOpenWithPush] = useState(
-  //   route.params.openWithPush,
-  // );
   const hasHandledPush = useRef(false);
   const [isUrlReady, setIsUrlReady] = useState(false);
   const [localOpenWithPush, setLocalOpenWithPush] = useState(false);
@@ -30,14 +27,9 @@ const TestScreen = ({route}) => {
     timeStamp,
     naming,
     oneSignalPermissionStatus,
-    // sabData,
-    // isNonOrganicInstall,
     openWithPush,
   } = route.params;
-  // console.log(
-  //   'oneSignalPermissionStatus TestScreen',
-  //   oneSignalPermissionStatus,
-  // );
+ 
 
   const retriveSabData = useCallback(async () => {
     // console.log('retriveSabData function started');
@@ -152,6 +144,7 @@ const TestScreen = ({route}) => {
         isFirstVisit,
         currentIsNonOrganic,
         currentSabData,
+        
       });
       if (isFirstVisit) {
         // Alert.alert('First Visit,TestScreen:'+`${currentIsNonOrganic}`);
@@ -194,7 +187,9 @@ const TestScreen = ({route}) => {
           finalUrl += `&${sabParams}`;
         }
         if (localOpenWithPush) {
-          finalUrl += '&yhugh=true';
+          console.log('localOpenWithPush', localOpenWithPush);
+          // finalUrl += '&yhugh=true';
+          finalUrl += '&push=true';
         }
       }
       if (!isFirstVisit) {

