@@ -12,7 +12,7 @@ import {Image} from 'react-native';
 
 const Diary = ({navigation}) => {
   const {moodNotes, deleteMoodNote} = usePracticeContext();
-  console.log(moodNotes);
+  // console.log(moodNotes);
 
   // Function to format the date to "D Month"
   const formatDate = dateString => {

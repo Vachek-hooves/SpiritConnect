@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 
 const MoodState = ({navigation, route}) => {
   const {item} = route.params; // Get the mood data from navigation params
-  console.log(item);
+  // console.log(item);
 
   return (
     <SafeAreaView style={styles.container}>
