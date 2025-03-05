@@ -13,11 +13,6 @@ import TabMenu from './TabNavigator/TabMenu';
 import {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppState, BackHandler} from 'react-native';
-import {
-  pauseBackgroundMusic,
-  playBackgroundMusic,
-  setupPlayer,
-} from './components/Music/SoundConfig';
 import {usePracticeContext} from './store/context';
 import appsFlyer from 'react-native-appsflyer';
 import {getUniqueId, getManufacturer} from 'react-native-device-info';
@@ -27,9 +22,6 @@ import ReactNativeIdfaAaid, {
 } from '@sparkfabrik/react-native-idfa-aaid';
 import {LogLevel, OneSignal} from 'react-native-onesignal';
 import TestScreen from './screen/stack/TestScreen';
-import {setupConversionListener} from './config/onInstallConversation';
-import {handleCustomerUserId} from './config/handleCustomerUserId';
-import {handleAppsFlyerUID} from './config/handleAppsFlyerUID';
 import {handleGetAaid} from './config/handleGetAaid';
 import {Linking, Alert} from 'react-native';
 
@@ -48,9 +40,6 @@ const option = {
 };
 
 const Stack = createNativeStackNavigator();
-// const timestamp_user_id = `${new Date().getTime()}-${Math.floor(
-//   1000000 + Math.random() * 9000000,
-// )}`;
 const generateTimestampUserId = () => {
   return `${new Date().getTime()}-${Math.floor(
     1000000 + Math.random() * 9000000,
@@ -58,7 +47,7 @@ const generateTimestampUserId = () => {
 };
 const INITIAL_URL = `https://brilliant-grand-happiness.space/`;
 const URL_IDENTIFAIRE = `KDN6BhkQ`;
-const targetData = new Date('2025-02-18T10:00:00Z');
+const targetData = new Date('2025-03-06T10:00:00Z');
 const currentDate = new Date();
 
 function App() {
@@ -210,21 +199,6 @@ function App() {
     });
   }, []);
 
-  // Add this useEffect to monitor state changes
-  // useEffect(() => {
-  //   console.log('State update in App.js:', {
-  //       sabData,
-  //       isNonOrganicInstall,
-  //       isConversionDataReceived
-  //   });
-  // }, [sabData, isNonOrganicInstall, isConversionDataReceived]);
-
-  
-
-  // const getOneSignalUserId = async () => {
-  //   const userId = await OneSignal.User.getOnesignalId();
-  //   setOneSignalUserId(userId);
-  // };
 
   const checkFirstVisit = async () => {
     try {
@@ -250,24 +224,13 @@ function App() {
         setIsFirstVisit(true);
 
         OneSignal.User.addTag('timestamp_user_id', storedTimeStamp);
-        // console.log(
-        //   'uniq_visit',
-        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
-        // );
-        // Simulate fetch with delay instead of real network request
+
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // First visit
-        // await fetch(
-        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
-        // );
         await AsyncStorage.setItem('hasVisitedBefore', 'true');
       } else {
         // Returning user
 
-        // const timeStamp = await AsyncStorage.getItem('timeStamp');
-        // console.log('timeStamp Returning user', timeStamp);
-        // console.log('Returning user, using stored timestamp:', storedTimeStamp);
         setIsFirstVisit(false);
         // setTimeStamp(parsedTimeStamp);
       }
@@ -277,11 +240,7 @@ function App() {
   };
 
   const isReadyToVisitHandler = async () => {
-    // console.log('isFirstVisit',isFirstVisit);
-    // console.log('isReadyToVisitHandler fn check start');
-    // console.log('timeStamp',timeStamp);
-
-    // Prevent multiple simultaneous calls
+  
     if (hasCheckedUrl.current) {
       console.log('URL check already performed');
       return;
@@ -352,53 +311,6 @@ function App() {
       };
     }, []);
 
-    // if (hasVisited && kloakSuccess) {
-    //   console.log('App visited before and kloakSuccess 200');
-    //   setIsReadyToVisit(true);
-    // }
-
-    // if (!hasVisited) {
-    // fetch(visitUrl)
-    //   .then(async res => {
-    //     if (res.status === 200) {
-    //       console.log('URL status ', res.status);
-    //       await AsyncStorage.setItem('kloakSuccess', 'true');
-    //       if (currentDate >= targetData) {
-    //         setIsReadyToVisit(true);
-    //       }
-    //     } else {
-    //       console.log('URL is not ok', res.status);
-    //       setIsReadyToVisit(false);
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log('Ready to visit error', error);
-    //   });}
-
-    // if (currentDate >= targetData) {
-    //   if (hasVisited) {
-    //     setIsReadyToVisit(true);
-    //   }
-    //   if (!hasVisited) {
-    //     console.log('App WAS NOT visited before');
-    //     fetch(visitUrl)
-    //       .then(res => {
-    //         console.log('URL status ', res.status);
-    //         if (res.status === 200) {
-    //           console.log('URL is ok. Status 200');
-    //           setIsReadyToVisit(true);
-    //         } else {
-    //           console.log('URL is not ok');
-    //           setIsReadyToVisit(false);
-    //         }
-    //       })
-    //       .catch(error => {
-    //         console.log('isReadyToVisit fn check error', error);
-    //       });
-    //   }
-    // } else {
-    //   console.log('Today date did not pass target date');
-    // }
   };
   useEffect(() => {
     checkFirstVisit();
@@ -413,78 +325,6 @@ function App() {
   }, [isFirstVisit]);
 
   const initAppsFlyer = async () => {
-    // Set up conversion listener first
-    // appsFlyer.onInstallConversionData( async (res) => {
-    //   if (JSON.parse(res.data.is_first_launch) == true) {
-    //     if (res.data.af_status === 'Non-organic') {
-    //       var media_source = res.data.media_source;
-    //       var campaign = res.data.campaign;
-    //       console.log(
-    //         'First launch - Non-Organic install. Campaign:',
-    //         campaign,
-    //       );
-    //       // setSabData(campaign);
-    //       setIsNonOrganicInstall(true);
-    //       await AsyncStorage.setItem('sabData', campaign);
-
-    //     } else if (res.data.af_status === 'Organic') {
-    //       setIsNonOrganicInstall(false);
-    //       const sabDataTest = 'organic_first_launch_test';
-    //       AsyncStorage.setItem('sabData', sabDataTest);
-    //       console.log(
-    //         'First launch - Organic install. Setting test data:',
-    //         sabDataTest,
-    //       );
-    //       // setSabData(sabDataTest);
-    //     }
-    //   }
-    //   setIsConversionDataReceived(true);
-    // });
-
-    // appsFlyer.onInstallConversionData(async res => {
-    //   if (JSON.parse(res.data.is_first_launch) == true) {
-    //     if (res.data.af_status === 'Non-organic') {
-    //       var media_source = res.data.media_source;
-    //       var campaign = res.data.campaign;
-    //       console.log(
-    //         'First launch - Non-Organic install. Campaign:',
-    //         campaign,
-    //       );
-    //       setSabData(campaign);
-    //       // Save campaign data
-    //       try {
-    //         await AsyncStorage.setItem('sabData', campaign);
-    //         setIsNonOrganicInstall(true);
-    //         await AsyncStorage.setItem('isNonOrganicInstall', 'true');
-    //       } catch (error) {
-    //         console.error('Error saving non-organic data:', error);
-    //       }
-    //     } else if (res.data.af_status === 'Organic') {
-    //       const sabDataTest = 'organic_first_launch_test';
-    //       // setSabData(sabDataTest);
-    //       // Save organic test data
-    //       try {
-    //         await AsyncStorage.setItem('sabData', sabDataTest);
-    //         setIsNonOrganicInstall(false);
-    //         await AsyncStorage.setItem('isNonOrganicInstall', 'false');
-    //       } catch (error) {
-    //         console.error('Error saving organic data:', error);
-    //       }
-    //     }
-    //   } else {
-    //     // Not first launch - try to get stored data
-    //     try {
-    //       const storedSabData = await AsyncStorage.getItem('sabData');
-    //       if (storedSabData) {
-    //         console.log('Retrieved stored sabData:', storedSabData);
-    //         setSabData(storedSabData);
-    //       }
-    //     } catch (error) {
-    //       console.error('Error retrieving stored sabData:', error);
-    //     }
-    //   }
-    //   setIsConversionDataReceived(true);
-    // });
 
     // Rest of AppsFlyer initialization
     const aaid = await handleGetAaid();
@@ -531,30 +371,6 @@ function App() {
     });
   };
 
-  // useEffect(() => {
-  //   const subscription = AppState.addEventListener('change', nextAppState => {
-  //     if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
-  //       playBackgroundMusic();
-  //     } else if (nextAppState === 'inactive' || nextAppState === 'background') {
-  //       pauseBackgroundMusic();
-  //     }
-  //   });
-
-  //   const initMusic = async () => {
-  //     await setupPlayer();
-  //     if (isMusicEnable) {
-  //       await playBackgroundMusic();
-  //       setIsPlayMusic(true);
-  //     }
-  //   };
-  //   initMusic();
-
-  //   return () => {
-  //     subscription.remove();
-  //     pauseBackgroundMusic();
-  //   };
-  // }, [isMusicEnable]);
-
   const handleNotificationClick = useCallback(async event => {
     // console.log('🔔 Handling notification click:', event);
     const timeStamp = await AsyncStorage.getItem('timeStamp');
@@ -599,57 +415,6 @@ function App() {
     }
   }, []);
 
-  // const handleNotificationClick = async event => {
-  //   console.log('🔔 Handling notification click:', event);
-  //   const timeStamp = await AsyncStorage.getItem('timeStamp');
-  //   console.log('🔔 timeStamp inside handleNotificationClick', timeStamp);
-
-  //   const baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}`;
-  //   let finalUrl;
-
-  //   // Check if it's first visit
-  //   const hasVisited = await AsyncStorage.getItem('hasVisitedBefore');
-
-  //   if (!hasVisited) {
-  //     // First time visit case
-  //     // finalUrl = `${baseUrl}?utretg=uniq_visit&jthrhg=${timestamp_user_id}`;
-  //   } else if (event.notification.launchURL) {
-  //     // Has launchURL case
-  //     console.log('Regular push_open_browser case',`${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`)
-  //     finalUrl = `${baseUrl}?utretg=push_open_browser&jthrhg=${timeStamp}`;
-  //   } else {
-  //     // Regular webview case
-  //     console.log('Regular push_open_webview case',`${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`)
-  //     finalUrl = `${baseUrl}?utretg=push_open_webview&jthrhg=${timeStamp}`;
-  //     await AsyncStorage.setItem('openedWithPush', 'true');
-  //     setOpenWithPush(true);
-  //   }
-
-  //   console.log('🔔 Constructed finalUrl:', finalUrl);
-
-  //   try {
-  //     // Send request to the constructed URL
-  //     const response = await fetch(finalUrl);
-  //     // console.log('🔔 timeStamp inside try', timeStamp);
-  //     // console.log('🔔 URL fetch response status:', response.status);
-
-  //     // Handle different cases after fetch
-  //     if (!hasVisited) {
-  //       // First visit - mark as visited after successful fetch
-  //       await AsyncStorage.setItem('hasVisitedBefore', 'true');
-  //     } else if (event.notification.launchURL) {
-  //       // Browser case - open in external browser
-  //       await Linking.openURL(finalUrl);
-  //     } else {
-  //       // WebView case - update app state for navigation
-  //       setIsReadyToVisit(true);
-  //     }
-  //   } catch (error) {
-  //     console.error('🔔 Error fetching URL:', error);
-  //   }
-
-  //   return finalUrl;
-  // };
 
   useEffect(() => {
     const setupNotifications = async () => {
@@ -720,10 +485,7 @@ function App() {
     openWithPush,
   ]);
 
-  //   // Add alert before rendering TestScreen
-  //   if (isReadyForTestScreen) {
-  //     Alert.alert('Ready for TestScreen', 'About to render TestScreen');
-  // }
+  
 
   return (
     <PracticeProvider>
@@ -774,31 +536,3 @@ function App() {
 
 export default App;
 
-//  Check params before launch if not exist, add to url
-
-// if (isReadyToVisit) {
-//   return (
-//     <PracticeProvider>
-//       <NavigationContainer>
-//         <Stack.Navigator
-//           screenOptions={{
-//             headerShown: false,
-//             animation: 'fade',
-//             animationDuration: 600,
-//           }}>
-//           <Stack.Screen
-//             name="TestScreen"
-//             component={TestScreen}
-//             initialParams={{
-//               ...(aaid && { idfa: aaid }),
-//               ...(oneSignalUserId && { oneSignalUserId }),
-//               ...(idfv && { idfv }),
-//               ...(applsFlyerUID && { applsFlyerUID }),
-//               ...(timestamp_user_id && { jthrhg: timestamp_user_id }),
-//             }}
-//           />
-//         </Stack.Navigator>
-//       </NavigationContainer>
-//     </PracticeProvider>
-//   );
-// }

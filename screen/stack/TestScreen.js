@@ -39,9 +39,6 @@ const TestScreen = ({route}) => {
         'isNonOrganicInstall',
       );
 
-      // console.log('Retrieved sabData:', storedSabData);
-      // console.log('Retrieved isNonOrganicInstall:', storedIsNonOrganic);
-
       setSabData(storedSabData);
       setIsNonOrganicInstall(storedIsNonOrganic === 'true');
 
@@ -69,14 +66,14 @@ const TestScreen = ({route}) => {
           return true;
         }
 
-        // Then check if we can navigate back
+        // Then check if can navigate back
         if (navigation.canGoBack()) {
           console.log('navigation.canGoBack()', navigation.canGoBack());
           navigation.goBack();
           return true;
         }
 
-        // If we can't go back anywhere, minimize the app
+        // If can't go back anywhere, minimize the app
         return false;
       },
     );
@@ -85,14 +82,7 @@ const TestScreen = ({route}) => {
   }, [navigation]);
 
   useEffect(() => {
-    // console.log(
-    //   'regular webview open case',
-    //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
-    // );
-
-    // if(doNotRepeatPushOpen.current){
-    //   doNotRepeatPushOpen.current=true
-    // }
+    
     fetch(
       `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timeStamp}`,
     );
@@ -100,10 +90,7 @@ const TestScreen = ({route}) => {
 
   useEffect(() => {
     if (isFirstVisit && oneSignalPermissionStatus) {
-      // console.log(
-      //   'Only when user accepts notifications',
-      //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
-      // );
+      
       fetch(
         `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_subscribe&jthrhg=${timeStamp}`,
       );
@@ -114,10 +101,7 @@ const TestScreen = ({route}) => {
     const sendUniqVisit = async () => {
       if (isFirstVisit) {
         const storedTimeStamp = await AsyncStorage.getItem('timeStamp');
-        // console.log(
-        //   'UNIQ_VISIT ',
-        //   `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
-        // );
+        
         fetch(
           `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=uniq_visit&jthrhg=${storedTimeStamp}`,
         );
@@ -188,8 +172,7 @@ const TestScreen = ({route}) => {
         }
         if (localOpenWithPush) {
           console.log('localOpenWithPush', localOpenWithPush);
-          // finalUrl += '&yhugh=true';
-          finalUrl += '&push=true';
+          finalUrl += '&yhugh=true';
         }
       }
       if (!isFirstVisit) {
