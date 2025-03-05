@@ -25,7 +25,7 @@ const PracticeDetail = ({route, navigation}) => {
       }, 1000);
     } else if (timeLeft === 0) {
       setIsActive(false);
-      Vibration.vibrate();
+      // Vibration.vibrate();
       completePractice(practiceType, item.id);
     }
     return () => clearInterval(timer);
