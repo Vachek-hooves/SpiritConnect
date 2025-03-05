@@ -21,31 +21,31 @@ import {usePracticeContext} from './store/context';
 
 const Stack = createNativeStackNavigator();
 function App() {
-  const {isMusicEnable} = usePracticeContext();
-  const [isPlayMusic, setIsPlayMusic] = useState(false);
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
-        playBackgroundMusic();
-      } else if (nextAppState === 'inactive' || nextAppState === 'background') {
-        pauseBackgroundMusic();
-      }
-    });
+  // const {isMusicEnable} = usePracticeContext();
+  // const [isPlayMusic, setIsPlayMusic] = useState(false);
+  // useEffect(() => {
+  //   const subscription = AppState.addEventListener('change', nextAppState => {
+  //     if (nextAppState === 'active' && isPlayMusic && isMusicEnable) {
+  //       playBackgroundMusic();
+  //     } else if (nextAppState === 'inactive' || nextAppState === 'background') {
+  //       pauseBackgroundMusic();
+  //     }
+  //   });
 
-    const initMusic = async () => {
-      await setupPlayer();
-      if (isMusicEnable) {
-        await playBackgroundMusic();
-        setIsPlayMusic(true);
-      }
-    };
-    initMusic();
+  //   const initMusic = async () => {
+  //     await setupPlayer();
+  //     if (isMusicEnable) {
+  //       await playBackgroundMusic();
+  //       setIsPlayMusic(true);
+  //     }
+  //   };
+  //   initMusic();
 
-    return () => {
-      subscription.remove();
-      pauseBackgroundMusic();
-    };
-  }, [isMusicEnable]);
+  //   return () => {
+  //     subscription.remove();
+  //     pauseBackgroundMusic();
+  //   };
+  // }, [isMusicEnable]);
 
   return (
     <PracticeProvider>

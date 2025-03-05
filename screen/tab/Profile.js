@@ -97,7 +97,7 @@ const Profile = () => {
         </Text>
       </View>
 
-      <View style={styles.settingsSection}>
+      {/* <View style={styles.settingsSection}>
         <View style={styles.settingItem}>
           <Text style={styles.settingLabel}>Background Sound</Text>
           <Switch
@@ -111,7 +111,7 @@ const Profile = () => {
             thumbColor={'#fff'}
           />
         </View>
-      </View>
+      </View> */}
 
       <TouchableOpacity
         style={styles.editButton}
