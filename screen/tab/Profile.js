@@ -98,19 +98,16 @@ const Profile = () => {
       </View>
 
       <View style={styles.settingsSection}>
-        <View style={styles.settingItem}>
+        {/* <View style={styles.settingItem}>
           <Text style={styles.settingLabel}>Background Sound</Text>
           <Switch
-            // value={userData.notifications}
-            // onValueChange={value =>
-            //   setUserData(prev => ({...prev, notifications: value}))
-            // }
+            
             value={isMusicEnable}
             onValueChange={handleMusicToggle}
             trackColor={{false: '#333', true: '#00FF7F'}}
             thumbColor={'#fff'}
           />
-        </View>
+        </View> */}
       </View>
 
       <TouchableOpacity
