@@ -7,7 +7,7 @@ import {
   Vibration,
   ScrollView,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {usePracticeContext} from '../../store/context';
 
 const PracticeDetail = ({route, navigation}) => {
@@ -15,29 +15,43 @@ const PracticeDetail = ({route, navigation}) => {
   const {completePractice} = usePracticeContext();
   const [timeLeft, setTimeLeft] = useState(item.duration * 60);
   const [isActive, setIsActive] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const timerRef = useRef(null);
   // console.log(practiceType)
 
   useEffect(() => {
-    let timer;
     if (isActive && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(prevTime => prevTime - 1);
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && !isCompleted) {
+      // Only complete and update states if not already completed
+      clearInterval(timerRef.current);
       setIsActive(false);
-      // Vibration.vibrate();
+      setIsCompleted(true);
       completePractice(practiceType, item.id);
     }
-    return () => clearInterval(timer);
-  }, [isActive, timeLeft]);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isActive, timeLeft, isCompleted, practiceType, item.id, completePractice]);
 
   const handleStart = () => {
+    if (isCompleted) {
+      // Reset timer when starting again after completion
+      setTimeLeft(item.duration * 60);
+      setIsCompleted(false);
+    }
     setIsActive(true);
   };
 
   const handleFinish = () => {
     setIsActive(false);
-    // Handle finishing the practice (e.g., navigate back or show a message)
+    setTimeLeft(item.duration * 60);
+    setIsCompleted(false);
   };
   const renderImage = (imageSource) => {
     if (typeof imageSource === 'number') {
@@ -73,8 +87,13 @@ const PracticeDetail = ({route, navigation}) => {
         <Text style={styles.description}>{item.text}</Text>
       </ScrollView>
       {!isActive ? (
-        <TouchableOpacity style={styles.startButton} onPress={handleStart}>
-          <Text style={styles.startButtonText}>Start</Text>
+        <TouchableOpacity 
+          style={styles.startButton} 
+          onPress={handleStart}
+        >
+          <Text style={styles.startButtonText}>
+            {isCompleted ? 'Start Practice Again' : 'Start'}
+          </Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
